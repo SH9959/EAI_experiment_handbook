@@ -1,0 +1,39 @@
+:root {
+  --md-text-font: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.md-grid { max-width: 1320px; }
+.md-typeset h1 { font-weight: 780; letter-spacing: -0.025em; }
+.md-typeset h2 { margin-top: 1.8em; font-weight: 700; }
+.md-typeset table:not([class]) { font-size: .88rem; }
+
+.hero {
+  padding: 2.2rem 2.4rem;
+  margin: .4rem 0 2rem;
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(63,81,181,.24), transparent 32%),
+    linear-gradient(135deg, rgba(63,81,181,.12), rgba(3,169,244,.06));
+  border: 1px solid rgba(63,81,181,.12);
+}
+
+.hero h1 {
+  margin: 0 0 .65rem;
+  font-size: 2.25rem;
+}
+
+.hero > p { max-width: 820px; font-size: 1.03rem; }
+.hero-actions { margin-top: 1.15rem; }
+.hero-actions .md-button { margin: .25rem .45rem .25rem 0; }
+
+.grid.cards > ul > li,
+.grid.cards > ol > li {
+  border-radius: .8rem;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: .55rem;
+}
+
+.md-typeset code { border-radius: .25rem; }
