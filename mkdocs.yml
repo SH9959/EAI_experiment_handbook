@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+site_name: 具身智能导论 · 实验手册
+site_description: 哈尔滨工业大学《具身智能导论》实验上手与助教手册
+site_author: 哈尔滨工业大学具身智能课程组
+site_url: https://sh9959.github.io/EAI_experiment_handbook/
+repo_url: https://github.com/SH9959/EAI_project
+repo_name: SH9959/EAI_project
+
+use_directory_urls: true
+
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.tracking
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: 切换到深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: 切换到浅色模式
+
+plugins:
+  - search:
+      lang:
+        - zh
+        - en
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - 首页: index.md
+  - 学生实验:
+      - 从这里开始: student/index.md
+      - 开始实验前: student/setup.md
+      - 第3章 · 人机对话与多模态交互: student/ch3-dialogue.md
+      - 第3章 · AnyGrasp 抓取: student/ch3-grasp.md
+      - 第4章 · 仿真任务规划: student/ch4-planning.md
+      - 第4章 · 实机任务规划: student/ch4-real.md
+      - 第4章 · iGibson 具身导航: student/ch4-navigation.md
+      - 第5章 · ACT 模仿学习: student/ch5-imitation.md
+  - 助教手册:
+      - 助教总览: ta/index.md
+      - 课前联调: ta/preclass.md
+      - 课堂协助与验收: ta/grading.md
+      - 常见问题排查: ta/troubleshooting.md

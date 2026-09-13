@@ -1,0 +1,128 @@
+[
+    {
+        "id": 1,
+        "name": "GotoObject",
+        "description": "Allows the agent to set its pose to anywhere in the scene in a single step.",
+        "parameters": [
+            {
+                "name": "objectId",
+                "type": "string",
+                "description": "The target place to move to. It can be an objectId or a place name.",
+                "default": null,
+                "example": "Apple"
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "name": "PickupObject",
+        "description": "Pick up an interactable object specified by its objectId. Compatible objects have 'pickupable' as True in their metadata.",
+        "parameters": [
+            {
+                "name": "objectId",
+                "type": "string",
+                "description": "The target object's objectId, found in the object's metadata.",
+                "default": null,
+                "example": "Apple"
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "name": "PutObject",
+        "description": "PutObject attempts to put an object the agent is holding onto or into the target receptacle. Valid target receptacle objects have receptacle as True in their object metadata.",
+        "parameters": [
+            {
+                "name": "objectId",
+                "type": "string",
+                "description": "The target receptacle's objectId of the object in hand to put in or on. ",
+                "default": null,
+                "example": "toiletpaperhanger"
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "name": "OpenObject",
+        "description": "Attempts to open an Openable object to a specified amount, parameterized by openness. The full list of openable object types can be filtered on the Object Types page.",
+        "parameters": [
+            {
+                "name": "objectId",
+                "type": "string",
+                "description": "The target object's objectId, found in the object's metadata.",
+                "default": null,
+                "example": "Book"
+            },
+            {
+                "name": "openness",
+                "type": "float",
+                "description": "The proportion regarding how far the object should open. Valid values are in [0:1][0:1][0:1], where the value 000 corresponds to completely closed, 111 corresponds to completely open, and 0.50.50.5 corresponds to halfway open, for instance.",
+                "default": 0.0,
+                "example": 1.0
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "name": "CloseObject",
+        "description": "Closes an object specified by its objectId. The object must be within the agent's initialized visibilityDistance and appear in the agent's current frame.",
+        "parameters": [
+            {
+                "name": "objectId",
+                "type": "string",
+                "description": "The target object's objectId, found in the object's metadata.",
+                "default": null,
+                "example": "Book"
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "name": "SliceObject",
+        "description": "Attempts to slice an object. If an object, such as an Apple, is successfully sliced, there may include several new AppleSliced objects in the scene and metadata, one for each slice. Other objects, like Egg, may only break after being sliced. Sliced objects cannot be unsliced (unless the scene is reset).",
+        "parameters": [
+            {
+                "name": "objectId",
+                "type": "string",
+                "description": "The target object's objectId, found in the object's metadata.",
+                "default": null,
+                "example": "Potato"
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "name": "ToggleObjectOn",
+        "description": "Toggles an object between on states. Examples include Lamps, Light Switches, Stove Knobs, and Laptops.",
+        "parameters": [
+            {
+                "name": "objectId",
+                "type": "string",
+                "description": "The target object's objectId, found in the object's metadata.",
+                "default": null,
+                "example": "LightSwitch"
+            }
+        ]
+    },
+    {
+        "id": 8,
+        "name": "ToggleObjectOff",
+        "description": "Toggles an object between off states. Examples include Lamps, Light Switches, Stove Knobs, and Laptops.",
+        "parameters": [
+            {
+                "name": "objectId",
+                "type": "string",
+                "description": "The target object's objectId, found in the object's metadata.",
+                "default": null,
+                "example": "LightSwitch"
+            }
+        ]
+    },
+    {
+        "id": 9,
+        "name": "Done",
+        "description": "The 'Done' api indicates the episode is over. All tasks have been completed. ",
+        "parameters": []
+    }
+
+]

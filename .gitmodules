@@ -1,0 +1,9 @@
+[submodule "/home/hsong/EAI_project/chapter_4/4_1_task_planning/for_benchmark/alfworld"]
+	path = /home/hsong/EAI_project/chapter_4/4_1_task_planning/for_benchmark/alfworld
+	url = https://github.com/alfworld/alfworld.git
+[submodule "/home/hsong/EAI_project/chapter_4/4_1_task_planning/for_benchmark/alfred"]
+	path = /home/hsong/EAI_project/chapter_4/4_1_task_planning/for_benchmark/alfred
+	url = https://github.com/askforalfred/alfred.git
+[submodule "/home/hsong/EAI_project/chapter_4/4_1_task_planning/for_simulator/for_virtualhome/virtualhome"]
+	path = /home/hsong/EAI_project/chapter_4/4_1_task_planning/for_simulator/for_virtualhome/virtualhome
+	url = https://github.com/xavierpuigf/virtualhome.git
