@@ -18,13 +18,12 @@
 
 部分页面配有辅助脚本；代码来源、版本和运行条件见对应实验页。离线测试及 `CHECK ONLY`、`FORMAT_ONLY`、`PLAN_ONLY` 只检查输入、格式或辅助逻辑，不能代替 API、模型、仿真或设备的真实运行。已执行的检查和待验证项保存在各页链接的检查记录中。
 
-## 先获取课程代码
+!!! warning "实机实验"
+    助教确认设备状态后再运行机械臂、夹爪和 CAN 控制。首次运行采用低速、分步操作，并保持急停可用；各实验页列出对应设备的检查方法。
 
-```bash
-cd ~
-git clone https://github.com/SH9959/EAI_project.git
-cd EAI_project
-```
+## 课程代码
+
+获取代码与基础工具的方法见[开始实验前](student/setup.md)。各实验的模型、数据和仿真器按对应页面单独准备。
 
 课程仓库中目前与教材实验直接对应的代码主要集中在以下位置：
 
@@ -37,7 +36,7 @@ cd EAI_project
 | 4.4.1 VirtualHome | [`for_virtualhome`](https://github.com/SH9959/EAI_project/tree/main/chapter_4/4_1_task_planning/for_simulator/for_virtualhome) | 含课程示例 `demo_in_virtualhome.py`，需另装 VirtualHome 仿真器 |
 
 !!! note "课程工程准备"
-    教材中的 **AnyGrasp 完整抓取工程、方块重排/汉诺塔实机工程、iGibson 课程工程、ACT/cobot-magic 工程** 尚需向助教领取。具体文件与设备条件见各实验页。
+    AnyGrasp 仿真和实机集成工程、方块重排与汉诺塔设备接口需向助教领取。iGibson、ACT 和 cobot-magic 的上游代码与版本见各实验页；设备配置按实验台核对。
 
 ## 实验路线
 

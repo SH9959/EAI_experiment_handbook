@@ -18,7 +18,16 @@ conda --version
 
 如果课程机器已经预装 Conda，直接使用即可。
 
-## 2. 克隆课程代码
+## 2. 获取实验代码
+
+首次使用手册配套脚本时，获取修订分支。后文以 `docs/assets/` 开头的命令都在此仓库根目录执行；已有副本时直接进入原目录。
+
+```bash
+git clone --branch feature/whr https://github.com/SH9959/EAI_experiment_handbook.git
+cd EAI_experiment_handbook
+```
+
+实验页要求课程工程时，再在另一个实验目录获取以下代码；已有课程副本可直接使用：
 
 ```bash
 cd ~
@@ -30,7 +39,7 @@ cd EAI_project
 
 ```bash
 cd ~/EAI_project
-git pull
+git pull --ff-only
 ```
 
 ## 3. 认识目录
@@ -65,4 +74,4 @@ import os
 api_key = os.getenv("DASHSCOPE_API_KEY")
 ```
 
-这样提交代码时不会把个人 Key 一并上传。
+脚本从环境变量读取 Key，不在源码或提交文件中保存。

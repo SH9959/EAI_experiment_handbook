@@ -11,11 +11,11 @@
 
 ## 章节入口
 
-| 章节 | 实验 | 推荐起点 |
+| 教材章节 | 实验 | 操作顺序 |
 |---|---|---|
-| 3.4 具身感知 | 人机对话 / 语音 / 抓取 | 没有 GPU 也可先做大模型 API 调用 |
-| 4.4 具身推理 | ALFWorld / ALFRED / AI2THOR / VirtualHome / 实机规划 / iGibson | 先做 ALFWorld，再做 AI2THOR |
-| 5.7 具身执行 | ACT 仿真 / cobot-magic 实机 | 必须先完成仿真，再接实机 |
-
-!!! warning "实机实验"
-    涉及机械臂、夹爪、相机、CAN/USB、ROS 的实验必须在助教或教师确认设备状态后进行。首次运行时使用低速、分步执行，并保持急停可用。
+| 3.4.1—3.4.3 | [人机对话与多模态交互](ch3-dialogue.md) | 文本、图像、语音、集成 |
+| 3.4.4 | [AnyGrasp 抓取](ch3-grasp.md) | SDK 示例、仿真、实机 |
+| 4.4.1 | [仿真任务规划](ch4-planning.md) | ALFWorld、ALFRED、AI2THOR、VirtualHome |
+| 4.4.2—4.4.3 | [实机任务规划](ch4-real.md) | 场景与规则检查、单步搬运、完整任务 |
+| 4.4.4 | [iGibson 具身导航](ch4-navigation.md) | 资产与场景、动作与观测、导航评价 |
+| 5.7.1 | [ACT 模仿学习](ch5-imitation.md) | 仿真采集、训练、评价，再进行实机实验 |
