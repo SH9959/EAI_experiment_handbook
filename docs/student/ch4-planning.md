@@ -17,7 +17,7 @@
 
 ## 二、实验环境配置
 
-本页 Bash 命令在课程 Linux 机器或已确认兼容的 WSL 环境中执行。Git Bash 不能替代 Linux 仿真环境。各工程使用独立环境，放在手册仓库旁的实验目录中。
+本页 Bash 命令在课程 Linux 机器或已确认兼容的 WSL 环境中执行；VirtualHome 另提供 Windows PowerShell 步骤。Git Bash 不能替代 Linux 仿真环境。各工程使用独立环境，放在手册仓库旁的实验目录中。
 
 | 路线 | 平台与依赖条件 | 资源条件 |
 |---|---|---|
@@ -25,7 +25,7 @@
 | ALFWorld 视觉交互 | 匹配的 THOR 和图形/显示环境 | 视觉依赖和 THOR 程序 |
 | ALFRED | 兼容的历史 PyTorch、torchvision、AI2THOR；本页命令使用 GPU | 数据和预训练模型 |
 | AI2THOR | Linux、Python 3.9、AI2THOR 5.0.0、Unity 图形环境 | THOR 程序；大模型模式另需模型权限和额度 |
-| VirtualHome | 匹配的 Python 包、Unity 程序及连接样例 | 对应平台的 Unity 程序 |
+| VirtualHome | 本页人工路线使用 Windows、Python 3.12、官方 Unity 通信模块 | Unity 2.3.0 Windows 程序 |
 
 先确认机器、磁盘空间和已有缓存，再安装所选路线；ALFRED 与 AI2THOR 5.0.0 的依赖分开配置。
 
@@ -145,13 +145,29 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 不加 `--run` 只检查两份课程文件的内容哈希和动作表，不启动 Unity、不联网。若内容不符，先核对代码版本和本地改动。哈希检查允许正常的 CRLF/LF 换行转换。
 
-### 2.5 VirtualHome 版本与连接条件
+### 2.5 VirtualHome 环境与连接
 
-教材写 Python 3.9；本页核对的 [VirtualHome 2.3.0 源码](https://github.com/xavierpuigf/virtualhome/tree/58970fd80951c2eaa1af713e0917d1a105353ad8)声明 Python ≥3.10，却仍固定 `networkx==2.3` 等旧依赖。先使用助教提供的兼容环境，核对 Python 包提交与 Unity 程序版本；不要只改版本声明或强制安装来忽略冲突。
+以下人工路线使用 Python 3.12 和[固定版本源码](https://github.com/xavierpuigf/virtualhome/tree/58970fd80951c2eaa1af713e0917d1a105353ad8)中的 Unity 通信模块。在独立实验目录打开 PowerShell：
 
-从[官方下载页](https://github.com/xavierpuigf/virtualhome#download-unity-simulator)取得对应平台的 Unity 2.3.0 程序，解压后记录可执行文件的绝对路径。教材 Windows 包同为 2.3.0。先启动程序并保留窗口，再在相同机器的专用 Python 环境执行 3.4；默认连接端口为 `8080`。
+```powershell
+conda create -n eai-virtualhome python=3.12 -y
+conda activate eai-virtualhome
+git clone https://github.com/xavierpuigf/virtualhome.git
+git -C virtualhome checkout 58970fd80951c2eaa1af713e0917d1a105353ad8
+python -m pip install numpy==1.26.4 opencv-python-headless==4.8.1.78 Pillow==11.3.0 requests==2.32.5
+python -m pip install certifi==2025.8.3 charset-normalizer==3.4.3 idna==3.10 urllib3==2.5.0
+python -m pip check
+```
 
-课程 `demo_in_virtualhome.py` 的导入路径是 `from simulation...`；你安装的包布局可能不同，先确认 `comm_unity` 实际路径。它还硬编码 Unity 可执行路径、视频目录及物体 ID。实际运行的 `script2` 操作的是 `cereal`，而教材练习目标是 `salmon`。
+已有源码时核对提交和本地修改，不重复克隆。此路线直接导入 `unity_simulator`，无需安装整包；整包另含 `networkx==2.3` 等旧依赖，不能据此认为其他功能也已配置。
+
+从[官方下载页](https://github.com/xavierpuigf/virtualhome#download-unity-simulator)下载 Unity 2.3.0 Windows 程序，解压到同一实验目录。包约 289 MB，解压后应有 `windows_exec.v2.3.0/VirtualHome.exe`。在该实验目录启动并保留程序：
+
+```powershell
+& ".\windows_exec.v2.3.0\VirtualHome.exe" -http-port=8080 -screen-fullscreen 0
+```
+
+另开 PowerShell，激活 `eai-virtualhome` 并回到上述实验目录，再执行 3.4。若端口被占用，同时更改启动参数和 Python 连接端口。教材任务使用 `salmon`，物体编号从当前场景图读取。
 
 ## 三、实验过程
 
@@ -280,14 +296,16 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 #### 3.4.1 人工规则脚本
 
-Unity 启动后，在 VirtualHome 专用环境打开 `python` 或 notebook，连接并加载场景。下面各段在**同一个 Python 会话**中执行；将输出目录换为本次实验的绝对路径：
+Unity 启动后，将下列代码保存为实验目录中的 `vh_init.py`，用于加载场景并保存初始图：
 
 ```python
 import json
+import sys
 from pathlib import Path
-from virtualhome.simulation.unity_simulator import comm_unity
+sys.path.insert(0, str(Path("virtualhome/virtualhome/simulation").resolve()))
+from unity_simulator import comm_unity
 
-run_dir = Path("/你的实验目录/virtualhome_run").resolve()
+run_dir = (Path("virtualhome-runs") / sys.argv[1]).resolve()
 run_dir.mkdir(parents=True, exist_ok=False)
 comm = comm_unity.UnityCommunication(port="8080")
 if comm.reset(0) is not True:
@@ -300,22 +318,31 @@ if not ok:
 (run_dir / "graph_before.json").write_text(
     json.dumps(graph_before, ensure_ascii=False, indent=2), encoding="utf-8"
 )
+print("本次输出目录：", run_dir)
 ```
 
-确认本轮图中确有 salmon 和 fridge，使用当前图中的节点 ID。每次复测使用新的实验输出目录，保留各次运行结果。
+在该目录已激活 `eai-virtualhome` 的 PowerShell 中运行：
 
-回到手册根目录，用配套函数按图生成候选脚本：
-
-```bash
-python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-plan --graph "/你的实验目录/virtualhome_run/graph_before.json" > "/你的实验目录/virtualhome_run/plan.json"
+```powershell
+python -i vh_init.py run-01
 ```
 
-这是 Bash 命令；确认退出码为 0，再打开 `plan.json`。同类节点多个时，显式添加 `--food-id` 和 `--fridge-id`，ID 必须来自本轮真实图。输出模式为 `PLAN_ONLY`，下一步再执行候选动作。命令失败时可能留下空文件，修复后重新生成计划。
+成功后会打印输出目录，并停留在 `>>>` 提示符；保持这个 Python 会话开启。确认本轮图中确有 salmon 和 fridge，使用当前图中的节点 ID。复测时将 `run-01` 改为新的名称，保留各次结果。
 
-候选顺序是走到三文鱼、拿取、走到冰箱、必要时打开、放入、关闭。回到上面仍持有 `comm` 和 `run_dir` 的 Python 会话，用实际计划作为 `render_script` 输入，保存原始执行反馈并再次导图：
+另开已激活该环境的 PowerShell，进入手册根目录，将 `$runDir` 替换为上面打印的输出目录，再生成候选脚本：
+
+```powershell
+$runDir = "上面打印的输出目录"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-plan --graph "$runDir/graph_before.json" | Set-Content -Encoding utf8 "$runDir/plan.json"
+```
+
+确认 `$LASTEXITCODE` 为 `0`，再打开 `plan.json`。同类节点多个时，显式添加 `--food-id` 和 `--fridge-id`，ID 必须来自本轮真实图。输出模式为 `PLAN_ONLY`，下一步再执行候选动作。命令失败时可能留下空文件，修复后重新生成计划。
+
+候选顺序是走到三文鱼、拿取、走到冰箱、必要时打开、放入、关闭。将下列代码保存为**实验目录**中的 `vh_execute.py`，读取计划、执行并保存反馈和执行后图：
 
 ```python
-plan = json.loads((run_dir / "plan.json").read_text(encoding="utf-8"))
+plan = json.loads((run_dir / "plan.json").read_text(encoding="utf-8-sig"))
 if plan.get("mode") != "PLAN_ONLY" or not plan.get("steps"):
     raise RuntimeError("没有可用的候选步骤，停止执行。")
 ok, message = comm.render_script(
@@ -335,6 +362,12 @@ if not graph_ok:
 print("render_script 返回：", ok, message)
 ```
 
+回到原先停留在 `>>>` 的 Python 会话，输入这一行运行文件：
+
+```python
+exec(Path("vh_execute.py").read_text(encoding="utf-8"))
+```
+
 `recording=True` 保存录像帧，`frame_rate=10` 指定帧率。这里将课程样例的 `find_solution=True` 改为 `False`，按当前图中的 ID 执行，避免求解器另选同类物体。`ok` 不为真时保留失败消息和执行后图，先排查目标是否可达、双手是否为空、冰箱是否打开。
 
 执行后检查 `graph_after.json`：三文鱼到目标冰箱存在 `INSIDE` 关系，且该冰箱的 `states` 含 `CLOSED`、不含 `OPEN`，再对照录像确认。配套函数 `inside_relation(graph, food_id, fridge_id)` 只检查包含关系，不检查关门状态；判断任务完成须同时核对两项。
@@ -343,17 +376,25 @@ print("render_script 返回：", ok, message)
 
 #### 3.4.2 大模型规划
 
-重新执行 3.4.1 的场景初始化，改用新的输出目录（例如 `virtualhome_llm`），导出执行前环境图。确认角色双手为空、目标三文鱼尚未放入冰箱。另开已配置[第3章文本 API 环境](ch3-dialogue.md)的终端，进入手册根目录，依次运行：
+退出原 Python 会话，在 VirtualHome 实验目录重新加载场景并使用新输出目录：
 
-```bash
-python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-prompt --graph "/你的实验目录/virtualhome_llm/graph_before.json" > "/你的实验目录/virtualhome_llm/question.txt"
-python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --question-file "/你的实验目录/virtualhome_llm/question.txt" --output "/你的实验目录/virtualhome_llm/answer.txt" --max-tokens 1024 --send
-python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-check --graph "/你的实验目录/virtualhome_llm/graph_before.json" --response "/你的实验目录/virtualhome_llm/answer.txt" > "/你的实验目录/virtualhome_llm/plan.json"
+```powershell
+python -i vh_init.py run-llm-01
 ```
 
-三条命令均使用 Bash。每条退出码为 0 后再运行下一条；第二条会发送当前环境图并调用模型。`vh-prompt` 和 `vh-check` 遇到多个同类物体时使用相同的 `--food-id`、`--fridge-id`。模型回答需为仅含 `steps` 的 JSON，动作限于 `WALK/GRAB/OPEN/PUTIN/CLOSE`；检查器拒绝代码、未知动作、错误 ID 和参数，但不判断可达性或动作顺序。
+保持这个 Python 会话开启，确认角色双手为空、目标三文鱼尚未放入冰箱。另开已配置[第3章文本 API 环境](ch3-dialogue.md)的 PowerShell，进入手册根目录，依次运行：
 
-检查通过后，在原 VirtualHome 会话中复用 3.4.1 的读取 `plan.json`、执行、保存反馈和回读环境图代码。以最终环境图与录像判断目标是否完成。失败时保存原始回答和反馈；重新初始化同一场景并导图，将失败动作和原因补入新问题后重试，避免用旧图继续执行。人工规则和模型生成的结果分别记录。
+```powershell
+$runDir = "本次模型实验的输出目录"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-prompt --graph "$runDir/graph_before.json" | Set-Content -Encoding utf8 "$runDir/question.txt"
+python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --question-file "$runDir/question.txt" --output "$runDir/answer.txt" --max-tokens 1024 --send
+python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-check --graph "$runDir/graph_before.json" --response "$runDir/answer.txt" | Set-Content -Encoding utf8 "$runDir/plan.json"
+```
+
+三条命令均使用 PowerShell。每条执行后确认 `$LASTEXITCODE` 为 `0`，再运行下一条；第二条会发送当前环境图并调用模型。`vh-prompt` 和 `vh-check` 遇到多个同类物体时使用相同的 `--food-id`、`--fridge-id`。模型回答需为仅含 `steps` 的 JSON，动作限于 `WALK/GRAB/OPEN/PUTIN/CLOSE`；检查器拒绝代码、未知动作、错误 ID 和参数，但不判断可达性或动作顺序。
+
+检查通过后，在原 VirtualHome 会话中运行 `exec(Path("vh_execute.py").read_text(encoding="utf-8"))`。以最终环境图与录像判断目标是否完成。失败时保存原始回答和反馈；重新初始化同一场景并使用新的运行目录，将失败动作和原因补入新问题后重试。人工规则和模型生成的结果分别记录。
 
 ## 四、实验结果
 

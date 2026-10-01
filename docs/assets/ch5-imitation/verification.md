@@ -1,6 +1,100 @@
 # ACT 模仿学习：修订与验证记录
 
-检查日期：2026-10-01。本轮完成教材文字、固定源码与文档静态检查；未安装实验环境、录制数据、训练模型、运行评估或启动机器人。正文中的产物名称和成功判据来自源码，并非本轮实际生成的实验结果。
+更新日期：2026-10-01。**两条仿真示教均完成 400 步采集和关节回放，成功 2/2；HDF5 检查与视频生成通过。** 尚未采集 50 条训练数据，也未运行 ACT 训练、策略评估或实机实验。
+
+## 仿真示教验证
+
+本次由 Codex 在 Ubuntu 22.04 虚拟机中执行：4 vCPU、4 GB 内存、约 4 GB 交换空间；Python **3.10.12**、torch **2.0.1+cpu**、MuJoCo **2.3.7**、dm_control **1.0.14**、NumPy **1.26.4**。使用 OSMesa 软件渲染，未下载预训练权重。
+
+ACT 固定提交为 `742c753c0d4a5d87076c8f69e5628c79a8cc5488`。原始 `record_sim_episodes.py` 分两次执行，每次采集一条，输出到不同目录；未改动上游源码，48 个文件与固定提交逐一核对一致。
+
+| 示教 | 末端空间策略 | 关节回放 | 采集耗时 |
+|---|---|---|---|
+| A | Successful，回报 619 | Successful，回报 646；`Success: 1 / 1` | 129.94 秒 |
+| B | Successful，回报 621 | Successful，回报 641；`Success: 1 / 1` | 126.42 秒 |
+
+- 两份 HDF5 各为 **368,740,832 字节**；`sim=True`，动作、关节位置及速度均为 `(400,14)` 且数值有限，`top` 图像为 `(400,480,640,3)`、`uint8`。
+- 原可视化脚本生成两段视频及关节曲线。视频均可完整解码 **400 帧、640×480、50 fps**；首末帧可见双臂和方块，末帧方块位于左侧夹爪。
+- 两次采集峰值常驻内存约为 1.95 GB 和 2.02 GB。采集、可视化及数据检查均正常退出。
+- 初次单帧渲染检查在退出时出现 dm_control 资源释放警告；后续两次完整采集和可视化未出现该警告。
+
+示教回放执行的是脚本产生的关节轨迹，不能据此报告 ACT 学习策略的成功率。
+
+### CPU 采集复测
+
+此入口只复测示教采集与视频，适用于 Ubuntu 22.04 / Python 3.10。训练继续使用[正文的 GPU 环境](../../student/ch5-imitation.md#21-act)。软件渲染配置依据 [dm_control 官方说明](https://github.com/google-deepmind/dm_control#rendering)。
+
+在新目录获取固定源码并创建独立环境；已有 `act-cpu` 目录时，先进入该目录核对提交，不重复克隆。
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git python3-venv libosmesa6 libgl1-mesa-glx
+mkdir -p "$HOME/eai-lab"
+cd "$HOME/eai-lab"
+git clone https://github.com/tonyzhaozh/act.git act-cpu
+cd act-cpu
+git checkout 742c753c0d4a5d87076c8f69e5628c79a8cc5488
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install pip==24.3.1
+python -m pip install torch==2.0.1+cpu --index-url https://download.pytorch.org/whl/cpu
+python -m pip install numpy==1.26.4 mujoco==2.3.7 dm-control==1.0.14 \
+  h5py==3.11.0 matplotlib==3.8.4 pyquaternion==0.9.9 ipython==8.26.0 \
+  opencv-python-headless==4.10.0.84 scipy==1.11.4 PyOpenGL==3.1.7 \
+  glfw==2.7.0 protobuf==4.25.3
+python -m pip check
+python -m pip freeze > environment-cpu.txt
+```
+
+在 ACT 根目录执行以下命令。每条示教单独启动进程并创建新目录，保留 400 步及原始图像尺寸；不需要修改 `constants.py`。不加 `--onscreen_render`，图像由 OSMesa 离屏渲染。
+
+```bash
+export MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa MPLBACKEND=Agg
+export OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1
+set -euo pipefail
+mkdir -p data
+for episode in 1 2; do
+  output=$(mktemp -d "$PWD/data/cpu-check-${episode}-XXXXXX")
+  python -u record_sim_episodes.py --task_name sim_transfer_cube_scripted \
+    --dataset_dir "$output" --num_episodes 1 2>&1 | tee "$output/record.log"
+  python visualize_episodes.py --dataset_dir "$output" --episode_idx 0
+  python - "$output" <<'PY'
+import sys
+from pathlib import Path
+import cv2
+import h5py
+import numpy as np
+
+directory = Path(sys.argv[1])
+with h5py.File(directory / 'episode_0.hdf5', 'r') as data:
+    assert bool(data.attrs['sim'])
+    for key in ('action', 'observations/qpos', 'observations/qvel'):
+        values = data[key][:]
+        assert values.shape == (400, 14) and np.isfinite(values).all(), key
+    images = data['observations/images/top']
+    assert images.shape == (400, 480, 640, 3) and images.dtype == np.uint8
+video = cv2.VideoCapture(str(directory / 'episode_0_video.mp4'))
+assert video.isOpened()
+assert abs(video.get(cv2.CAP_PROP_FPS) - 50) < 0.1
+frames = 0
+while True:
+    ok, frame = video.read()
+    if not ok:
+        break
+    assert frame.shape == (480, 640, 3)
+    frames += 1
+video.release()
+assert frames == 400, frames
+print('HDF5 and video: OK', directory)
+PY
+done
+```
+
+每个输出目录应包含 HDF5、`record.log`、视频和关节曲线。核对日志末尾的 `Success: 1 / 1`，再观看视频确认方块传递。失败回合也会保存文件，须如实保留失败记录。
+
+## 静态审阅记录
+
+以下保留 2026-10-01 实际运行前的文档与源码检查。该阶段未安装实验依赖或采集数据；上方的仿真验证为随后新增的运行证据。
 
 ## 来源
 
@@ -29,7 +123,7 @@
 
 正文中修改 `constants.py`、实机采集开关、可视化 DT 和训练条数的指示，均针对学生克隆的实验仓库。本轮只编辑手册页面与本记录，没有修改外部实验工程。
 
-## 本轮实际检查
+## 文档静态检查
 
 执行环境为 Windows PowerShell，使用 Codex 附带 Python **3.12.14**。语法检查不等于教材 Python 3.8 及 GPU/ROS 运行验证。
 
@@ -50,8 +144,8 @@
 
 ## 尚需真实验证
 
-1. 在匹配的 Linux/GPU/渲染环境完成导入和两条仿真示教，确认 HDF5、视频和曲线可读。
-2. 采集 50 条、运行短流程，再训练完整基线并评估 50 次；保存真实成功数、平均回报和失败视频。
+1. 在匹配的 CUDA 环境完成训练入口的依赖和数据加载检查；本次 CPU 环境仅验证示教采集。
+2. 采集 50 条、运行短训练流程，再训练完整基线并评估 50 次；保存真实成功数、平均回报和失败视频。
 3. 实机需实验台提供可用 ROS/Python 环境。上游 requirements 未锁定全部传递依赖，`cv_bridge` 与 Conda 的兼容性、`robomimic`/`diffusers` 的导入链尚未在该主机验证。
 4. 完成 CAN/相机序列号配置、三相机与四臂话题核对后，再采集、训练和在设备负责人现场监督下推理。
 

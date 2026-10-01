@@ -14,6 +14,8 @@
 
 以下命令在 **Linux Bash** 中执行。准备 Conda、可用的 NVIDIA GPU 和驱动；训练与评估源码直接调用 `.cuda()`，本页没有 CPU 训练路线。仿真图像也需要可用的 OpenGL 渲染环境。50 条未压缩的单相机示教仅 RGB 像素约占 **18.4 GB**，另留依赖、checkpoint 和视频空间。
 
+仅检查示教采集时，可使用已验证的 [CPU 采集入口](../assets/ch5-imitation/verification.md#cpu)，完成两条示教、HDF5 检查和视频回放；训练仍需配置下方 GPU 环境。
+
 使用 [ACT 固定提交](https://github.com/tonyzhaozh/act/tree/742c753c0d4a5d87076c8f69e5628c79a8cc5488)，保留教材 Python 3.8.10、MuJoCo 2.3.7 和 dm_control 1.0.14。PyTorch 与 torchvision 使用[官方历史版本表](https://pytorch.org/get-started/previous-versions/#v201)中的配对，示例选择 CUDA 11.8；驱动不支持该运行时时，先由环境维护者确认可用组合。
 
 ```bash

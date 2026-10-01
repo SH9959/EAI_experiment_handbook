@@ -1,6 +1,6 @@
 # 仿真任务规划：修订与验证记录
 
-更新日期：2026-10-01。**ALFWorld 文字交互的一个人工任务已由学生亲自完成；ALFWorld 视觉交互、ALFRED、AI2THOR 和 VirtualHome 的真实实验仍未运行。** 以下保留各阶段记录，离线测试与真实交互分别列明。
+更新日期：2026-10-01。**ALFWorld 的一个文字任务已由学生亲自完成；VirtualHome 的三文鱼入冰箱人工规则任务已由 Codex 在真实 Unity 中完成。** ALFWorld 视觉交互、ALFRED、AI2THOR 和模型规划仍未运行。以下保留各阶段记录，注明执行者和验证范围。
 
 ## 学生本机文字交互复测（2026-10-01）
 
@@ -25,6 +25,33 @@
 本次文档检查：19 段 Bash 代码通过 `bash -n`；在已下载源码中核对包内 domain/grammar 路径，并在任务包中核对示例的初态和轨迹文件存在；`git diff --check` 通过。
 
 另核对固定源码的视觉依赖、`alfworld-download` 和 `alfworld-play-thor`：下载器准备任务数据、检测器权重和 logic 文件，视觉入口启动 THOR。正文补齐该准备步骤；本次没有执行视觉依赖安装、默认下载器或 THOR。
+
+## VirtualHome 人工规则任务实测（2026-10-01）
+
+执行者为 **Codex**，尚不是学生亲自复测。使用官方 Windows Unity 2.3.0 程序，在场景 `0` 中创建 `Chars/Female2` 角色，读取真实场景图后，由手册 `virtualhome_plan` 生成确定性动作；没有调用模型或 API。
+
+运行环境：Windows、Python 3.12.14、RTX 4060 Laptop 8 GB。独立环境使用 NumPy 1.26.4、OpenCV headless 4.8.1.78、Pillow 11.3.0、requests 2.32.5，`pip check` 通过。通信代码取自[固定提交 58970fd](https://github.com/xavierpuigf/virtualhome/tree/58970fd80951c2eaa1af713e0917d1a105353ad8)的完整 `unity_simulator` 通信模块，未修改其内容；没有安装 VirtualHome 全部功能依赖。
+
+初始图中 `salmon(327)` 在 `microwave(313)` 上，`fridge(305)` 为 `CLOSED`，三文鱼尚未在冰箱中。
+
+| 步骤 | 实际动作 |
+|---|---|
+| 1 | `<char0> [WALK] <salmon> (327)` |
+| 2 | `<char0> [GRAB] <salmon> (327)` |
+| 3 | `<char0> [WALK] <fridge> (305)` |
+| 4 | `<char0> [OPEN] <fridge> (305)` |
+| 5 | `<char0> [PUTIN] <salmon> (327) <fridge> (305)` |
+| 6 | `<char0> [CLOSE] <fridge> (305)` |
+
+`render_script` 使用 `find_solution=False`、`skip_execution=False`、`skip_animation=False`，开启 `FIRST_PERSON` 录像，分辨率 640×480、帧率 10。实际返回 `success=true`；执行后重新读取环境图，确认 `327 → 305` 存在 `INSIDE` 关系、冰箱状态仅含 `CLOSED`、三文鱼未在角色手中，任务通过。
+
+本机保留前后场景图、计划、原始执行反馈和 168 张连续渲染帧。已查看放入与关门关键帧；静态相机的浴室视角没有用作目标证据。Unity 动作帧表将 `PUTIN` 阶段标为内部名称 `PUTBACK`，原记录保持不变，最终判据仍取实际场景关系与门状态。原始文件留在仓库外。
+
+随后通过本机复测入口重新加载场景，逐步执行同样的六条动作；每步均返回成功，最终目标关系再次通过，输出单独保存。该轮同样由 Codex 执行，没有记为学生亲测。
+
+这次实测覆盖一个人工规则任务，没有验证模型生成计划、其他场景或成功率。学生页补充通信模块安装与导入方式，以 `vh_init.py` 和 `vh_execute.py` 保持同一 Python 会话，避免把多段控制语句直接粘入交互提示符；原有模型路线继续标为未运行。
+
+本次文档检查：3 段 Python 代码语法、PowerShell 代码语法、相对链接和代码围栏通过；使用真实场景图在 Windows PowerShell 5 中生成计划和中文提示词，确认 UTF-8 内容往返正确。PowerShell 写出的 BOM 由 `utf-8-sig` 正确读取；该检查没有发送模型请求。
 
 ## 原修订阶段（2026-09-20）
 
@@ -58,7 +85,7 @@
 | P06 | `Done` 和退出码不能证明目标实现 | 记录结束原因，`task_success` 保持 `NOT_EVALUATED` |
 | P07 | ALFRED 教材目录、续行注释与实际预处理/模型输入不一致 | 统一根目录、`json_feat` 数据、checkpoint 与评测输出；标注数据准备调整，未训练或评测 |
 | P08 | VirtualHome 教材 Python 3.9 与当前声明 ≥3.10 不符 | 保留历史 Unity 2.3.0 线索，要求匹配版本及连接样例，不修改版本声明绕过安装 |
-| P09 | 课程实际脚本操作 cereal 且硬编码 ID，教材目标是 salmon | 从本轮图精确选 salmon/fridge；导图→候选计划→执行反馈→回读图的示例尚未实测 |
+| P09 | 课程实际脚本操作 cereal 且硬编码 ID，教材目标是 salmon | 从本轮图精确选 salmon/fridge；当时该示例尚未实测，后续 Unity 结果见本页顶部 |
 | P10 | 候选入口的格式错误可能不记录；截图失败会误记已执行动作 | 保留拒绝动作，区分执行状态未知与未执行，写盘失败不重复登记动作 |
 
 `planning_checks.py` 和 `ai2thor_checked_demo.py` 是新增辅助工具/手册侧包装入口，未修改课程控制器或 EAI_project。步数限制、手动模式、发送开关和运行记录属于辅助修订，不是教材原代码已完整跑通的证明。当前演示含粗粒度动作和部分 `forceAction`，不能据此报告标准导航或任务成功率。
@@ -118,16 +145,16 @@ python docs/assets/ch4-planning/planning_checks.py action --text "PickupObject-C
 | ALFRED | 未运行 | 匹配历史依赖、数据与预训练模型，先真实评测，再决定是否训练 |
 | AI2THOR 手动入口 | 仅来源预检和假控制器测试 | 确认 Unity 下载/显示条件后用 `--run --mode manual`，保存逐步图像及 metadata |
 | AI2THOR LLM | 未运行 | 手动仿真通过，再确认合法 Key 和预算，使用 `--send`；核对动作反馈及最终目标 |
-| VirtualHome 人工脚本 | 仅图/动作逻辑测试，连接与执行示例未实测 | 匹配 Unity/Python、连接样例和角色，导出含 salmon/fridge 的真实图后执行并回读 |
+| VirtualHome 人工脚本 | 一个真实 Unity 任务通过（Codex，2026-10-01） | 已保存六步动作、实际反馈、前后场景图和录像帧；待学生亲自复测 |
 | VirtualHome LLM 扩展 | 已补操作入口与离线协议检查，真实调用和执行未运行 | 人工脚本通过后，接入模型计划，保留执行反馈并核对最终环境图 |
 
-未调用收费 API、运行 Unity、训练模型或启动机器人。Mock、格式检查和 `PLAN_ONLY` 均不能写成真实平台实验通过。
+上述已完成项之外，没有调用收费 API、训练模型或启动机器人。Mock、格式检查和 `PLAN_ONLY` 仍不能写成真实平台实验通过。
 
 ## 文案复核（2026-10-01）
 
 实验页统一为“实验目标、实验环境配置、实验过程、实验结果、排错建议与注意事项”。环境准备集中在第二节，四个平台的操作集中在第三节；删除页首维护状态和正文中重复的源码问题表，本记录的原始问题表及未运行清单保留。
 
-17 个代码块与本轮起点 `0721543` 完全一致，保留 Done、完整物体 ID、目标查找、失败和未知反馈的处理说明。本轮未重跑上述 47 项测试，未安装或启动仿真器，也未训练或调用模型。跨页语法、链接、构建与浏览器检查见[本轮文案复核记录](../ch3-dialogue/verification.md#editorial-review-20261001)。
+17 个代码块与该阶段起点 `0721543` 完全一致，保留 Done、完整物体 ID、目标查找、失败和未知反馈的处理说明。该文案复核阶段未重跑上述 47 项测试，未安装或启动仿真器，也未训练或调用模型。跨页语法、链接、构建与浏览器检查见[本轮文案复核记录](../ch3-dialogue/verification.md#editorial-review-20261001)。
 
 ## 第3—5章补全（2026-10-01）
 
@@ -145,6 +172,6 @@ VirtualHome 执行示例改为 `find_solution=False`，按本轮图的实例 ID 
 
 实际运行 `python -B docs/assets/ch4-planning/test_planning_checks.py`，Python 3.12.14 下 **56 项测试通过**，其中新增 9 项检查模型输出协议、错误 ID、代码/多动作文本、参数、空/超长计划及 CLI 状态。原 47 项也在本次执行中通过。7 个手册辅助 Python 文件通过内存编译；人机对话 36 项、抓取 30 项离线测试在本轮分别重跑通过，均不代表模型或设备运行。
 
-VirtualHome 模型路线现已补齐学生操作与离线检查入口，替代前一阶段的“未实现”状态；**真实模型调用、Unity 连接和执行仍未运行**。本段记录截至手册补全阶段，后续 ALFWorld 文字交互进展见本页顶部。实机规划、导航、ACT 的本轮检查分别见[实机记录](../ch4-real/verification.md)、[导航记录](../ch4-navigation/verification.md)、[ACT记录](../ch5-imitation/verification.md)。
+VirtualHome 模型路线在手册补全阶段补齐了学生操作与离线检查入口，替代前一阶段的“未实现”状态；截至该阶段，真实模型调用、Unity 连接和执行均未运行。后续 ALFWorld 文字交互及 VirtualHome 人工任务的实测进展见本页顶部；模型调用仍未运行。实机规划、导航、ACT 的检查分别见[实机记录](../ch4-real/verification.md)、[导航记录](../ch4-navigation/verification.md)、[ACT记录](../ch5-imitation/verification.md)。
 
-整体复核使用已有文档环境完成全仓库 MkDocs 构建，输出在仓库外；未写入 `site/`。六项实验均使用统一的五个二级标题，标题无下划线；9 段正文 Python 示例通过语法解析，34 处相对文件链接及生成页面中的 1,656 处站内链接、资源和锚点检查通过。浏览器查看了首页、学生入口、仿真规划、实机规划、导航及 ACT 页面，中文、目录、代码块和表格显示正常。`git diff --check` 通过。上述为本轮文档与离线检查，未启动实验平台。
+整体复核使用已有文档环境完成全仓库 MkDocs 构建，输出在仓库外；未写入 `site/`。六项实验均使用统一的五个二级标题，标题无下划线；9 段正文 Python 示例通过语法解析，34 处相对文件链接及生成页面中的 1,656 处站内链接、资源和锚点检查通过。浏览器查看了首页、学生入口、仿真规划、实机规划、导航及 ACT 页面，中文、目录、代码块和表格显示正常。`git diff --check` 通过。上述为手册补全阶段的文档与离线检查，该阶段未启动实验平台。

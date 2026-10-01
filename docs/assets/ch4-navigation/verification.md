@@ -31,6 +31,8 @@
 
 ## 待实验机器验证
 
+2026-10-01 本机资源检查：Windows 主机为 RTX 4060 Laptop GPU（8188 MiB 显存，驱动 566.24）；现有 Ubuntu 22.04 虚拟机分配 4 GB 内存，图形设备为 VMware SVGA3D，未直接使用主机 NVIDIA 显卡。主机显存达到上游最低要求，但尚未构建 iGibson 或验证渲染。交互场景、对象资产及密钥尚未配置，导航回合未运行。
+
 按学生页依次检查：安装与依赖 → 资产版本与密钥 → 官方短示例 → 一次完整交互回合 → 六回合策略对比。任一阶段失败，记录命令、完整异常和当前环境，停止该阶段之后的结论填写。
 
 CMake 3.x 限制用于兼容 `igibson/render/CMakeLists.txt` 中的 `cmake_minimum_required(VERSION 2.8.12)`；[CMake 4.0 变更说明](https://cmake.org/cmake/help/latest/release/4.0.html#deprecated-and-removed-features)确认已移除低于 3.5 的兼容策略。该限制和源码固定不是已验证的平台锁文件；Windows/Linux 的编译工具、GPU 驱动及传递依赖仍需实验机器验证。
