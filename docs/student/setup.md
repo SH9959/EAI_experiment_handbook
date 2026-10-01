@@ -59,7 +59,7 @@ EAI_project/
 
 其中 **SenseVoice、AI2THOR 课程示例、VirtualHome 课程示例** 在当前仓库中有实际文件；ALFWorld、ALFRED、VirtualHome 主项目来自各自官方仓库，具体安装方式见第 4 章实验页。
 
-## 4. 不要把 API Key 写进代码
+## 4. API Key 不要写进代码
 
 教材中的大模型实验需要 API Key。建议放在环境变量中，例如：
 
