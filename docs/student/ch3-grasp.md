@@ -27,7 +27,7 @@ AnyGrasp SDK 使用本机 License 授权。[官方授权说明](https://github.c
 
 教材使用旧版 SDK 和 `license_checker -f` 授权命令。上游自 2026-07-04 起改用 SDK 内的 `get_feature_id` / `check_license`，检测入口改为 `create_detector`，旧工具不再用于新申请。已部署的旧机器可以保留原 SDK；更新时须同时核对二进制、Python 包装代码和授权流程。
 
-下列命令适配新版 SDK，固定提交为 `b8eaafc9eca7babd5208e7a5ade3c561060be4c5`，不代表教材旧环境的原样复现。记录源码提交、Python、torch、CUDA、编译器和权重版本，复测通过后再冻结依赖组合。[该版本安装说明](https://github.com/graspnet/anygrasp_sdk/blob/b8eaafc9eca7babd5208e7a5ade3c561060be4c5/README.md#installation)使用修改过的 MinkowskiEngine，并区分 CUDA 分支；它与教材克隆 NVIDIA 原仓库的步骤不同。没有课程确认的组合时先申请环境，不直接照抄修改系统头文件的命令。
+下列命令适配新版 SDK，固定提交为 `b8eaafc9eca7babd5208e7a5ade3c561060be4c5`，不代表教材旧环境的原样复现。[该版本安装说明](https://github.com/graspnet/anygrasp_sdk/blob/b8eaafc9eca7babd5208e7a5ade3c561060be4c5/README.md#installation)使用修改版 MinkowskiEngine，并区分 CUDA 分支，与教材使用 NVIDIA 原仓库的步骤不同。先确认课程依赖组合；未经确认，不执行修改系统头文件的命令。
 
 ### 2.3 代码获取与依赖安装（Linux Bash）
 
@@ -83,7 +83,19 @@ python docs/assets/ch3-grasp/grasp_checks.py geometry
 python docs/assets/ch3-grasp/grasp_checks.py files --sdk "实际的/anygrasp_sdk目录" --sim-dir "实际的/仿真工作目录"
 ```
 
-只拿到其中一个目录时，可只传对应参数。`MISSING` 为缺文件，`EMPTY` 为空文件，`LFS_POINTER_ONLY` 表示只有 Git LFS 指针；`PRESENT_NOT_EXECUTED` 只代表文件存在。工具按当前解释器的完整扩展后缀查找二进制；`MATCHING_NAME_NOT_LOADED` 表示找到同名候选但还未复制成 `gsnet.so`，`PRESENT_ABI_NOT_VALIDATED` 表示已有 `gsnet.so`，还需在 Linux 中实际导入验证。返回码 2 表示发现缺项、未完成复制或平台不匹配，不是“运行抓取失败”。没有提供的目录显示 `NOT_CHECKED`；无论返回码是多少，文件检查都不会判定可以抓取。
+只检查一个目录时，仅传对应参数。工具按当前解释器的完整扩展后缀查找二进制，输出含义如下：
+
+| 状态 | 含义与处理 |
+|---|---|
+| `MISSING` / `EMPTY` | 文件缺失或为空，补齐后复查 |
+| `LFS_POINTER_ONLY` | 只有 Git LFS 指针，需取得实际文件 |
+| `PRESENT_NOT_EXECUTED` | 文件存在，尚未执行验证 |
+| `MATCHING_NAME_NOT_LOADED` | 找到匹配名称的二进制；按下一节复制为 `gsnet.so` |
+| `PRESENT_ABI_NOT_VALIDATED` | 已有 `gsnet.so`，仍需在 Linux SDK 环境中导入验证 |
+| `NOT_CHECKED` | 未提供对应目录，未检查 |
+| `PLATFORM_MISMATCH` | 当前平台不是 Linux；二进制导入和推理需在课程 Linux SDK 环境中进行 |
+
+返回码 2 表示缺项、未完成复制或平台不匹配；文件检查不执行推理，也不判定抓取结果。
 
 #### 3.1.2 二进制选择与授权
 
@@ -134,7 +146,15 @@ anygrasp_sdk/grasp_detection/
 python demo.py --checkpoint_path log/checkpoint_detection.tar --vis
 ```
 
-该版本使用 `--vis`；不要照旧版脚本随意添加 `--debug`。输出为终端评分和 Open3D 窗口，脚本不会自动保存抓取记录。将脱敏终端输出和截图保存在自己的 `runs/grasp/` 记录目录，核对模型加载消息、候选数量/评分及画面。出现 `Failed to create detector!` 时，即使进程退出码为 0 也没有完成推理；没有候选时记录空输出，不把空窗口记为通过。官方演示包含多种 steering 配置，其中还展示关闭碰撞过滤的情况；这些是感知演示，不能直接作为实机安全动作。
+该版本使用 `--vis`，不沿用旧版 `--debug`。运行后检查：
+
+| 输出 | 检查方法 |
+|---|---|
+| 终端评分与 Open3D 窗口 | 核对模型加载、候选数量、评分和画面；脚本不自动保存记录，将脱敏日志和截图保存到自己的 `runs/grasp/` |
+| `Failed to create detector!` | 检测器创建失败；即使退出码为 0，也未完成推理 |
+| 候选为空 | 记录空输出，检查输入和模型状态，不能仅凭窗口打开判定通过 |
+
+官方演示的 steering 配置包含关闭碰撞过滤的情况，只用于感知演示，不能直接作为实机动作。
 
 教材复制 `example_data` 的命令缺少目录递归选项。以上步骤直接使用 SDK 自带目录；确需复制目录时使用 `cp -r`，并检查目标路径，避免嵌套同名目录。
 

@@ -223,7 +223,7 @@ python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --questio
 
 输入传递使用 `question.txt`，不使用包含模型加载日志的控制台输出。
 
-ASR 会加载 `iic/SenseVoiceSmall` 与 `fsmn-vad`，输出 `question.txt` 及同名 JSON。`language="auto"` 自动判断语言，`use_itn=True` 做文本规整，`merge_vad=True` 合并语音段；先保留这些参数，用清晰的短录音检查漏字和误字。下面是课程仓库已有的界面示意，用于认识模块，并非本次运行截图：
+ASR 会加载 `iic/SenseVoiceSmall` 与 `fsmn-vad`，输出 `question.txt` 及同名 JSON。`language="auto"` 自动判断语言，`use_itn=True` 做文本规整，`merge_vad=True` 合并语音段；先保留这些参数，用清晰的短录音检查漏字和误字。课程 SenseVoice WebUI 界面示意：
 
 ![课程 SenseVoice WebUI 界面示意，非本次实测](../assets/sensevoice_webui.png)
 
@@ -318,9 +318,13 @@ python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-vl-plus --quest
 
 #### 3.7.1 Qwen-7B-Chat
 
-目标是在本机连续对话并用 `history` 传递上一轮上下文，输入为文字问题，输出为各轮回答。教材使用第一代 `qwen/Qwen-7B-Chat`、`transformers==4.32.0` 和 `model.chat(...)`，不是 Qwen2.5 的 `apply_chat_template` 用法。教材标注模型文件约 14.4 GB；这不是显存下限，还需激活、缓存和运行时空间。优先使用教师确认可承载该模型的 Linux GPU 机器，教材未给可保证运行的最小显存配置。
+在本机完成三轮文字对话，用 `history` 传递上下文。模型与接口依据[第一代 Qwen 模型卡](https://huggingface.co/Qwen/Qwen-7B-Chat)及教材 69—71 页。
 
-**运行条件**：该历史环境尚未实测；先取得兼容依赖和完整快照。下方普通对话安装省去教材中的训练依赖 `peft deepspeed`，不等同于全量历史环境；严格复现需教师提供锁文件。依赖冲突时保留报错，不在 A—C 环境降级 Transformers。模型与接口依据[第一代 Qwen 模型卡](https://huggingface.co/Qwen/Qwen-7B-Chat)及教材 69—71 页。
+| 项目 | 配置与条件 |
+|---|---|
+| 模型与接口 | 第一代 `qwen/Qwen-7B-Chat`，使用 ModelScope 导入、`transformers==4.32.0` 和 `model.chat(...)`；Qwen2.5 的 `apply_chat_template` 接口不适用于此例 |
+| 硬件与空间 | 使用教师确认可承载该模型的 Linux GPU 机器。教材标注模型文件约 14.4 GB；运行还需显存中的激活、缓存等空间，14.4 GB 不是最低显存要求 |
+| 环境条件 | 该历史环境尚未实测，需兼容依赖和完整模型快照。下方安装针对普通对话省略了训练依赖 `peft deepspeed`；全量历史环境复现需教师提供锁文件 |
 
 从手册仓库根目录创建独立环境，按课程驱动和 [PyTorch 安装说明](https://pytorch.org/get-started/locally/)安装兼容的 torch，再执行下方导入检查。
 
@@ -365,13 +369,20 @@ print("已保存 runs/dialogue/local_qwen_answers.txt，请人工核对三轮上
 python runs/dialogue/local_qwen.py
 ```
 
-**成功判据与排错**：三轮均有回答，第三轮标题确实针对第二轮故事；保存输出、模型快照 revision、驱动和依赖版本。显存不足时先记录 GPU 和占用，向教师确认资源，不能把模型文件大小当显存需求；没有 `model.chat` 时检查是否拿错代际/快照以及是否允许加载已审核的模型代码；依赖冲突时保留报错和 `pip check` 结果，请教师提供可工作的历史环境。换小模型属于替代练习，需要单独记录模型与接口，不能记作第一代 7B 原实验通过。
+**结果检查**：三轮均有回答，第三轮标题对应第二轮故事；保存输出、模型快照 revision、驱动和依赖版本。若改用其他模型，单独记录为替代练习，并注明模型和接口。
 
 #### 3.7.2 MiniCPM-V-2.6
 
-目标是在租用的 GPU 实例中用本地多模态模型回答图片问题。教材依赖 AutoDL 社区镜像及镜像内的 `run.ipynb`。印刷页 72—73 的截图可读到镜像显示名 `OpenBMB/MiniCPM-V/MiniCPM-V-2.6`、示例 RTX4090 24 GB、工作目录 `/root/MiniCPM-V` 及模型路径 `pretrained_weights/MiniCPM-V-2_6`；这些是教材示例，不能当最低硬件要求或当前仍可租用的保证。
+在 AutoDL GPU 实例中通过 `run.ipynb` 加载多模态模型，输入图片和问题并保存回答。教材印刷页 72—73 的示例配置如下：
 
-**缺少运行资料**：唯一镜像 ID/版本、完整 `run.ipynb`、依赖清单和模型 revision 尚未提供，需向教师领取后再启动实例。教材截图中的参数片段不足以重建 notebook。
+| 项目 | 教材示例 |
+|---|---|
+| 社区镜像显示名 | `OpenBMB/MiniCPM-V/MiniCPM-V-2.6` |
+| GPU | RTX4090 24 GB；实际配置需按交付镜像确认 |
+| 工作目录 | `/root/MiniCPM-V` |
+| 模型路径 | `pretrained_weights/MiniCPM-V-2_6` |
+
+**运行资料待补齐**：唯一镜像 ID/版本、完整 `run.ipynb`、依赖清单和模型 revision 尚未提供，需向教师领取并确认镜像当前可用后再启动实例。上述 GPU 为教材示例，并非最低硬件要求；本路线尚未实测。
 
 **资料补齐后的步骤**：确认预算和 GPU 配置 → 选择指定镜像 → 在 JupyterLab 进入工作目录 → 逐格执行 `run.ipynb` → 输入图片和问题 → 保存已执行 notebook、回答及环境版本。输出目录以交付 notebook 为准。
 
@@ -400,6 +411,9 @@ python runs/dialogue/local_qwen.py
 | 401 / 403 | Key、业务空间、地域、模型权限 | 按百炼控制台调用示例核对，不无限重试 |
 | 429 / 额度错误 | 限流、余额或额度 | 先停止批量调用，按平台提示处理 |
 | 导入失败 | 当前Python解释器和Conda环境 | 在对应环境安装，不混装语音和图像依赖 |
+| 本地 Qwen 显存不足 | GPU 型号、可用显存和其他进程占用 | 保存报错与显存信息，向教师确认可用资源 |
+| 本地 Qwen 无 `model.chat` | 模型代际、快照版本、模型代码加载 | 核对第一代 Qwen 快照，确认已审核的模型代码可通过 `trust_remote_code` 加载 |
+| 本地 Qwen 依赖冲突 | `eai-qwen-original` 环境及 `pip check` 输出 | 保留报错并向教师索取可用的历史环境锁文件；不在 A—C 环境降级 Transformers |
 | 模型下载慢或失败 | 模型地址连通性、缓存目录、磁盘 | 保留完整快照及版本；不要反复删除缓存重下 |
 | BLIP漏掉小物体 | 输入图清晰度及caption本身 | 对照原图；文本模型不能恢复从未传给它的细节 |
 | SenseVoice输出不对 | 先听原录音 | 检查静音、噪声、格式和语言，不先改LLM提示词 |
