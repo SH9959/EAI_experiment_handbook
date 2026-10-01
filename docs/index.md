@@ -68,18 +68,4 @@
 
 </div>
 
-## 建议学习顺序
 
-```text
-人机对话 / 感知接口
-        ↓
-AnyGrasp 抓取
-        ↓
-任务规划（ALFWorld → AI2THOR / VirtualHome）
-        ↓
-实机任务规划（方块重排 → 汉诺塔）
-        ↓
-iGibson 具身导航
-        ↓
-ACT 模仿学习（仿真 → 实机）
-```
