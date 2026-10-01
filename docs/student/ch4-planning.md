@@ -90,6 +90,7 @@ ALFRED 的 Seq2Seq/LSTM 模型使用视觉特征，评测时需要在 THOR 中�
 # 从独立实验父目录开始，不在手册目录内部下载模型。
 git clone https://github.com/askforalfred/alfred.git
 cd alfred
+git checkout f91f4c0c96c7a29f33d0557f86b0a21035379b3b
 export ALFRED_ROOT="$PWD"
 git rev-parse HEAD
 ```

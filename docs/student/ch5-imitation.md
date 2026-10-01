@@ -161,29 +161,41 @@ PY
 
 ### 3.2 ACT 训练与仿真评估
 
-先用 2 个 epoch 检查数据加载、GPU、损失和 checkpoint 写出：
+先用 2 个 epoch 检查数据加载、GPU、损失和 checkpoint 写出。输出目录已存在时，换一个新名称再运行：
 
 ```bash
-python imitate_episodes.py \
-  --task_name sim_transfer_cube_scripted --ckpt_dir "$PWD/ckpt/smoke" \
-  --policy_class ACT --kl_weight 10 --chunk_size 100 --hidden_dim 512 \
-  --batch_size 8 --dim_feedforward 3200 --num_epochs 2 --seed 0 --lr 1e-5
+CKPT_DIR="$PWD/ckpt/smoke"
+if [ -e "$CKPT_DIR" ]; then
+  echo "输出目录已存在，请更换 CKPT_DIR。"
+else
+  python imitate_episodes.py \
+    --task_name sim_transfer_cube_scripted --ckpt_dir "$CKPT_DIR" \
+    --policy_class ACT --kl_weight 10 --chunk_size 100 --hidden_dim 512 \
+    --batch_size 8 --dim_feedforward 3200 --num_epochs 2 --seed 0 --lr 1e-5
+fi
 ```
 
 这只检查训练流程，不能代表策略已经学会任务。确认日志出现有限的 train/validation loss 后，使用新的目录进行教材的 2000 epoch 基线训练。以下 Bash 数组让训练和评估复用相同参数；若更换终端，需重新定义数组。
 
 ```bash
+CKPT_DIR="$PWD/ckpt/transfer_seed0"
 ACT_ARGS=(
-  --task_name sim_transfer_cube_scripted --ckpt_dir "$PWD/ckpt/transfer_seed0"
+  --task_name sim_transfer_cube_scripted --ckpt_dir "$CKPT_DIR"
   --policy_class ACT --kl_weight 10 --chunk_size 100 --hidden_dim 512
   --batch_size 8 --dim_feedforward 3200 --num_epochs 2000 --seed 0 --lr 1e-5
 )
 set -o pipefail
-python imitate_episodes.py "${ACT_ARGS[@]}" 2>&1 | tee train-sim.log
-python imitate_episodes.py "${ACT_ARGS[@]}" --eval 2>&1 | tee eval-sim.log
+if [ -e "$CKPT_DIR" ]; then
+  echo "输出目录已存在，请更换 CKPT_DIR。"
+else
+  python imitate_episodes.py "${ACT_ARGS[@]}" 2>&1 | tee train-sim.log &&
+  python imitate_episodes.py "${ACT_ARGS[@]}" --eval 2>&1 | tee eval-sim.log
+fi
 ```
 
 训练正常结束后，`ckpt/transfer_seed0` 应含 `policy_best.ckpt`、`policy_last.ckpt`、周期 checkpoint、`dataset_stats.pkl` 和 `train_val_{kl,l1,loss}_seed_0.png`。评估加载 **`policy_best.ckpt`** 及同目录的统计文件，并执行 50 次 rollout；输出 `result_policy_best.txt`、`video0.mp4` 至 `video49.mp4`。源码以回合最高奖励达到任务最大值计算成功率，平均回报另行统计。
+
+每轮先验证再更新参数；若最佳轮次为 epoch 0，`policy_best.ckpt` 是首次更新前的模型，`policy_last.ckpt` 则保存最终更新结果。记录数据集和完整命令，`--seed` 是训练种子，不控制采集或评估的随机性。
 
 阅读汇总并核对至少一个成功与一个失败回合；没有失败时如实记录。损失下降而任务失败时，从抓取、交接、夹持和放置阶段定位问题。教材与作者给出的结果只是参考，报告填写本次实际成功数和总数。
 
