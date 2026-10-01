@@ -1,10 +1,10 @@
 # ACT 模仿学习：修订与验证记录
 
-更新日期：2026-10-01。**Codex 的两条仿真示教完成采集与回放，成功 2/2；学生随后亲自启动示教入口，新增一条成功记录（1/1）。** 尚未采集 50 条训练数据，也未运行 ACT 训练、策略评估或实机实验。
+更新日期：2026-10-01。**仿真示教采集与回放成功 2/2，学生亲自复测新增成功 1/1；随后完成原 ACT 模型的两次 GPU 参数更新及检查点保存、回读检查。** 尚未运行原训练命令入口、50 条示教的完整基线训练、策略闭环评估或实机实验。
 
 ## 仿真示教验证
 
-本次由 Codex 在 Ubuntu 22.04 虚拟机中执行：4 vCPU、4 GB 内存、约 4 GB 交换空间；Python **3.10.12**、torch **2.0.1+cpu**、MuJoCo **2.3.7**、dm_control **1.0.14**、NumPy **1.26.4**。使用 OSMesa 软件渲染，未下载预训练权重。
+采集阶段由 Codex 在 Ubuntu 22.04 虚拟机中执行：4 vCPU、4 GB 内存、约 4 GB 交换空间；Python **3.10.12**、torch **2.0.1+cpu**、MuJoCo **2.3.7**、dm_control **1.0.14**、NumPy **1.26.4**。使用 OSMesa 软件渲染；该阶段未下载预训练权重，后续 GPU 检查另见下文。
 
 ACT 固定提交为 `742c753c0d4a5d87076c8f69e5628c79a8cc5488`。原始 `record_sim_episodes.py` 分两次执行，每次采集一条，输出到不同目录；未改动上游源码，48 个文件与固定提交逐一核对一致。
 
@@ -100,9 +100,24 @@ done
 
 每个输出目录应包含 HDF5、`record.log`、视频和关节曲线。核对日志末尾的 `Success: 1 / 1`，再观看视频确认方块传递。失败回合也会保存文件，须如实保留失败记录。
 
+## GPU 计算检查（2026-10-01）
+
+经用户授权，下载 [PyTorch 官方 ResNet18 权重](https://download.pytorch.org/models/resnet18-f37072fd.pth)（46,830,571 字节，SHA-256 前缀 `f37072fd`），用于原 ACT 的视觉骨干网络。检查在 Windows 独立 venv 中完成，复用已有 CUDA PyTorch；环境为 Python **3.12.12**、torch **2.7.1+cu118**、torchvision **0.22.1+cu118**、NumPy **1.26.4**、h5py **3.11.0**、IPython **8.26.0**，GPU 为 RTX 4060 Laptop。
+
+直接调用上述固定提交的 `ACTPolicy` 和 `utils.load_data`。输入是采集阶段的 A、B 两条 400 步示教，按原加载器分为训练 1 条、验证 1 条，batch size 为 1。使用 `top` 相机原始图像、100 步动作块、hidden dimension 512、feedforward dimension 3200、编码器 4 层、解码器 7 层、8 个注意力头、KL 权重 10；模型及骨干学习率均为 `1e-5`，随机种子为 0。
+
+| 检查 | 实际结果 |
+|---|---|
+| 源码与预训练权重 | 运行前后 48 个上游文件一致；模型初始卷积权重与下载的 ResNet18 权重一致 |
+| 前向、反向与更新 | 两次损失分别为 71.1530、67.0076；各有 261 个梯度张量，数值有限，总梯度范数非零；动作输出层参数最大变化约 `2.00e-5` |
+| 检查点 | 保存 `policy_after_two_updates.ckpt`（336,095,885 字节）及配套 `dataset_stats.pkl`；新建模型严格加载检查点后，同一输入的输出最大差值为 0 |
+| 输出与资源 | 动作输出尺寸为 `(1,100,14)`；PyTorch 峰值显存分配约 1.67 GB；进程退出码为 0 |
+
+这次检查确认了真实数据加载、GPU 梯度更新和检查点读写。仅两次更新不能说明策略已学会方块传递，损失变化也不作为收敛结论。检查没有启动 `imitate_episodes.py` 或仿真闭环，没有生成 50 次策略评估结果。该 Windows Python 3.12 环境未配置 MuJoCo 2.3.7；原命令入口的完整依赖仍需另行验证。报告、日志、数据和模型文件保存在仓库外。
+
 ## 静态审阅记录
 
-以下保留 2026-10-01 实际运行前的文档与源码检查。该阶段未安装实验依赖或采集数据；上方的仿真验证为随后新增的运行证据。
+以下保留 2026-10-01 实际运行前的文档与源码检查。该阶段未安装实验依赖或采集数据；上方的仿真与 GPU 检查为随后新增的运行证据。
 
 ## 来源
 
@@ -111,7 +126,7 @@ done
 - cobot-magic：`sheji105/cobot_magic@70c11788f1a750c3e27453a2472fdd6bea59c675`，为教材指定仓库。核对 [采集入口](https://github.com/sheji105/cobot_magic/blob/70c11788f1a750c3e27453a2472fdd6bea59c675/collect_data/collect_data.py)、[可视化入口](https://github.com/sheji105/cobot_magic/blob/70c11788f1a750c3e27453a2472fdd6bea59c675/collect_data/visualize_episodes.py)、[训练入口](https://github.com/sheji105/cobot_magic/blob/70c11788f1a750c3e27453a2472fdd6bea59c675/aloha-devel/act/train.py)、[推理入口](https://github.com/sheji105/cobot_magic/blob/70c11788f1a750c3e27453a2472fdd6bea59c675/aloha-devel/act/inference.py)、两份 requirements、数据加载、模型导入链、ROS 包名、相机 launch 与机械臂启动脚本。
 - [PyTorch 官方历史安装表](https://pytorch.org/get-started/previous-versions/#v201)给出 torch 2.0.1 / torchvision 0.15.2 的 CUDA 11.8 配对。正文用它补足教材未固定的 torch/torchvision 配对，不代表已完成 ACT/ROS 全栈兼容性验证。
 
-只读获取两仓库的提交信息、文件树和少量文本源码，保存在手册仓库外的本地审阅目录；未下载数据集或模型权重。固定源码提交后，仍需按本机驱动、ROS 与 Python 检查依赖。
+静态审阅阶段只读获取两仓库的提交信息、文件树和少量文本源码，保存在手册仓库外的本地审阅目录；该阶段未下载数据集或模型权重。固定源码提交后，仍需按本机驱动、ROS 与 Python 检查依赖。
 
 ## 关键修订
 
@@ -152,7 +167,7 @@ done
 
 ## 尚需真实验证
 
-1. 在匹配的 CUDA 环境完成训练入口的依赖和数据加载检查；本次 CPU 环境仅验证示教采集。
+1. 在同时支持 CUDA 与 MuJoCo 2.3.7 的 Python 环境运行原 `imitate_episodes.py` 入口。现已通过原模型和数据加载器的两次 GPU 更新检查，但现用 Python 3.12 没有 MuJoCo 2.3.7 的对应预编译包，尚未验证原入口及仿真依赖。
 2. 采集 50 条、运行短训练流程，再训练完整基线并评估 50 次；保存真实成功数、平均回报和失败视频。
 3. 实机需实验台提供可用 ROS/Python 环境。上游 requirements 未锁定全部传递依赖，`cv_bridge` 与 Conda 的兼容性、`robomimic`/`diffusers` 的导入链尚未在该主机验证。
 4. 完成 CAN/相机序列号配置、三相机与四臂话题核对后，再采集、训练和在设备负责人现场监督下推理。
