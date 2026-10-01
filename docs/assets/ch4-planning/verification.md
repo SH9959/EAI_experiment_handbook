@@ -30,7 +30,7 @@
 
 ## VirtualHome 人工规则任务实测（2026-10-01）
 
-执行者为 **Codex**，尚不是学生亲自复测。使用官方 Windows Unity 2.3.0 程序，在场景 `0` 中创建 `Chars/Female2` 角色，读取真实场景图后，由手册 `virtualhome_plan` 生成确定性动作；没有调用模型或 API。
+前两次成功运行的执行者为 **Codex**，与下方学生复测分开记录。使用官方 Windows Unity 2.3.0 程序，在场景 `0` 中创建 `Chars/Female2` 角色，读取真实场景图后，由手册 `virtualhome_plan` 生成确定性动作；没有调用模型或 API。
 
 运行环境：Windows、Python 3.12.14、RTX 4060 Laptop 8 GB。独立环境使用 NumPy 1.26.4、OpenCV headless 4.8.1.78、Pillow 11.3.0、requests 2.32.5，`pip check` 通过。通信代码取自[固定提交 58970fd](https://github.com/xavierpuigf/virtualhome/tree/58970fd80951c2eaa1af713e0917d1a105353ad8)的完整 `unity_simulator` 通信模块，未修改其内容；没有安装 VirtualHome 全部功能依赖。
 
@@ -50,6 +50,8 @@
 本机保留前后场景图、计划、原始执行反馈和 168 张连续渲染帧。已查看放入与关门关键帧；静态相机的浴室视角没有用作目标证据。Unity 动作帧表将 `PUTIN` 阶段标为内部名称 `PUTBACK`，原记录保持不变，最终判据仍取实际场景关系与门状态。原始文件留在仓库外。
 
 随后通过本机复测入口重新加载场景，逐步执行同样的六条动作；每步均返回成功，最终目标关系再次通过，输出单独保存。该轮同样由 Codex 执行，没有记为学生亲测。
+
+**学生复测中途退出。** 同日 18:12（UTC+8），学生运行逐步入口，前 5 步的执行反馈与场景图读取均成功；第 6 步 `CLOSE` 前输入 `q`，任务中止。最后保存的场景图确认 `salmon(327) → fridge(305)` 存在 `INSIDE` 关系、三文鱼未被持握，但冰箱仍为 `OPEN`。原结果保留 `task_success=UNKNOWN`、`stopped_by_user=true`，本次仿真进程已关闭；5 步记录及 102 张录像帧均保留在仓库外。该轮尚未完整通过，需重新完成全部 6 步；此前 Codex 两次成功记录保持不变。
 
 这次实测覆盖一个人工规则任务，没有验证模型生成计划、其他场景或成功率。学生页补充通信模块安装与导入方式，以 `vh_init.py` 和 `vh_execute.py` 保持同一 Python 会话，避免把多段控制语句直接粘入交互提示符；原有模型路线继续标为未运行。
 
@@ -176,7 +178,7 @@ python docs/assets/ch4-planning/planning_checks.py action --text "PickupObject-C
 | ALFRED | 未运行 | 匹配历史依赖、数据与预训练模型，先真实评测，再决定是否训练 |
 | AI2THOR 人工规则任务 | 学生启动 300×300 自动复测通过；Codex 默认 640×480 命令行复测通过（2026-10-01） | 已核对八步动作、Done 处理及最终 metadata；学生逐步规划与其他任务尚未验证 |
 | AI2THOR LLM | 未运行 | 手动仿真通过，再确认合法 Key 和预算，使用 `--send`；核对动作反馈及最终目标 |
-| VirtualHome 人工脚本 | 一个真实 Unity 任务通过（Codex，2026-10-01） | 已保存六步动作、实际反馈、前后场景图和录像帧；待学生亲自复测 |
+| VirtualHome 人工脚本 | 同一真实 Unity 任务两次通过（Codex，2026-10-01）；学生本次完成 5/6 步后退出 | 学生记录为 `UNKNOWN`、冰箱仍 `OPEN`；需重新完成六步并核对最终状态 |
 | VirtualHome LLM 扩展 | 已补操作入口与离线协议检查，真实调用和执行未运行 | 人工脚本通过后，接入模型计划，保留执行反馈并核对最终环境图 |
 
 上述已完成项之外，没有调用收费 API、训练模型或启动机器人。Mock、格式检查和 `PLAN_ONLY` 仍不能写成真实平台实验通过。
