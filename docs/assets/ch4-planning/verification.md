@@ -1,6 +1,34 @@
 # 仿真任务规划：修订与验证记录
 
-检查日期：2026-09-20。**本次完成教材/源码审阅和辅助逻辑离线检查；ALFWorld、ALFRED、AI2THOR、VirtualHome 的真实交互及模型实验均未运行。**
+更新日期：2026-10-01。**ALFWorld 文字交互的一个人工任务已由学生亲自完成；ALFWorld 视觉交互、ALFRED、AI2THOR 和 VirtualHome 的真实实验仍未运行。** 以下保留各阶段记录，离线测试与真实交互分别列明。
+
+## 学生本机文字交互复测（2026-10-01）
+
+运行环境为已有 Ubuntu 22.04 虚拟机、Python 3.10.12、ALFWorld 0.5.0（源码固定为 `aaba6870f86c5be6a08a491f32a50b906227bc3e`）、TextWorld 1.6.2。环境信息来自安装后记录，`pip check` 返回 `No broken requirements found.`；没有使用 WSL 或模型 API。
+
+准备阶段由 Codex 安装文字依赖和三份任务数据包，并分别用上游规则专家、官方交互入口重放动作，确认真实 TextWorld 引擎返回 `won: true`。这些自动执行记录与学生操作分开保存，不作为学生亲测证据。
+
+学生随后在官方 `alfworld-play-tw` 终端中亲自输入动作。证据为学生提供的终端截图，以及取回核对的原始终端日志 `student-20261001-152514.txt`；日志记录时间为 15:25:14—15:26:17（UTC+8）。原始日志和截图留在仓库外，公开记录仅列动作与反馈摘要。
+
+本次任务类型为 `pick_and_place_simple`，目标是把闹钟移到桌子；终端原文为 `put a alarmclock in desk.`。任务来自 `pick_and_place_simple-AlarmClock-None-Desk-307/trial_T20190907_072303_146844`。
+
+| 学生输入 | 实际反馈 |
+|---|---|
+| `go to sidetable1` | `Nothing happens.`；物体名称与编号之间漏了空格 |
+| `go to sidetable 1` | 到达边桌，列出其中的 `alarmclock 3` 等物体 |
+| `take alarmclock 3 from sidetable 1` | 拿起 `alarmclock 3` |
+| `go to desk 1` | 到达桌子 |
+| `move alarmclock 3 to desk 1` | `You won!` |
+
+日志以 `COMMAND_EXIT_CODE="0"` 结束。**本次确认一个 ALFWorld 文字人工任务通过，包含输入错误后的修正；不代表全部任务、视觉路线或模型规划通过。** 实验页补充了已使用的文字环境安装方式，以及名称与编号之间保留空格的操作提示。
+
+本次文档检查：19 段 Bash 代码通过 `bash -n`；在已下载源码中核对包内 domain/grammar 路径，并在任务包中核对示例的初态和轨迹文件存在；`git diff --check` 通过。
+
+另核对固定源码的视觉依赖、`alfworld-download` 和 `alfworld-play-thor`：下载器准备任务数据、检测器权重和 logic 文件，视觉入口启动 THOR。正文补齐该准备步骤；本次没有执行视觉依赖安装、默认下载器或 THOR。
+
+## 原修订阶段（2026-09-20）
+
+本阶段完成教材/源码审阅和辅助逻辑离线检查，当时尚未运行真实交互。下文保留当时的检查结果。
 
 ## 来源与归因
 
@@ -71,27 +99,27 @@ python docs/assets/ch4-planning/planning_checks.py action --text "PickupObject-C
 
 仅提交本实验页、两个辅助脚本、测试和本记录；未修改 `site/`、部署工作流或 EAI_project。抓取实验使用独立提交，第一个实验的修改保留。
 
-## ALFWorld 下一条真实运行路线
+## 首次 ALFWorld 环境预检（历史记录）
 
-本轮只读检查当前 Windows 主机：`wsl --list --verbose` 返回未安装 WSL；Conda 可用，列出的 8 个环境中未找到 ALFWorld；默认缓存候选位置和 `ALFWORLD_DATA` 环境变量未发现可用数据。检查范围不涵盖所有磁盘、远程 Linux 主机或实验室共享盘，不能认定它们没有资源。
+首次只读检查 Windows 主机时，`wsl --list --verbose` 返回未安装 WSL；Conda 可用，列出的 8 个环境中未找到 ALFWorld；默认缓存候选位置和 `ALFWORLD_DATA` 环境变量未发现可用数据。该检查未涵盖所有磁盘、远程 Linux 主机或实验室共享盘。后续找到已有 Ubuntu 22.04 虚拟机，并完成本页顶部记录的安装和学生交互。
 
-优先在已确认的 Linux 环境运行人工 TextWorld 交互，无需模型 API Key。先确认机器、独立 Conda 环境、已有缓存和下载目录；没有现成 Linux 时，WSL 安装属于另一步准备，需要用户确认。本轮没有安装 WSL、创建新环境或下载数据。
+当时确定优先验证不需要模型 API Key 的 TextWorld 人工交互，先核实 Linux 机器、缓存和下载目录。预检阶段没有安装 WSL、创建环境或下载数据。
 
-当前官方默认下载器会获取三份游戏/JSON/PDDL 压缩包，合计 **143,407,869 字节**，以及 **177,877,450 字节**的 Mask R-CNN 权重，总计 **321,285,319 字节（约 321 MB）**；这些数字来自 [0.2.2 发布附件元数据](https://github.com/alfworld/alfworld/releases/tag/0.2.2)和 [0.4.2 发布附件元数据](https://github.com/alfworld/alfworld/releases/tag/0.4.2)，没有下载其内容。还需另计 Python 依赖、解压和环境空间，当前未测量其总量。只安装不带 `[full]` 的 Python 包，并不会让默认下载器跳过视觉权重。
+当时核对的官方默认下载器会获取三份游戏/JSON/PDDL 压缩包，合计 **143,407,869 字节**，以及 **177,877,450 字节**的 Mask R-CNN 权重，总计 **321,285,319 字节（约 321 MB）**；这些数字来自 [0.2.2 发布附件元数据](https://github.com/alfworld/alfworld/releases/tag/0.2.2)和 [0.4.2 发布附件元数据](https://github.com/alfworld/alfworld/releases/tag/0.4.2)，预检时未下载其内容。Python 依赖、解压和环境空间另计，当时未测量其总量。只安装不带 `[full]` 的 Python 包，并不会让默认下载器跳过视觉权重。
 
-下一轮集中确认：使用哪台 Linux 机器、是否可复用缓存、数据存放位置和空间，以及是否允许默认下载器包含的视觉权重。确认前不运行 `alfworld-download`，也不运行 `--extra`。完成准备后才执行文字交互，保存任务、输入动作、环境反馈及成功/失败消息。
+后续采用独立 Python 3.10 虚拟环境，只下载上述三份任务包（共 143,407,869 字节）及固定版本源码，没有运行默认下载器，也没有下载视觉权重。学生交互结果见本页顶部记录。
 
-## 未运行内容与最小复测条件
+## 各路线状态与后续复测
 
 | 路线 | 当前状态 | 下一条真实证据 |
 |---|---|---|
-| ALFWorld TextWorld | 未运行，待确认 Linux/数据条件 | 人工完成一个任务的动作—反馈序列和 `you won` 或真实失败记录 |
+| ALFWorld TextWorld | 一个文字人工任务通过（2026-10-01） | 已保存学生动作—反馈序列、`You won!` 与退出码；其他任务尚未验证 |
 | ALFWorld THOR | 未运行 | 文字路线后配置匹配渲染环境，记录图像、动作和结果 |
 | ALFRED | 未运行 | 匹配历史依赖、数据与预训练模型，先真实评测，再决定是否训练 |
 | AI2THOR 手动入口 | 仅来源预检和假控制器测试 | 确认 Unity 下载/显示条件后用 `--run --mode manual`，保存逐步图像及 metadata |
 | AI2THOR LLM | 未运行 | 手动仿真通过，再确认合法 Key 和预算，使用 `--send`；核对动作反馈及最终目标 |
 | VirtualHome 人工脚本 | 仅图/动作逻辑测试，连接与执行示例未实测 | 匹配 Unity/Python、连接样例和角色，导出含 salmon/fridge 的真实图后执行并回读 |
-| VirtualHome LLM 扩展 | 未实现/未运行 | 另补受限动作协议、规划器和反馈；人工规则脚本不算模型成功 |
+| VirtualHome LLM 扩展 | 已补操作入口与离线协议检查，真实调用和执行未运行 | 人工脚本通过后，接入模型计划，保留执行反馈并核对最终环境图 |
 
 未调用收费 API、运行 Unity、训练模型或启动机器人。Mock、格式检查和 `PLAN_ONLY` 均不能写成真实平台实验通过。
 
@@ -117,6 +145,6 @@ VirtualHome 执行示例改为 `find_solution=False`，按本轮图的实例 ID 
 
 实际运行 `python -B docs/assets/ch4-planning/test_planning_checks.py`，Python 3.12.14 下 **56 项测试通过**，其中新增 9 项检查模型输出协议、错误 ID、代码/多动作文本、参数、空/超长计划及 CLI 状态。原 47 项也在本次执行中通过。7 个手册辅助 Python 文件通过内存编译；人机对话 36 项、抓取 30 项离线测试在本轮分别重跑通过，均不代表模型或设备运行。
 
-VirtualHome 模型路线现已补齐学生操作与离线检查入口，替代前一阶段的“未实现”状态；**真实模型调用、Unity 连接和执行仍未运行**。其余历史未运行项和资源条件保持不变。实机规划、导航、ACT 的本轮检查分别见[实机记录](../ch4-real/verification.md)、[导航记录](../ch4-navigation/verification.md)、[ACT记录](../ch5-imitation/verification.md)。
+VirtualHome 模型路线现已补齐学生操作与离线检查入口，替代前一阶段的“未实现”状态；**真实模型调用、Unity 连接和执行仍未运行**。本段记录截至手册补全阶段，后续 ALFWorld 文字交互进展见本页顶部。实机规划、导航、ACT 的本轮检查分别见[实机记录](../ch4-real/verification.md)、[导航记录](../ch4-navigation/verification.md)、[ACT记录](../ch5-imitation/verification.md)。
 
 整体复核使用已有文档环境完成全仓库 MkDocs 构建，输出在仓库外；未写入 `site/`。六项实验均使用统一的五个二级标题，标题无下划线；9 段正文 Python 示例通过语法解析，34 处相对文件链接及生成页面中的 1,656 处站内链接、资源和锚点检查通过。浏览器查看了首页、学生入口、仿真规划、实机规划、导航及 ACT 页面，中文、目录、代码块和表格显示正常。`git diff --check` 通过。上述为本轮文档与离线检查，未启动实验平台。

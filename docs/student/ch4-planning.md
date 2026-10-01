@@ -21,7 +21,7 @@
 
 | 路线 | 平台与依赖条件 | 资源条件 |
 |---|---|---|
-| ALFWorld 文字交互 | Linux、Conda、Python 3.9 | 游戏数据；无需模型 API |
+| ALFWorld 文字交互 | Ubuntu 22.04、Python 3.10、独立 venv | 三份文字任务数据包；无需模型 API |
 | ALFWorld 视觉交互 | 匹配的 THOR 和图形/显示环境 | 视觉依赖和 THOR 程序 |
 | ALFRED | 兼容的历史 PyTorch、torchvision、AI2THOR；本页命令使用 GPU | 数据和预训练模型 |
 | AI2THOR | Linux、Python 3.9、AI2THOR 5.0.0、Unity 图形环境 | THOR 程序；大模型模式另需模型权限和额度 |
@@ -42,23 +42,45 @@ python docs/assets/ch4-planning/planning_checks.py action --text "PickupObject-C
 
 ### 2.2 ALFWorld 环境
 
-教材使用 Python 3.9 和 `alfworld[full]`。上游也提供不带 `full` 的文字版安装。以下采用该方式启动终端交互；视觉路线见 3.1.2。
+教材使用 Python 3.9 和 `alfworld[full]`。以下文字路线使用 Ubuntu 22.04、Python 3.10、[固定 ALFWorld 源码](https://github.com/alfworld/alfworld/tree/aaba6870f86c5be6a08a491f32a50b906227bc3e)和 TextWorld 1.6.2；视觉路线见 3.1.2。
 
-以下从你选定的 Linux 实验目录运行，安装前确认网络、磁盘和数据下载权限：
+从独立的实验父目录打开 Bash。下面新建 `eai-alfworld`；若已有同名目录，换一个新名称，不覆盖原环境。缺少系统依赖时先安装：
 
 ```bash
-conda create -n eai-alfworld python=3.9 -y
-conda activate eai-alfworld
-python -m pip install alfworld
-python -m pip check
-python -c "from importlib.metadata import version; print('alfworld', version('alfworld'))"
-alfworld-download
-alfworld-play-tw
+sudo apt-get update
+sudo apt-get install -y python3.10-venv python3.10-dev build-essential libffi-dev curl
 ```
 
-`alfworld-download` 按上游说明下载 PDDL、游戏文件和预训练检测器等资源，默认缓存为 `~/.cache/alfworld/`；文字版安装也会下载这些资源。下载未完成时检查网络、缓存和磁盘。
+建立并激活环境，后续步骤在同一个终端执行：
 
-如果必须严格按教材全量环境，使用单独环境并将安装项改为 `"alfworld[full]"`。文字路线完成后再按需要获取可选 checkpoint。
+```bash
+set -e
+mkdir eai-alfworld
+cd eai-alfworld
+python3.10 -m venv venv
+source venv/bin/activate
+python -m pip install --upgrade pip
+curl --fail --location --output alfworld-source.zip https://github.com/alfworld/alfworld/archive/aaba6870f86c5be6a08a491f32a50b906227bc3e.zip
+python -m zipfile -e alfworld-source.zip .
+python -m pip install ./alfworld-aaba6870f86c5be6a08a491f32a50b906227bc3e "textworld==1.6.2"
+python -m pip check
+python -c "from importlib.metadata import version; print('alfworld', version('alfworld')); print('textworld', version('textworld'))"
+```
+
+下载三份文字任务包，共约 143 MB；依赖和解压另占空间。本路线不使用会同时下载视觉权重的 `alfworld-download`。
+
+```bash
+mkdir downloads data
+export ALFWORLD_DATA="$PWD/data"
+curl --fail --location --output downloads/json_2.1.1_json.zip https://github.com/alfworld/alfworld/releases/download/0.2.2/json_2.1.1_json.zip
+curl --fail --location --output downloads/json_2.1.1_pddl.zip https://github.com/alfworld/alfworld/releases/download/0.2.2/json_2.1.1_pddl.zip
+curl --fail --location --output downloads/json_2.1.3_tw-pddl.zip https://github.com/alfworld/alfworld/releases/download/0.4.2/json_2.1.3_tw-pddl.zip
+for archive in downloads/*.zip; do
+  python -m zipfile -e "$archive" "$ALFWORLD_DATA"
+done
+```
+
+重新打开终端时，先进入自己的 `eai-alfworld` 目录，运行 `source venv/bin/activate` 和 `export ALFWORLD_DATA="$PWD/data"`，再继续实验。
 
 ### 2.3 ALFRED 环境与数据
 
@@ -137,12 +159,24 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 #### 3.1.1 文字交互
 
-在 2.2 启动 `alfworld-play-tw` 的终端中操作，保存开头 `Playing '…'` 后的任务目录。文字版不打开三维窗口；用终端自动补全选择当前可执行动作，物体名称和编号以本轮场景为准。
+在 2.2 的实验目录和环境中，先复制一个“将闹钟放到桌上”的任务。官方入口会生成游戏文件，因此使用独立任务副本：
+
+```bash
+set -e
+task="$ALFWORLD_DATA/json_2.1.1/train/pick_and_place_simple-AlarmClock-None-Desk-307/trial_T20190907_072303_146844"
+mkdir task-alarmclock
+cp "$task/initial_state.pddl" "$task/traj_data.json" task-alarmclock/
+domain=$(python -c "from alfworld.info import ALFRED_PDDL_PATH; print(ALFRED_PDDL_PATH)")
+grammar=$(python -c "from alfworld.info import ALFRED_TWL2_PATH; print(ALFRED_TWL2_PATH)")
+alfworld-play-tw task-alarmclock --domain "$domain" --grammar "$grammar" --expert heuristic
+```
+
+保存开头 `Playing '…'` 后的任务目录。文字版不打开三维窗口；用终端自动补全选择动作，物体名称和编号以当前场景为准。名称与编号之间保留空格，例如 `go to sidetable 1`；输入 `go to sidetable1` 会得到 `Nothing happens.`。
 
 1. 阅读目标，确定物体和目标容器。
 2. 移动到可能的位置；容器关闭时先打开，再查看并拿取目标。
 3. 按目标完成加热、冷却、清洗或放置，逐步读取环境反馈。
-4. 出现 `You won!` 后结束并保存记录。重做同一任务时运行 `alfworld-play-tw "上次 Playing 后的任务目录"`。
+4. 出现 `You won!` 后结束并保存记录。重做同一任务时重复上面的 `alfworld-play-tw` 命令，无需重新复制任务文件。
 
 记录一个小任务：原始目标、每一步输入、每一步反馈和结束结果。如果尝试的动作失败，先读取反馈，再决定是位置不对、对象不对还是前置动作缺失。按教材，任务成功时能看到 `you won`；若所用版本输出不同，记录版本及实际完成信号。
 
@@ -150,10 +184,12 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 #### 3.1.2 视觉交互
 
-文字任务完成后，在同一 ALFWorld 环境中按所用版本配置图形依赖，再运行：
+文字任务完成后，在 2.2 的目录和环境中安装视觉依赖。确认下载空间和显示环境后，用官方下载器补齐任务数据、逻辑文件和 Mask R-CNN 权重，再启动视觉入口；首次启动还需准备匹配的 THOR 程序。
 
 ```bash
-python -m pip install "alfworld[vis]"
+python -m pip install "./alfworld-aaba6870f86c5be6a08a491f32a50b906227bc3e[vis]"
+python -m pip check
+alfworld-download --data-dir "$ALFWORLD_DATA"
 alfworld-play-thor
 ```
 
