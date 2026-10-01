@@ -125,9 +125,9 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 ### 2.5 VirtualHome 版本与连接条件
 
-教材写 Python 3.9，并建议改 `setup.py` 中的版本声明；2026-09-20 核对的上游 `setup.py` 已要求 Python ≥3.10，同时还固定了若干旧依赖。不要直接改低 `python_requires`。向助教取得 Python 包提交、Unity 程序版本和经过验证的依赖组合，然后按对应官方说明安装。
+教材写 Python 3.9；本页核对的 [VirtualHome 2.3.0 源码](https://github.com/xavierpuigf/virtualhome/tree/58970fd80951c2eaa1af713e0917d1a105353ad8)声明 Python ≥3.10，却仍固定 `networkx==2.3` 等旧依赖。先使用助教提供的兼容环境，核对 Python 包提交与 Unity 程序版本；不要只改版本声明或强制安装来忽略冲突。
 
-教材 140 页链接指向 Windows Unity 2.3.0 包 `release/simulator/v2.0/v2.3.0/windows_exec.zip`。2026-09-20 核对的[官方 README 下载段](https://github.com/xavierpuigf/virtualhome#download-unity-simulator)也列出 2.3.0 各平台程序；使用前确认文件可下载，并与 Python 包版本匹配。取得可用连接样例后再执行 3.4。
+从[官方下载页](https://github.com/xavierpuigf/virtualhome#download-unity-simulator)取得对应平台的 Unity 2.3.0 程序，解压后记录可执行文件的绝对路径。教材 Windows 包同为 2.3.0。先启动程序并保留窗口，再在相同机器的专用 Python 环境执行 3.4；默认连接端口为 `8080`。
 
 课程 `demo_in_virtualhome.py` 的导入路径是 `from simulation...`；你安装的包布局可能不同，先确认 `comm_unity` 实际路径。它还硬编码 Unity 可执行路径、视频目录及物体 ID。实际运行的 `script2` 操作的是 `cereal`，而教材练习目标是 `salmon`。
 
@@ -137,7 +137,12 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 #### 3.1.1 文字交互
 
-在 2.2 启动 `alfworld-play-tw` 的终端中操作：读取场景文字和本轮目标，再输入命令。文字版不打开三维窗口。按当前版本终端提示查看帮助/可执行动作，使用当前场景中的物体名称与编号。
+在 2.2 启动 `alfworld-play-tw` 的终端中操作，保存开头 `Playing '…'` 后的任务目录。文字版不打开三维窗口；用终端自动补全选择当前可执行动作，物体名称和编号以本轮场景为准。
+
+1. 阅读目标，确定物体和目标容器。
+2. 移动到可能的位置；容器关闭时先打开，再查看并拿取目标。
+3. 按目标完成加热、冷却、清洗或放置，逐步读取环境反馈。
+4. 出现 `You won!` 后结束并保存记录。重做同一任务时运行 `alfworld-play-tw "上次 Playing 后的任务目录"`。
 
 记录一个小任务：原始目标、每一步输入、每一步反馈和结束结果。如果尝试的动作失败，先读取反馈，再决定是位置不对、对象不对还是前置动作缺失。按教材，任务成功时能看到 `you won`；若所用版本输出不同，记录版本及实际完成信号。
 
@@ -239,14 +244,20 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 #### 3.4.1 人工规则脚本
 
-先用与 Unity 版本对应的官方最小样例确认连接，确保它建立了 `comm` 并添加执行脚本的角色 `<char0>`。下面代码在**这个仍持有 `comm` 的 Python 会话或 notebook** 中运行；替换实验目录为自己的绝对路径：
+Unity 启动后，在 VirtualHome 专用环境打开 `python` 或 notebook，连接并加载场景。下面各段在**同一个 Python 会话**中执行；将输出目录换为本次实验的绝对路径：
 
 ```python
 import json
 from pathlib import Path
+from virtualhome.simulation.unity_simulator import comm_unity
 
 run_dir = Path("/你的实验目录/virtualhome_run").resolve()
-run_dir.mkdir(parents=True, exist_ok=True)
+run_dir.mkdir(parents=True, exist_ok=False)
+comm = comm_unity.UnityCommunication(port="8080")
+if comm.reset(0) is not True:
+    raise RuntimeError("场景加载失败。")
+if comm.add_character("Chars/Female2") is not True:
+    raise RuntimeError("角色添加失败。")
 ok, graph_before = comm.environment_graph()
 if not ok:
     raise RuntimeError("环境图读取失败，停止规划。")
@@ -273,7 +284,7 @@ if plan.get("mode") != "PLAN_ONLY" or not plan.get("steps"):
     raise RuntimeError("没有可用的候选步骤，停止执行。")
 ok, message = comm.render_script(
     plan["steps"], recording=True, camera_mode=["FIRST_PERSON"],
-    output_folder=str(run_dir / "recording"), find_solution=True, frame_rate=10
+    output_folder=str(run_dir / "recording"), find_solution=False, frame_rate=10
 )
 (run_dir / "execution.json").write_text(
     json.dumps({"render_success": ok, "message": message}, ensure_ascii=False, indent=2),
@@ -288,17 +299,25 @@ if not graph_ok:
 print("render_script 返回：", ok, message)
 ```
 
-参数沿用课程样例的 `recording=True`、`camera_mode=['FIRST_PERSON']`、`find_solution=True`、`frame_rate=10`；实际支持情况以匹配的 Unity/Python 版本为准，这段输入输出接线尚未实测。返回 `ok` 不为真时保留失败消息和执行后图，先排查原因。
+`recording=True` 保存录像帧，`frame_rate=10` 指定帧率。这里将课程样例的 `find_solution=True` 改为 `False`，按当前图中的 ID 执行，避免求解器另选同类物体。`ok` 不为真时保留失败消息和执行后图，先排查目标是否可达、双手是否为空、冰箱是否打开。
 
-执行后重新获取 `graph_after.json`，对照视频核对三文鱼是否进入目标冰箱。配套函数 `inside_relation(graph, food_id, fridge_id)` 仅检查给定图的 `INSIDE` 关系；图必须是本轮执行后从环境导出的真实结果。目标检查同时依据环境图和录像。
+执行后检查 `graph_after.json`：三文鱼到目标冰箱存在 `INSIDE` 关系，且该冰箱的 `states` 含 `CLOSED`、不含 `OPEN`，再对照录像确认。配套函数 `inside_relation(graph, food_id, fridge_id)` 只检查包含关系，不检查关门状态；判断任务完成须同时核对两项。
 
 输出可能是逐帧图片而不是已经封装的视频，按所用版本的录像流程确认，没有匹配 Unity 程序或缺少 salmon 时，明确记录缺项，不能用麦片任务替代教材目标。
 
-#### 3.4.2 大模型规划扩展
+#### 3.4.2 大模型规划
 
-教材另要求用大模型完成规划。输入自然语言目标与当前环境图，输出可解析的规划步骤；执行前验证动作名、参数数量和节点 ID，再将执行反馈传回规划器。不要 `eval`/`exec` 模型生成的任意代码。
+重新执行 3.4.1 的场景初始化，改用新的输出目录（例如 `virtualhome_llm`），导出执行前环境图。确认角色双手为空、目标三文鱼尚未放入冰箱。另开已配置[第3章文本 API 环境](ch3-dialogue.md)的终端，进入手册根目录，依次运行：
 
-课程示例尚未实现这条调用链，本页仅提供人工规则脚本。扩展仍为“未实现/未运行”，需补充受限动作协议、规划器及错误恢复后再验证。
+```bash
+python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-prompt --graph "/你的实验目录/virtualhome_llm/graph_before.json" > "/你的实验目录/virtualhome_llm/question.txt"
+python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --question-file "/你的实验目录/virtualhome_llm/question.txt" --output "/你的实验目录/virtualhome_llm/answer.txt" --max-tokens 1024 --send
+python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-check --graph "/你的实验目录/virtualhome_llm/graph_before.json" --response "/你的实验目录/virtualhome_llm/answer.txt" > "/你的实验目录/virtualhome_llm/plan.json"
+```
+
+三条命令均使用 Bash。每条退出码为 0 后再运行下一条；第二条会发送当前环境图并调用模型。`vh-prompt` 和 `vh-check` 遇到多个同类物体时使用相同的 `--food-id`、`--fridge-id`。模型回答需为仅含 `steps` 的 JSON，动作限于 `WALK/GRAB/OPEN/PUTIN/CLOSE`；检查器拒绝代码、未知动作、错误 ID 和参数，但不判断可达性或动作顺序。
+
+检查通过后，在原 VirtualHome 会话中复用 3.4.1 的读取 `plan.json`、执行、保存反馈和回读环境图代码。以最终环境图与录像判断目标是否完成。失败时保存原始回答和反馈；重新初始化同一场景并导图，将失败动作和原因补入新问题后重试，避免用旧图继续执行。人工规则和模型生成的结果分别记录。
 
 ## 四、实验结果
 
@@ -307,7 +326,7 @@ print("render_script 返回：", ok, message)
 | ALFWorld | 连续的目标、动作、反馈记录 | 至少完成一个任务，保留环境完成信号；失败时保留终止位置 |
 | ALFRED | `task_results_<timestamp>.json`、失败轨迹 | 数据划分、任务数与 SR/GC 等指标一致 |
 | AI2THOR | 截图、metadata、`run.json` | 杯子实例一致，刀在杯内，杯在厨房台面；人工和模型模式分别记录 |
-| VirtualHome | 执行前后环境图、计划、执行反馈、录像 | 执行成功，执行后图和录像支持三文鱼位于目标冰箱内 |
+| VirtualHome | 执行前后环境图、计划、执行反馈、录像 | 执行成功，三文鱼位于指定冰箱内且冰箱已关闭；人工与模型计划分别记录 |
 
 ALFRED 指标：
 

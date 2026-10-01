@@ -99,6 +99,74 @@ class VirtualHomeTests(unittest.TestCase):
         self.graph['nodes'][1]['states']=['OPEN','CLOSED']
         with self.assertRaises(ValueError): p.virtualhome_plan(self.graph)
 
+    def test_model_plan_accepts_selected_ids(self):
+        steps = p.virtualhome_plan(self.graph)
+        self.assertEqual(p.check_virtualhome_response(self.graph, {'steps': steps}), steps)
+
+    def test_model_plan_rejects_unknown_ids(self):
+        with self.assertRaises(ValueError):
+            p.check_virtualhome_response(self.graph, {'steps': ['<char0> [GRAB] <salmon> (333)']})
+
+    def test_model_plan_rejects_code_and_multiple_commands(self):
+        for step in ['__import__("os").system("echo unsafe")',
+                     '<char0> [GRAB] <salmon> (7)\n<char0> [OPEN] <fridge> (25)',
+                     '<char0> [DELETE] <fridge> (25)', '<char1> [WALK] <salmon> (7)']:
+            with self.subTest(step=step), self.assertRaises(ValueError):
+                p.check_virtualhome_response(self.graph, {'steps': [step]})
+
+    def test_model_plan_rejects_wrong_arity_or_object_type(self):
+        for step in ['<char0> [PUTIN] <salmon> (7)',
+                     '<char0> [PUTIN] <fridge> (25) <salmon> (7)',
+                     '<char0> [GRAB] <fridge> (25)',
+                     '<char0> [OPEN] <salmon> (7)',
+                     '<char0> [WALK] <salmon> (7) <fridge> (25)']:
+            with self.subTest(step=step), self.assertRaises(ValueError):
+                p.check_virtualhome_response(self.graph, {'steps': [step]})
+
+    def test_model_plan_rejects_bad_schema_and_excess_steps(self):
+        for payload in [[], {'steps': []}, {'steps': 'bad'}, {'steps': [None]},
+                        {'steps': ['<char0> [WALK] <salmon> (7)'] * 21},
+                        {'steps': ['<char0> [WALK] <salmon> (7)'], 'code': 'bad'}]:
+            with self.subTest(payload=payload), self.assertRaises(ValueError):
+                p.check_virtualhome_response(self.graph, payload)
+
+    def test_model_prompt_contains_actual_graph_and_selected_ids(self):
+        self.graph['nodes'].append({'id': 8, 'class_name': 'salmon'})
+        with self.assertRaises(ValueError): p.virtualhome_prompt(self.graph)
+        prompt = p.virtualhome_prompt(self.graph, 7, 25)
+        self.assertIn('salmon(7)', prompt)
+        self.assertIn('fridge(25)', prompt)
+        self.assertIn('"id": 8', prompt)
+
+    def test_model_prompt_requires_edges(self):
+        del self.graph['edges']
+        with self.assertRaises(ValueError): p.virtualhome_prompt(self.graph)
+
+    def test_model_check_cli_never_reports_execution(self):
+        with tempfile.TemporaryDirectory() as d:
+            graph_path, response_path = Path(d)/'graph.json', Path(d)/'answer.txt'
+            graph_path.write_text(json.dumps(self.graph), encoding='utf-8')
+            response_path.write_text(json.dumps({'steps': p.virtualhome_plan(self.graph)}), encoding='utf-8')
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                rc = p.main(['vh-check', '--graph', str(graph_path), '--response', str(response_path)])
+            result = json.loads(out.getvalue())
+            self.assertEqual(rc, 0)
+            self.assertEqual(result['mode'], 'PLAN_ONLY')
+            self.assertIs(result['executed'], False)
+            self.assertEqual(result['task_success'], 'NOT_EVALUATED')
+
+    def test_model_check_cli_rejects_non_json_without_plan(self):
+        with tempfile.TemporaryDirectory() as d:
+            graph_path, response_path = Path(d)/'graph.json', Path(d)/'answer.txt'
+            graph_path.write_text(json.dumps(self.graph), encoding='utf-8')
+            response_path.write_text('```json\n{"steps": []}\n```', encoding='utf-8')
+            out, err = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = p.main(['vh-check', '--graph', str(graph_path), '--response', str(response_path)])
+            self.assertEqual(rc, 2)
+            self.assertEqual(out.getvalue(), '')
+
 
 class FakeCourseController:
     def __init__(self):

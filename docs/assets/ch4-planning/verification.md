@@ -100,3 +100,23 @@ python docs/assets/ch4-planning/planning_checks.py action --text "PickupObject-C
 实验页统一为“实验目标、实验环境配置、实验过程、实验结果、排错建议与注意事项”。环境准备集中在第二节，四个平台的操作集中在第三节；删除页首维护状态和正文中重复的源码问题表，本记录的原始问题表及未运行清单保留。
 
 17 个代码块与本轮起点 `0721543` 完全一致，保留 Done、完整物体 ID、目标查找、失败和未知反馈的处理说明。本轮未重跑上述 47 项测试，未安装或启动仿真器，也未训练或调用模型。跨页语法、链接、构建与浏览器检查见[本轮文案复核记录](../ch3-dialogue/verification.md#editorial-review-20261001)。
+
+## 第3—5章补全（2026-10-01）
+
+这是同日文案复核之后的新一轮工作，起点为 `db072e9`。重新读取并查看新提供教材 PDF 第 151—158 页；保留 ALFWorld、ALFRED、AI2THOR 和 VirtualHome 路线。本轮补充 ALFWorld 的任务目录复用、VirtualHome 连接初始化、角色添加、模型生成动作和结果检查。
+
+重新核对以下上游固定源码，未安装其依赖或下载仿真程序：
+
+- [ALFWorld aaba687](https://github.com/alfworld/alfworld/tree/aaba6870f86c5be6a08a491f32a50b906227bc3e)：`alfworld-play-tw` 接受任务目录、打印 `Playing` 与 `You won!`，通过 HumanAgent 提供自动补全。
+- [ALFRED f91f4c0](https://github.com/askforalfred/alfred/tree/f91f4c0c96c7a29f33d0557f86b0a21035379b3b)：重新核对 requirements、README 和模型说明；PyTorch 1.1.0、torchvision 0.3.0、AI2THOR 2.1.0 属历史环境，未与其他实验环境混装。
+- [VirtualHome 58970fd](https://github.com/xavierpuigf/virtualhome/tree/58970fd80951c2eaa1af713e0917d1a105353ad8)：读取 setup、README、Unity demo 和 `comm_unity.py`，核对包内导入路径、8080 端口、reset/add_character 的布尔返回值，以及 render_script 的参数与返回值。Python ≥3.10 与固定旧依赖的完整兼容环境仍待实机安装验证。
+
+新增 `vh-prompt` 和 `vh-check` 为手册侧辅助命令，分别生成问题文本和检查模型回答；通过第3章已有 API 入口衔接，未新建模型服务。检查器限制 JSON 结构、动作名、角色、节点 ID、参数数量和对象类型，不模拟可达性或执行顺序，输出仍为 `PLAN_ONLY`、`executed: false`、`NOT_EVALUATED`。本轮用合成图和回答测试，没有发出模型请求。
+
+VirtualHome 执行示例改为 `find_solution=False`，按本轮图的实例 ID 执行；最终同时核对三文鱼到指定冰箱的 `INSIDE` 关系、冰箱关闭状态和录像。交叉审阅发现“提示词要求关门而结果只检查包含关系”的遗漏，已补齐关门判据。
+
+实际运行 `python -B docs/assets/ch4-planning/test_planning_checks.py`，Python 3.12.14 下 **56 项测试通过**，其中新增 9 项检查模型输出协议、错误 ID、代码/多动作文本、参数、空/超长计划及 CLI 状态。原 47 项也在本次执行中通过。7 个手册辅助 Python 文件通过内存编译；人机对话 36 项、抓取 30 项离线测试在本轮分别重跑通过，均不代表模型或设备运行。
+
+VirtualHome 模型路线现已补齐学生操作与离线检查入口，替代前一阶段的“未实现”状态；**真实模型调用、Unity 连接和执行仍未运行**。其余历史未运行项和资源条件保持不变。实机规划、导航、ACT 的本轮检查分别见[实机记录](../ch4-real/verification.md)、[导航记录](../ch4-navigation/verification.md)、[ACT记录](../ch5-imitation/verification.md)。
+
+整体复核使用已有文档环境完成全仓库 MkDocs 构建，输出在仓库外；未写入 `site/`。六项实验均使用统一的五个二级标题，标题无下划线；9 段正文 Python 示例通过语法解析，34 处相对文件链接及生成页面中的 1,656 处站内链接、资源和锚点检查通过。浏览器查看了首页、学生入口、仿真规划、实机规划、导航及 ACT 页面，中文、目录、代码块和表格显示正常。`git diff --check` 通过。上述为本轮文档与离线检查，未启动实验平台。

@@ -121,16 +121,69 @@ def inside_relation(graph: dict, food_id: int, fridge_id: int) -> bool:
                e.get("relation_type") == "INSIDE" for e in edges if isinstance(e, dict))
 
 
+def virtualhome_prompt(graph: dict, food_id: int | None = None, fridge_id: int | None = None) -> str:
+    food = named_node(graph, "salmon", food_id)
+    fridge = named_node(graph, "fridge", fridge_id)
+    virtualhome_plan(graph, food["id"], fridge["id"])
+    if not isinstance(graph.get("edges"), list):
+        raise ValueError("场景图缺少 edges")
+    scene = {"nodes": [{k: n[k] for k in ("id", "class_name", "states", "properties") if k in n}
+                       for n in graph["nodes"]], "edges": graph["edges"]}
+    return (
+        f"将 salmon({food['id']}) 放入 fridge({fridge['id']}) 并关门。角色为 <char0>，初始双手为空。\n"
+        '只返回一个 JSON 对象，格式为 {"steps": ["一条动作", "下一条动作"]}，不要代码围栏或解释。\n'
+        "动作格式为 <char0> [ACTION] <class_name> (id)。只允许 WALK、GRAB、OPEN、CLOSE，"
+        "以及双参数 PUTIN：<char0> [PUTIN] <salmon> (id) <fridge> (id)。\n"
+        "仅操作指定的 salmon 和 fridge，最多 20 步；按场景开闭状态和动作前置条件规划。\n"
+        "以下为当前环境图：\n" + json.dumps(scene, ensure_ascii=False)
+    )
+
+
+def check_virtualhome_response(graph: dict, response: dict,
+                               food_id: int | None = None, fridge_id: int | None = None) -> list[str]:
+    """校验模型动作的格式和对象；可达性及执行结果由 Unity 判断。"""
+    food = named_node(graph, "salmon", food_id)
+    fridge = named_node(graph, "fridge", fridge_id)
+    if not isinstance(response, dict) or set(response) != {"steps"}:
+        raise ValueError('模型回答必须是仅含 steps 的 JSON 对象')
+    steps = response["steps"]
+    if not isinstance(steps, list) or not 1 <= len(steps) <= 20:
+        raise ValueError("steps 必须含 1 到 20 条动作")
+    expected = {"salmon": food["id"], "fridge": fridge["id"]}
+    pattern = r"<char0> \[(WALK|GRAB|OPEN|CLOSE|PUTIN)\] <(salmon|fridge)> \(([0-9]+)\)(?: <(salmon|fridge)> \(([0-9]+)\))?"
+    for i, step in enumerate(steps, 1):
+        match = re.fullmatch(pattern, step) if isinstance(step, str) else None
+        if match is None:
+            raise ValueError(f"第 {i} 条动作格式或动作名不合法")
+        action, first, first_id, second, second_id = match.groups()
+        if int(first_id) != expected[first] or (second and int(second_id) != expected[second]):
+            raise ValueError(f"第 {i} 条动作的 ID 与选定场景对象不符")
+        if action == "PUTIN":
+            valid = first == "salmon" and second == "fridge"
+        else:
+            valid = second is None and (action == "WALK" or
+                    (action == "GRAB" and first == "salmon") or
+                    (action in ("OPEN", "CLOSE") and first == "fridge"))
+        if not valid:
+            raise ValueError(f"第 {i} 条动作的参数数量或对象类型不符")
+    return steps
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     p = sub.add_parser("action", help="只检查单个动作格式，不执行")
     p.add_argument("--text", required=True)
     p.add_argument("--skills", type=Path)
-    p = sub.add_parser("vh-plan", help="从实际导出的环境图生成候选脚本，不运行 Unity")
-    p.add_argument("--graph", required=True, type=Path)
-    p.add_argument("--food-id", type=int)
-    p.add_argument("--fridge-id", type=int)
+    for command, help_text in (("vh-plan", "生成规则候选脚本"),
+                               ("vh-prompt", "从环境图生成模型问题文本"),
+                               ("vh-check", "检查模型回答的动作格式和物体 ID")):
+        p = sub.add_parser(command, help=help_text + "，不运行 Unity 或调用模型")
+        p.add_argument("--graph", required=True, type=Path)
+        p.add_argument("--food-id", type=int)
+        p.add_argument("--fridge-id", type=int)
+        if command == "vh-check":
+            p.add_argument("--response", required=True, type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "action":
@@ -140,7 +193,15 @@ def main(argv: list[str] | None = None) -> int:
                       "executed": False, "task_success": "NOT_EVALUATED"}
         else:
             graph = json.loads(args.graph.read_text(encoding="utf-8-sig"))
-            result = {"mode": "PLAN_ONLY", "steps": virtualhome_plan(graph, args.food_id, args.fridge_id),
+            if args.command == "vh-prompt":
+                print(virtualhome_prompt(graph, args.food_id, args.fridge_id))
+                return 0
+            if args.command == "vh-check":
+                response = json.loads(args.response.read_text(encoding="utf-8-sig"))
+                steps = check_virtualhome_response(graph, response, args.food_id, args.fridge_id)
+            else:
+                steps = virtualhome_plan(graph, args.food_id, args.fridge_id)
+            result = {"mode": "PLAN_ONLY", "steps": steps,
                       "executed": False, "task_success": "NOT_EVALUATED"}
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
