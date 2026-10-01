@@ -256,6 +256,8 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 这会启动仿真，首次可能下载 THOR 可执行程序，但不会调用云端模型。终端显示场景物体 ID，每次输入一条 `Action-Target`；`Done` 结束。遇到多个 Cup 时选择输出中的完整 ID。每次只提交一个动作。
 
+本任务选择 `ButterKnife`（餐刀）、`Cup` 和 `CounterTop` 的实际 ID；[官方容器规则](https://ai2thor.allenai.org/ithor/documentation/objects/object-types/)允许 `ButterKnife` 放入 `Cup`，普通 `Knife` 的容器列表不含 `Cup`。可先将杯子放到选定台面，再拿餐刀放入同一个杯子；每次取放前先用 `GotoObject` 到达目标。
+
 截图与状态保存在 `runs/planning/<本次UTC时间>/frame_000.png`、`metadata_000.json` 等，结束时有 `run.json`。
 
 #### 3.3.2 大模型规划
