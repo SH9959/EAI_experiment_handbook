@@ -193,7 +193,9 @@ else
 fi
 ```
 
-训练正常结束后，`ckpt/transfer_seed0` 应含 `policy_best.ckpt`、`policy_last.ckpt`、周期 checkpoint、`dataset_stats.pkl` 和 `train_val_{kl,l1,loss}_seed_0.png`。评估加载 **`policy_best.ckpt`** 及同目录的统计文件，并执行 50 次 rollout；输出 `result_policy_best.txt`、`video0.mp4` 至 `video49.mp4`。源码以回合最高奖励达到任务最大值计算成功率，平均回报另行统计。
+训练正常结束后，`ckpt/transfer_seed0` 应含 `policy_best.ckpt`、`policy_last.ckpt`、周期 checkpoint、`dataset_stats.pkl` 和 `train_val_{kl,l1,loss}_seed_0.png`。评估加载 **`policy_best.ckpt`** 及同目录的统计文件，并执行 50 次 rollout；输出 `result_policy_best.txt`、`video0.mp4` 至 `video49.mp4`。源码以回合最高奖励达到 4 计算成功率，平均回报另行统计。
+
+奖励 4 表示当时左夹爪接触方块、方块未接触桌面。回合中短暂达到这一状态也会计为成功，因此还要检查视频末尾是否掉落，并在失败分析中记录。
 
 每轮先验证再更新参数；若最佳轮次为 epoch 0，`policy_best.ckpt` 是首次更新前的模型，`policy_last.ckpt` 则保存最终更新结果。记录数据集和完整命令，`--seed` 是训练种子，不控制采集或评估的随机性。
 

@@ -24,7 +24,7 @@
 | ALFWorld 文字交互 | Ubuntu 22.04、Python 3.10、独立 venv | 三份文字任务数据包；无需模型 API |
 | ALFWorld 视觉交互 | 匹配的 THOR 和图形/显示环境 | 视觉依赖和 THOR 程序 |
 | ALFRED | 兼容的历史 PyTorch、torchvision、AI2THOR；本页命令使用 GPU | 数据和预训练模型 |
-| AI2THOR | Linux、Python 3.9、AI2THOR 5.0.0、Unity 图形环境 | THOR 程序；大模型模式另需模型权限和额度 |
+| AI2THOR | Ubuntu 22.04、Python 3.10、AI2THOR 5.0.0、Unity 图形环境 | THOR 程序；大模型模式另需 SDK、模型权限和额度 |
 | VirtualHome | 本页人工路线使用 Windows、Python 3.12、官方 Unity 通信模块 | Unity 2.3.0 Windows 程序 |
 
 先确认机器、磁盘空间和已有缓存，再安装所选路线；ALFRED 与 AI2THOR 5.0.0 的依赖分开配置。
@@ -129,14 +129,24 @@ git checkout e6bb5d5de828b5d87834ea169b53c09b376d8b09
 cd chapter_4/4_1_task_planning/for_simulator/for_ai2thor
 ```
 
-进入该提交的 `for_ai2thor` 目录，建立独立环境后安装其 requirements。文件固定了 `ai2thor==5.0.0`，也含 Linux CUDA/NCCL/Triton 等较大依赖；不要直接在 Windows 基础环境中整份安装。缺少 Linux 或图形运行条件时，先完成环境准备。
+本页人工交互使用已在 Ubuntu 22.04、Python 3.10.12 上运行的最小环境，无需 PyTorch 或 CUDA 包。保留 Linux 桌面会话；Unity 仍需可用的 OpenGL 渲染。缺少 `venv` 时先执行 `sudo apt-get install python3.10-venv`。下面的环境目录已存在时，使用原环境或换一个新名称。
 
 ```bash
-conda create -n eai-ai2thor python=3.9 -y
-conda activate eai-ai2thor
-python -m pip install -r requirements.txt
+mkdir -p "$HOME/eai-lab"
+python3.10 -m venv "$HOME/eai-lab/eai-ai2thor/venv"
+source "$HOME/eai-lab/eai-ai2thor/venv/bin/activate"
+python -m pip install pip==24.3.1
+python -m pip install ai2thor==5.0.0 numpy==1.26.4 opencv-python==4.10.0.84 Flask==2.1.1 Werkzeug==2.0.3 Pillow==11.0.0
 python -m pip check
+python -c "from ai2thor.controller import Controller; import ai2thor._builds; print(ai2thor._builds.COMMIT_ID)"
+python -m pip freeze > "$HOME/eai-lab/eai-ai2thor/environment-manual.txt"
 ```
+
+最后的导入检查不启动 Unity，构建编号应为 `f0825767cd50d69f666c7f282e54abfe58f1e917`。新终端先运行上面的 `source` 命令。传递依赖以保存的 `environment-manual.txt` 为准。
+
+VMware 中如需使用 Mesa 软件渲染，在当前 Bash 执行 `export LIBGL_ALWAYS_SOFTWARE=1`；已有正常 GPU 渲染的机器不需要此设置。无桌面显示会话时，先完成图形环境配置。
+
+课程其他组件如需完整环境，可另建 Python 3.9 环境，在课程 `for_ai2thor` 目录执行 `python -m pip install -r requirements.txt`。该文件还包含 CUDA/NCCL/Triton 等依赖；本页人工路线不使用这套完整环境。
 
 回到**手册根目录**后，传入课程 `for_ai2thor` 的实际绝对路径：
 
@@ -249,7 +259,7 @@ python models/train/train_seq2seq.py --data data/json_feat_2.1.0 --model seq2seq
 
 #### 3.3.1 人工交互
 
-激活 `eai-ai2thor`，从手册根目录运行；此步启动 Unity：
+激活 2.4 的环境，从手册根目录运行；此步启动 Unity：
 
 ```bash
 python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/for_ai2thor目录" --mode manual --run --max-steps 10
@@ -263,7 +273,15 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 #### 3.3.2 大模型规划
 
-前一项手动交互通过，并确认模型权限、地域和费用后，在同一 Bash 终端配置 `DASHSCOPE_API_KEY`：
+前一项手动交互通过后，在同一环境补装课程使用的模型 SDK：
+
+```bash
+python -m pip install dashscope==1.23.1
+python -m pip check
+python -m pip freeze > "$HOME/eai-lab/eai-ai2thor/environment-llm.txt"
+```
+
+确认模型权限、地域和费用后，在同一 Bash 终端配置 `DASHSCOPE_API_KEY`：
 
 ```bash
 read -rsp "输入本机 DashScope Key（不回显）: " DASHSCOPE_API_KEY
