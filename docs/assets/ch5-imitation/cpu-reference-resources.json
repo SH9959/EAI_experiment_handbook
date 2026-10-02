@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "source_commit": "742c753c0d4a5d87076c8f69e5628c79a8cc5488",
+  "scope": "Pinned resources for one saved-input CPU/GPU comparison of the accepted full ACT baseline; no retraining or rollouts",
+  "provenance": "SHA256 and byte counts read from the original source archive, 2000-epoch training result and accepted GPU reference on 2026-10-02. Files themselves must be provided separately; no automatic download.",
+  "preparation": "minimal_cpu changes only model.cuda() to model.cpu() in detr/main.py build_ACT_model_and_optimizer; historical_cpu50 hashes identify the separately recorded full evaluation copy.",
+  "resources": {
+    "source_archive": {
+      "filename": "act-742c753c0d4a5d87076c8f69e5628c79a8cc5488.zip",
+      "bytes": 482832,
+      "sha256": "ac2d4966ed658fb53b1a1e44f92bafff3768e303421fe8a0931b08bea60864f7"
+    },
+    "checkpoint": {
+      "filename": "policy_best.ckpt",
+      "bytes": 336112647,
+      "sha256": "620d3909885eae69c238c990eb4e89ba51ee81dfd7fcb50712ba6cef4191ac7e"
+    },
+    "stats": {
+      "filename": "dataset_stats.pkl",
+      "bytes": 22966,
+      "sha256": "173b1ace400c454f2faf664e6bac8077c01a542ea4bf70da2522ad261822c6b4"
+    },
+    "training_report": {
+      "filename": "result.json",
+      "bytes": 10854,
+      "sha256": "17e9e8177ed069e96bf682632e6eb002c566cd2ac5c80773fa5afc915bc2e756"
+    },
+    "reference": {
+      "filename": "reference.npz",
+      "bytes": 33949,
+      "sha256": "39097869381e190592f2d2e7648f81df610672e16220e1b5106709d289223c50"
+    },
+    "reference_report": {
+      "filename": "reference.json",
+      "bytes": 1726,
+      "sha256": "ec7c89722f7d85e106adb45b96fb7c2775186b05094c9047f879a60550e0568b"
+    },
+    "backbone": {
+      "filename": "resnet18-f37072fd.pth",
+      "bytes": 46830571,
+      "sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec"
+    }
+  },
+  "training_parameters": {
+    "task": "sim_transfer_cube_scripted",
+    "num_episodes": 50,
+    "batch_size": 8,
+    "num_epochs": 2000,
+    "seed": 0,
+    "chunk_size": 100,
+    "hidden_dim": 512,
+    "dim_feedforward": 3200,
+    "kl_weight": 10,
+    "lr": 1e-05
+  },
+  "source_files": [
+    {
+      "path": ".gitignore",
+      "original_sha256": "54f2130af7cebe70bfdf7598e0130240ad4fb2f73ecd070c3eca4144f268fa11",
+      "minimal_cpu_sha256": "54f2130af7cebe70bfdf7598e0130240ad4fb2f73ecd070c3eca4144f268fa11",
+      "cpu50_sha256": "54f2130af7cebe70bfdf7598e0130240ad4fb2f73ecd070c3eca4144f268fa11"
+    },
+    {
+      "path": "LICENSE",
+      "original_sha256": "4666c312da313e6c46929f6695d06cf98a2e7359b9c7dcbb0ea232d01b32cd42",
+      "minimal_cpu_sha256": "4666c312da313e6c46929f6695d06cf98a2e7359b9c7dcbb0ea232d01b32cd42",
+      "cpu50_sha256": "4666c312da313e6c46929f6695d06cf98a2e7359b9c7dcbb0ea232d01b32cd42"
+    },
+    {
+      "path": "README.md",
+      "original_sha256": "5059f601c1f0409556fd467150b99e93208de5d5594e9049f87ca92b24a5e7a2",
+      "minimal_cpu_sha256": "5059f601c1f0409556fd467150b99e93208de5d5594e9049f87ca92b24a5e7a2",
+      "cpu50_sha256": "5059f601c1f0409556fd467150b99e93208de5d5594e9049f87ca92b24a5e7a2"
+    },
+    {
+      "path": "assets/bimanual_viperx_ee_insertion.xml",
+      "original_sha256": "4b06ed8281af253229db966d869729a3087245d555bce62755b23f62891f873b",
+      "minimal_cpu_sha256": "4b06ed8281af253229db966d869729a3087245d555bce62755b23f62891f873b",
+      "cpu50_sha256": "4b06ed8281af253229db966d869729a3087245d555bce62755b23f62891f873b"
+    },
+    {
+      "path": "assets/bimanual_viperx_ee_transfer_cube.xml",
+      "original_sha256": "f206b36e128975685add6d73f7ae0d73b90e923d1c7f8a9f7b20fd996bd7d890",
+      "minimal_cpu_sha256": "f206b36e128975685add6d73f7ae0d73b90e923d1c7f8a9f7b20fd996bd7d890",
+      "cpu50_sha256": "f206b36e128975685add6d73f7ae0d73b90e923d1c7f8a9f7b20fd996bd7d890"
+    },
+    {
+      "path": "assets/bimanual_viperx_insertion.xml",
+      "original_sha256": "5da2b62720aff42dbc741c76b810f22fbfd12a38c7a15f8f0a376fe235b8c31c",
+      "minimal_cpu_sha256": "5da2b62720aff42dbc741c76b810f22fbfd12a38c7a15f8f0a376fe235b8c31c",
+      "cpu50_sha256": "5da2b62720aff42dbc741c76b810f22fbfd12a38c7a15f8f0a376fe235b8c31c"
+    },
+    {
+      "path": "assets/bimanual_viperx_transfer_cube.xml",
+      "original_sha256": "ff520a803d0de93661d84d0bdf20289401a63e57443b53bdb5b7ac41b27588f8",
+      "minimal_cpu_sha256": "ff520a803d0de93661d84d0bdf20289401a63e57443b53bdb5b7ac41b27588f8",
+      "cpu50_sha256": "ff520a803d0de93661d84d0bdf20289401a63e57443b53bdb5b7ac41b27588f8"
+    },
+    {
+      "path": "assets/scene.xml",
+      "original_sha256": "7928fe2c986159493c71cc74d5ab4606fafa8b651805f98df40a26ef141afd9b",
+      "minimal_cpu_sha256": "7928fe2c986159493c71cc74d5ab4606fafa8b651805f98df40a26ef141afd9b",
+      "cpu50_sha256": "7928fe2c986159493c71cc74d5ab4606fafa8b651805f98df40a26ef141afd9b"
+    },
+    {
+      "path": "assets/tabletop.stl",
+      "original_sha256": "76a1571d1aa36520f2bd81c268991b99816c2a7819464d718e0fd9976fe30dce",
+      "minimal_cpu_sha256": "76a1571d1aa36520f2bd81c268991b99816c2a7819464d718e0fd9976fe30dce",
+      "cpu50_sha256": "76a1571d1aa36520f2bd81c268991b99816c2a7819464d718e0fd9976fe30dce"
+    },
+    {
+      "path": "assets/vx300s_10_custom_finger_left.stl",
+      "original_sha256": "df73ae5b9058e5d50a6409ac2ab687dade75053a86591bb5e23ab051dbf2d659",
+      "minimal_cpu_sha256": "df73ae5b9058e5d50a6409ac2ab687dade75053a86591bb5e23ab051dbf2d659",
+      "cpu50_sha256": "df73ae5b9058e5d50a6409ac2ab687dade75053a86591bb5e23ab051dbf2d659"
+    },
+    {
+      "path": "assets/vx300s_10_custom_finger_right.stl",
+      "original_sha256": "56fb3cc1236d4193106038adf8e457c7252ae9e86c7cee6dabf0578c53666358",
+      "minimal_cpu_sha256": "56fb3cc1236d4193106038adf8e457c7252ae9e86c7cee6dabf0578c53666358",
+      "cpu50_sha256": "56fb3cc1236d4193106038adf8e457c7252ae9e86c7cee6dabf0578c53666358"
+    },
+    {
+      "path": "assets/vx300s_10_gripper_finger.stl",
+      "original_sha256": "a4baacd9a64df1be60ea5e98f50f3c660e1b7a1fe9684aace6004c5058c09483",
+      "minimal_cpu_sha256": "a4baacd9a64df1be60ea5e98f50f3c660e1b7a1fe9684aace6004c5058c09483",
+      "cpu50_sha256": "a4baacd9a64df1be60ea5e98f50f3c660e1b7a1fe9684aace6004c5058c09483"
+    },
+    {
+      "path": "assets/vx300s_11_ar_tag.stl",
+      "original_sha256": "a18a1601074d29ed1d546ead70cd18fbb063f1db7b5b96b9f0365be714f3136a",
+      "minimal_cpu_sha256": "a18a1601074d29ed1d546ead70cd18fbb063f1db7b5b96b9f0365be714f3136a",
+      "cpu50_sha256": "a18a1601074d29ed1d546ead70cd18fbb063f1db7b5b96b9f0365be714f3136a"
+    },
+    {
+      "path": "assets/vx300s_1_base.stl",
+      "original_sha256": "d100cafe656671ca8fde98fb6a4cf2d1b746995c51c61c25ad9ea2715635d146",
+      "minimal_cpu_sha256": "d100cafe656671ca8fde98fb6a4cf2d1b746995c51c61c25ad9ea2715635d146",
+      "cpu50_sha256": "d100cafe656671ca8fde98fb6a4cf2d1b746995c51c61c25ad9ea2715635d146"
+    },
+    {
+      "path": "assets/vx300s_2_shoulder.stl",
+      "original_sha256": "139745a74055cb0b23430bb5bc032bf68cf7bea5e4975c8f4c04107ae005f7f0",
+      "minimal_cpu_sha256": "139745a74055cb0b23430bb5bc032bf68cf7bea5e4975c8f4c04107ae005f7f0",
+      "cpu50_sha256": "139745a74055cb0b23430bb5bc032bf68cf7bea5e4975c8f4c04107ae005f7f0"
+    },
+    {
+      "path": "assets/vx300s_3_upper_arm.stl",
+      "original_sha256": "900f236320dd3d500870c5fde763b2d47502d51e043a5c377875e70237108729",
+      "minimal_cpu_sha256": "900f236320dd3d500870c5fde763b2d47502d51e043a5c377875e70237108729",
+      "cpu50_sha256": "900f236320dd3d500870c5fde763b2d47502d51e043a5c377875e70237108729"
+    },
+    {
+      "path": "assets/vx300s_4_upper_forearm.stl",
+      "original_sha256": "4104fc54bbfb8a9b533029f1e7e3ade3d54d638372b3195daa0c98f57e0295b5",
+      "minimal_cpu_sha256": "4104fc54bbfb8a9b533029f1e7e3ade3d54d638372b3195daa0c98f57e0295b5",
+      "cpu50_sha256": "4104fc54bbfb8a9b533029f1e7e3ade3d54d638372b3195daa0c98f57e0295b5"
+    },
+    {
+      "path": "assets/vx300s_5_lower_forearm.stl",
+      "original_sha256": "66814e27fa728056416e25e02e89eb7d34c51d51c51e7c3df873829037ddc6b8",
+      "minimal_cpu_sha256": "66814e27fa728056416e25e02e89eb7d34c51d51c51e7c3df873829037ddc6b8",
+      "cpu50_sha256": "66814e27fa728056416e25e02e89eb7d34c51d51c51e7c3df873829037ddc6b8"
+    },
+    {
+      "path": "assets/vx300s_6_wrist.stl",
+      "original_sha256": "90eb145c85627968c3776ae6de23ccff7e112c9dd713c46bc9acdfdaa859a048",
+      "minimal_cpu_sha256": "90eb145c85627968c3776ae6de23ccff7e112c9dd713c46bc9acdfdaa859a048",
+      "cpu50_sha256": "90eb145c85627968c3776ae6de23ccff7e112c9dd713c46bc9acdfdaa859a048"
+    },
+    {
+      "path": "assets/vx300s_7_gripper.stl",
+      "original_sha256": "786c1077bfd226f14219581b11d5f19464ca95b17132e0bb7532503568f5af90",
+      "minimal_cpu_sha256": "786c1077bfd226f14219581b11d5f19464ca95b17132e0bb7532503568f5af90",
+      "cpu50_sha256": "786c1077bfd226f14219581b11d5f19464ca95b17132e0bb7532503568f5af90"
+    },
+    {
+      "path": "assets/vx300s_8_gripper_prop.stl",
+      "original_sha256": "d1275a93fe2157c83dbc095617fb7e672888bdd48ec070a35ef4ab9ebd9755b0",
+      "minimal_cpu_sha256": "d1275a93fe2157c83dbc095617fb7e672888bdd48ec070a35ef4ab9ebd9755b0",
+      "cpu50_sha256": "d1275a93fe2157c83dbc095617fb7e672888bdd48ec070a35ef4ab9ebd9755b0"
+    },
+    {
+      "path": "assets/vx300s_9_gripper_bar.stl",
+      "original_sha256": "a4de62c9a2ed2c78433010e4c05530a1254b1774a7651967f406120c9bf8973e",
+      "minimal_cpu_sha256": "a4de62c9a2ed2c78433010e4c05530a1254b1774a7651967f406120c9bf8973e",
+      "cpu50_sha256": "a4de62c9a2ed2c78433010e4c05530a1254b1774a7651967f406120c9bf8973e"
+    },
+    {
+      "path": "assets/vx300s_dependencies.xml",
+      "original_sha256": "7d1000c9206e654ce76fe04eb131edab33efbafb5e74c8011e8e2ae758089274",
+      "minimal_cpu_sha256": "7d1000c9206e654ce76fe04eb131edab33efbafb5e74c8011e8e2ae758089274",
+      "cpu50_sha256": "7d1000c9206e654ce76fe04eb131edab33efbafb5e74c8011e8e2ae758089274"
+    },
+    {
+      "path": "assets/vx300s_left.xml",
+      "original_sha256": "335b72f4bdd0e166e72de303c8ea0d987b54766960fba980aca8daed06a04086",
+      "minimal_cpu_sha256": "335b72f4bdd0e166e72de303c8ea0d987b54766960fba980aca8daed06a04086",
+      "cpu50_sha256": "335b72f4bdd0e166e72de303c8ea0d987b54766960fba980aca8daed06a04086"
+    },
+    {
+      "path": "assets/vx300s_right.xml",
+      "original_sha256": "1977f05fcc800b8071b2e353202c3fec1ec58ef29d86f3982607b52b6235fb23",
+      "minimal_cpu_sha256": "1977f05fcc800b8071b2e353202c3fec1ec58ef29d86f3982607b52b6235fb23",
+      "cpu50_sha256": "1977f05fcc800b8071b2e353202c3fec1ec58ef29d86f3982607b52b6235fb23"
+    },
+    {
+      "path": "conda_env.yaml",
+      "original_sha256": "b9cefd6bb83a6d5bb399529db1e8adc83456943bf664080e4c85b9ab70b7420b",
+      "minimal_cpu_sha256": "b9cefd6bb83a6d5bb399529db1e8adc83456943bf664080e4c85b9ab70b7420b",
+      "cpu50_sha256": "b9cefd6bb83a6d5bb399529db1e8adc83456943bf664080e4c85b9ab70b7420b"
+    },
+    {
+      "path": "constants.py",
+      "original_sha256": "2e27d4412e2b7e1f2e4148105fdf514d8c52ec6c8f1c86ef0549c475e8b91d86",
+      "minimal_cpu_sha256": "2e27d4412e2b7e1f2e4148105fdf514d8c52ec6c8f1c86ef0549c475e8b91d86",
+      "cpu50_sha256": "2e27d4412e2b7e1f2e4148105fdf514d8c52ec6c8f1c86ef0549c475e8b91d86"
+    },
+    {
+      "path": "detr/LICENSE",
+      "original_sha256": "b208c52b00a2df2c8f4c3298c34407bf2bfe409968213372251c91fcc737a1a5",
+      "minimal_cpu_sha256": "b208c52b00a2df2c8f4c3298c34407bf2bfe409968213372251c91fcc737a1a5",
+      "cpu50_sha256": "b208c52b00a2df2c8f4c3298c34407bf2bfe409968213372251c91fcc737a1a5"
+    },
+    {
+      "path": "detr/README.md",
+      "original_sha256": "138b41d39a453f11ce56a6aa6dd47ec0afa3195e89f6d0da3daad9b5b0665f91",
+      "minimal_cpu_sha256": "138b41d39a453f11ce56a6aa6dd47ec0afa3195e89f6d0da3daad9b5b0665f91",
+      "cpu50_sha256": "138b41d39a453f11ce56a6aa6dd47ec0afa3195e89f6d0da3daad9b5b0665f91"
+    },
+    {
+      "path": "detr/main.py",
+      "original_sha256": "c849042c949d4cfe9ff41b4b167a2af67dae4ba4a0e8b7d25a875d04231a4162",
+      "minimal_cpu_sha256": "a70202737209ada717be42513416c5c1c717d78be9ad443324f29abefc45b7df",
+      "cpu50_sha256": "a70202737209ada717be42513416c5c1c717d78be9ad443324f29abefc45b7df"
+    },
+    {
+      "path": "detr/models/__init__.py",
+      "original_sha256": "7ed43d119c4bef1c46df821cc3b4f256153fbe59717a2e9f1825abc2d3b3e778",
+      "minimal_cpu_sha256": "7ed43d119c4bef1c46df821cc3b4f256153fbe59717a2e9f1825abc2d3b3e778",
+      "cpu50_sha256": "7ed43d119c4bef1c46df821cc3b4f256153fbe59717a2e9f1825abc2d3b3e778"
+    },
+    {
+      "path": "detr/models/backbone.py",
+      "original_sha256": "dec9770e496e2deb56f694e622a15d01ea3bdea977c2446fb3c41bc18cf4ed55",
+      "minimal_cpu_sha256": "dec9770e496e2deb56f694e622a15d01ea3bdea977c2446fb3c41bc18cf4ed55",
+      "cpu50_sha256": "dec9770e496e2deb56f694e622a15d01ea3bdea977c2446fb3c41bc18cf4ed55"
+    },
+    {
+      "path": "detr/models/detr_vae.py",
+      "original_sha256": "499d968a3704156e5e29425a29691c3fa93421481d3609ed6b600b21801270f1",
+      "minimal_cpu_sha256": "499d968a3704156e5e29425a29691c3fa93421481d3609ed6b600b21801270f1",
+      "cpu50_sha256": "499d968a3704156e5e29425a29691c3fa93421481d3609ed6b600b21801270f1"
+    },
+    {
+      "path": "detr/models/position_encoding.py",
+      "original_sha256": "5a8f62c66fc7ec66e862bdfe96e122098b93a688fbed514460990c74fa307151",
+      "minimal_cpu_sha256": "5a8f62c66fc7ec66e862bdfe96e122098b93a688fbed514460990c74fa307151",
+      "cpu50_sha256": "5a8f62c66fc7ec66e862bdfe96e122098b93a688fbed514460990c74fa307151"
+    },
+    {
+      "path": "detr/models/transformer.py",
+      "original_sha256": "c6d2a1e7138e6ca62db7cc61bfc99857fb2a3a9375ba7b304310ca264f357ee2",
+      "minimal_cpu_sha256": "c6d2a1e7138e6ca62db7cc61bfc99857fb2a3a9375ba7b304310ca264f357ee2",
+      "cpu50_sha256": "c6d2a1e7138e6ca62db7cc61bfc99857fb2a3a9375ba7b304310ca264f357ee2"
+    },
+    {
+      "path": "detr/setup.py",
+      "original_sha256": "96d9ab1a9911e640992121cf64a2d98c1894bf50e51589502388ecd08228f120",
+      "minimal_cpu_sha256": "96d9ab1a9911e640992121cf64a2d98c1894bf50e51589502388ecd08228f120",
+      "cpu50_sha256": "96d9ab1a9911e640992121cf64a2d98c1894bf50e51589502388ecd08228f120"
+    },
+    {
+      "path": "detr/util/__init__.py",
+      "original_sha256": "9e535c45af09ac24ef8d5631a151f77febafe72a92ad6bfeb2d941f0c4a54e35",
+      "minimal_cpu_sha256": "9e535c45af09ac24ef8d5631a151f77febafe72a92ad6bfeb2d941f0c4a54e35",
+      "cpu50_sha256": "9e535c45af09ac24ef8d5631a151f77febafe72a92ad6bfeb2d941f0c4a54e35"
+    },
+    {
+      "path": "detr/util/box_ops.py",
+      "original_sha256": "f0c1c3e27b0f69955e74b09b4ae1898e41e409d1af292c478ba8be71856112fc",
+      "minimal_cpu_sha256": "f0c1c3e27b0f69955e74b09b4ae1898e41e409d1af292c478ba8be71856112fc",
+      "cpu50_sha256": "f0c1c3e27b0f69955e74b09b4ae1898e41e409d1af292c478ba8be71856112fc"
+    },
+    {
+      "path": "detr/util/misc.py",
+      "original_sha256": "b56dfabebf8eded2e7dbf359e167bd308d9c75ee0394f63a751cad9eee597f00",
+      "minimal_cpu_sha256": "b56dfabebf8eded2e7dbf359e167bd308d9c75ee0394f63a751cad9eee597f00",
+      "cpu50_sha256": "b56dfabebf8eded2e7dbf359e167bd308d9c75ee0394f63a751cad9eee597f00"
+    },
+    {
+      "path": "detr/util/plot_utils.py",
+      "original_sha256": "45e371d165675185fce81142332da1408abc982585e24f7b084f6068fb51e529",
+      "minimal_cpu_sha256": "45e371d165675185fce81142332da1408abc982585e24f7b084f6068fb51e529",
+      "cpu50_sha256": "45e371d165675185fce81142332da1408abc982585e24f7b084f6068fb51e529"
+    },
+    {
+      "path": "ee_sim_env.py",
+      "original_sha256": "4c93d949c0829ffbbd1ea613e8278c095e8265ebf0dd33ca129958edd93e76c4",
+      "minimal_cpu_sha256": "4c93d949c0829ffbbd1ea613e8278c095e8265ebf0dd33ca129958edd93e76c4",
+      "cpu50_sha256": "4c93d949c0829ffbbd1ea613e8278c095e8265ebf0dd33ca129958edd93e76c4"
+    },
+    {
+      "path": "imitate_episodes.py",
+      "original_sha256": "f2b057cd497f3fef20bdc4197879d1c02e1c751f83154cce0183fcc10f7e2540",
+      "minimal_cpu_sha256": "f2b057cd497f3fef20bdc4197879d1c02e1c751f83154cce0183fcc10f7e2540",
+      "cpu50_sha256": "b6dc005eccff18ce07f72ba54b1e58bc9f701b0bde9516be3d26da827776455e"
+    },
+    {
+      "path": "policy.py",
+      "original_sha256": "352efca415ee0e31073a27ca91560195702d1e9b545e573a3a668a53f06dd127",
+      "minimal_cpu_sha256": "352efca415ee0e31073a27ca91560195702d1e9b545e573a3a668a53f06dd127",
+      "cpu50_sha256": "352efca415ee0e31073a27ca91560195702d1e9b545e573a3a668a53f06dd127"
+    },
+    {
+      "path": "record_sim_episodes.py",
+      "original_sha256": "1ad3bdb05defb3059f664851a99d9c2cee6fea1e2591882e1685ee123c81cb98",
+      "minimal_cpu_sha256": "1ad3bdb05defb3059f664851a99d9c2cee6fea1e2591882e1685ee123c81cb98",
+      "cpu50_sha256": "1ad3bdb05defb3059f664851a99d9c2cee6fea1e2591882e1685ee123c81cb98"
+    },
+    {
+      "path": "scripted_policy.py",
+      "original_sha256": "8b8425ea09c248d086e47eebaf3875be77bea7d3694fee83a1d7c8f0e1f25c36",
+      "minimal_cpu_sha256": "8b8425ea09c248d086e47eebaf3875be77bea7d3694fee83a1d7c8f0e1f25c36",
+      "cpu50_sha256": "8b8425ea09c248d086e47eebaf3875be77bea7d3694fee83a1d7c8f0e1f25c36"
+    },
+    {
+      "path": "sim_env.py",
+      "original_sha256": "691f555cb3d8ede94c8ddc9c76a996f03b00f3bbdee9726efa44cd75b19d0ada",
+      "minimal_cpu_sha256": "691f555cb3d8ede94c8ddc9c76a996f03b00f3bbdee9726efa44cd75b19d0ada",
+      "cpu50_sha256": "691f555cb3d8ede94c8ddc9c76a996f03b00f3bbdee9726efa44cd75b19d0ada"
+    },
+    {
+      "path": "utils.py",
+      "original_sha256": "71315de9e613024e781f089c2f46baa6a94be79daa97a45c8601829fc1badcec",
+      "minimal_cpu_sha256": "71315de9e613024e781f089c2f46baa6a94be79daa97a45c8601829fc1badcec",
+      "cpu50_sha256": "71315de9e613024e781f089c2f46baa6a94be79daa97a45c8601829fc1badcec"
+    },
+    {
+      "path": "visualize_episodes.py",
+      "original_sha256": "b2d543b0b9271317bf461383d6b6d42269d10787fdd556432db303f905cdff75",
+      "minimal_cpu_sha256": "b2d543b0b9271317bf461383d6b6d42269d10787fdd556432db303f905cdff75",
+      "cpu50_sha256": "b2d543b0b9271317bf461383d6b6d42269d10787fdd556432db303f905cdff75"
+    }
+  ]
+}

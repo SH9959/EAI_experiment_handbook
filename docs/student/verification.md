@@ -9,13 +9,14 @@
 | [仿真任务规划](ch4-planning.md) | ALFWorld 文字任务、AI2THOR 预设八步、VirtualHome 人工规则放置任务 | ALFWorld 视觉、ALFRED、AI2THOR/VirtualHome 模型自主规划 | 视觉依赖与 THOR；ALFRED `f91f4c0` 对应 `json_feat`、checkpoint 和历史环境；模型路线另需账号配置 |
 | [实机任务规划](ch4-real.md) | 代码、规则与接口核对 | 抓取、搬运及真实设备闭环 | 完整 ROS 工程，CR5/AG95/D435i、设备负责人；相机内参、深度单位、坐标变换、TCP 与 IK 配置 |
 | [iGibson 导航](ch4-navigation.md) | 固定源码和配置核对 | 场景加载、导航回合与策略比较 | iGibson 2.2.3 对应通用资产、`Rs_int` 场景，二者 `VERSION` 在 `[2.0.6, 2.2.4)`；合法密钥与可用渲染环境 |
-| [ACT 模仿学习](ch5-imitation.md) | Windows CUDA 训练与 Ubuntu CPU 评估适配：50 条示教、2000 轮、50 回合；原判据成功 **37/50** | 原 Linux CUDA 全流程、cobot-magic 实机 | 查看已有结果无需训练；实机需实验台、负责人、ROS/Python、三相机与 CAN/四臂配置 |
+| [ACT 模仿学习](ch5-imitation.md) | 原完整基线 50 条/2000 轮/50 回合，**37/50**；另通过 Windows 独立 CPU 环境的一次保存输入对照 | Ubuntu 独立环境安装与渲染、原 Linux CUDA 全流程、cobot-magic 实机 | 单输入需已有 best、stats、缓存、参考输入和报告；Ubuntu 需完整 Linux wheelhouse 与系统库；实机需实验台与设备配置 |
 
 没有相应资源时，记录**停在哪一步、缺少哪项、由谁提供、版本如何匹配**，暂不填写成功率。模型授权、场景和实机配置向课程负责人领取；Key 和密码只在本机配置，不提交实验报告或 Git。
 
 ## 直接检查结果
 
 - **ACT 完整基线**：[学生操作与结果](ch5-imitation.md#41)、[逐回合 JSON](../assets/ch5-imitation/act-evaluation-20261002.json)、[原始证据核验说明](../assets/ch5-imitation/verification.md#evidence-check-20261002)。37 回合曾达到奖励 4，其中 34 回合末步仍为 4；二者不能称为稳定夹持率。早期短训练失败记录继续保留。
+- **ACT 独立 CPU 单输入**：[操作步骤](ch5-imitation.md#42-cpu)、[环境配置](../assets/ch5-imitation/cpu-environment.md)、[实测结果](../assets/ch5-imitation/cpu-reference-validation-20261002.json)。新环境未借用其他 venv，一次输出与保存的 GPU 参考通过数值比较；没有新回合或新成功率，Ubuntu 完整环境仍待验证。
 - **VirtualHome**：按[仿真任务规划](ch4-planning.md#34-virtualhome)运行仓库内入口。检查执行反馈、目标实例关系、冰箱关门与未持握状态；原始动作失败或最终图缺失时不能记作任务通过。
 - **ALFWorld / AI2THOR**：[实验步骤](ch4-planning.md)、[真实运行与失败恢复记录](../assets/ch4-planning/verification.md)。预设动作完成只验证对应任务，不证明模型能够自主规划。
 - **其余实验**：[对话](../assets/ch3-dialogue/verification.md)、[抓取](../assets/ch3-grasp/verification.md)、[实机规划](../assets/ch4-real/verification.md)、[导航](../assets/ch4-navigation/verification.md)的记录分别说明已做检查、实际失败和待补条件。

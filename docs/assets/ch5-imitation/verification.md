@@ -2,6 +2,37 @@
 
 更新日期：2026-10-02。**已完成 50 条示教、2000 epoch 训练及完整 50 回合 CPU 策略评估：原判据成功 37/50（74%），平均回报 490.26。** 末步奖励仍为 4 的有 34/50 回合。训练使用 Windows CUDA 适配环境，评估使用 Ubuntu CPU 适配；教材 Linux CUDA 入口与实机实验仍待验证。
 
+<a id="cpu-reference-portable"></a>
+## 独立 Windows CPU 环境与一次保存输入对照（2026-10-02，后续维护）
+
+本阶段新增[参数化入口](run_act_cpu_reference.py)、[资源哈希清单](cpu-reference-resources.json)及[独立环境配置](cpu-environment.md)。复用已有完整训练 best、stats、ResNet-18 缓存和真实训练数据导出的参考输入，**实际仅执行一次 CPU 前向推理，0 个仿真回合，不重新训练或采集**。
+
+| 检查层次 | 实际结果 |
+|---|---|
+| Windows 干净安装 | Python 3.12.12 新 venv；28 个依赖按 SHA256 离线解析安装；`pip check` 通过。关闭系统包和用户包继承，全部安装分发及核心模块位于新 venv；无借用另一环境的 `.pth` |
+| 版本 | torch 2.7.1+cpu、torchvision 0.22.1+cpu、NumPy 1.26.4；[完整快照](windows-cpu-reference-environment-20261002.txt)，安装器 pip 25.0.1 |
+| 输入与源码 | 七项固定资源哈希通过；48 个源码文件中只修改 ACT 工厂的 CPU 放置；运行后源码与资源复核未变 |
+| 单输入推理 | `SINGLE_INPUT_VERIFIED`；严格加载 best，1 次 forward，输出 `(1,100,14)`，全部有限；worker 7.765 秒，监督器 8.625 秒，180 秒上限，退出 0 |
+| 与既有 GPU 参考比较 | 归一化动作最大绝对差 `1.6689300537109375e-6`；还原动作差 `8.344650268554688e-7`；两者均通过 `rtol=atol=1e-4` |
+| Ubuntu 独立重建 | 仅整理候选版本清单和 OSMesa 系统依赖说明；VM 未运行且本阶段没有可用登录会话，完整 Linux wheelhouse 尚未核实，未验证干净安装或渲染 |
+
+[公开实测摘要](cpu-reference-validation-20261002.json)列出原始安装/推理日志、输出 NPZ 和监督记录的哈希。原始日志保留两条 torchvision `pretrained/weights` 弃用警告；它们未被删除，也未导致本次加载失败。Windows 单输入环境不会导入 MuJoCo，不能用该结果证明 Ubuntu 仿真已重建。
+
+23 项新入口边界测试和 8 项既有摘要核验测试通过（无跳过），覆盖资源损坏/缺失、源码改变、旧输出保护、数值不符、非有限值和超时处理。另有两次真实资源预检为 `PREFLIGHT_ONLY`，均未推理。离线测试和预检不计入任务成功数。
+
+运行后先看新目录的 `result.json` 与 `supervisor.json`，再按以下顺序定位：
+
+| 状态或错误 | 下一步 |
+|---|---|
+| `PREFLIGHT_ONLY` | 只核对文件，未加载模型；需要推理时去掉该选项并换新输出目录 |
+| `Missing…` / `SHA256 mismatch…` | 对照资源清单领取相应原件；不要重命名其他权重冒充 best |
+| `ModuleNotFoundError` / 包依赖错误 | 查看 `stderr.log` 与安装日志；使用已验证的独立解释器，补齐匹配 wheelhouse，再运行 `pip check` |
+| `TIMEOUT` | 监督器已停止本次工作进程，保存部分日志；先检查 CPU、可用内存和包版本，不将超时算作模型任务失败 |
+| 数值比较 `FAILED` | 比较 `comparison.json`、checkpoint/stats、源码身份和包版本；保留原输出，不放宽容差后称原设置通过 |
+| `SINGLE_INPUT_VERIFIED` | 仅保存输入的动作预测核验通过；环境独立性另查 `environment`，新任务成功率不适用 |
+
+下列各节保留此前阶段的原始记录；其中“本轮”指相应记录写入的阶段，不代表又执行了一次完整评估。
+
 <a id="evidence-check-20261002"></a>
 ## 既有证据的仓库内核验入口（2026-10-02）
 

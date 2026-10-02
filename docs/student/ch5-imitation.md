@@ -10,6 +10,8 @@
 
 已有一次完整仿真记录可供对照：**50 条示教、2000 轮训练、50 回合评估，按原程序判据成功 37/50（74%），平均回报 490.26**。其中 34 回合末步奖励仍为 4，另 3 回合曾达到 4、后来掉落；74% 不是稳定夹持率。该记录使用 Windows CUDA 训练和 Ubuntu CPU 评估适配，不能作为下文原 Linux CUDA 全流程或实机已通过的证明。只查看或核对这份结果时，直接进入第四节，无需重新训练。
 
+没有 GPU、只想检查已有模型能否加载并预测动作时，走[单输入 CPU 对照](#42-cpu)。它复用保存的真实图像和关节状态，不采集、不训练、不执行 50 回合，也不计算新的任务成功率。
+
 ## 二、实验环境配置
 
 ### 2.1 ACT 仿真环境
@@ -303,7 +305,47 @@ python docs/assets/ch5-imitation/verify_act_evidence.py
 
 上图包含所有失败回合。第 1 回合曾达到奖励 4 后掉落，第 2 回合末步仍满足奖励条件，第 0 回合未达到成功条件；编号从 0 开始。早期 2 条示教、3 轮短训练的 0/1 失败保留在[历史验证记录](../assets/ch5-imitation/verification.md)，不与这份完整基线混合统计。
 
-### 4.2 提交本次实验结果
+### 4.2 单输入 CPU 对照
+
+先按[独立 CPU 环境说明](../assets/ch5-imitation/cpu-environment.md)准备环境，再领取[资源清单](../assets/ch5-imitation/cpu-reference-resources.json)中的原件。需要固定源码 ZIP、完整训练的 best、配套统计文件、ResNet-18 缓存、参考 NPZ 及两份来源报告；这条路线不需要 50 条 HDF5 或全部录像。缺文件时停在资源准备，不能用早期短训练权重替换。
+
+下面假定原件放在同一个 `ACT_RESOURCES` 目录；把清单中 `training_report` 对应的原 `result.json` 原样复制为 `training-result.json`，只改副本文件名、保持内容与哈希不变，以免与本次推理的结果文件混淆。ResNet-18 放在该目录下的 `torch-cache/hub/checkpoints/resnet18-f37072fd.pth`；其余文件沿用清单中的名称。
+
+**Windows PowerShell：**从手册仓库根目录执行，替换下面三个路径。`ACT_PY` 必须指向刚创建并检查通过的独立 venv 解释器；无需激活环境。输出目录须尚不存在，且位于资源目录外。
+
+```powershell
+$ACT_PY = 'C:/绝对路径/act-cpu-reference-01/Scripts/python.exe'
+$ACT_RESOURCES = 'D:/绝对路径/act-resources'
+$ACT_OUTPUT = 'D:/绝对路径/act-results/cpu-reference-01'
+if (Test-Path -LiteralPath $ACT_OUTPUT) { throw '请更换为新的输出目录' }
+& $ACT_PY -I docs/assets/ch5-imitation/run_act_cpu_reference.py `
+  --source-archive "$ACT_RESOURCES/act-742c753c0d4a5d87076c8f69e5628c79a8cc5488.zip" `
+  --checkpoint "$ACT_RESOURCES/policy_best.ckpt" --stats "$ACT_RESOURCES/dataset_stats.pkl" `
+  --torch-home "$ACT_RESOURCES/torch-cache" `
+  --reference "$ACT_RESOURCES/reference.npz" --reference-report "$ACT_RESOURCES/reference.json" `
+  --training-report "$ACT_RESOURCES/training-result.json" `
+  --output $ACT_OUTPUT --threads 4 --timeout-seconds 180
+```
+
+**Ubuntu Bash：**只有完成独立环境准备与检查后才运行。保留环境说明设置的 `ACT_PY`；新终端需重新设为该 venv 的 `bin/python` 绝对路径。资源布局相同，从手册仓库根目录执行：
+
+```bash
+ACT_RESOURCES="/绝对路径/act-resources"
+ACT_OUTPUT="/绝对路径/act-results/cpu-reference-01"
+"$ACT_PY" -I docs/assets/ch5-imitation/run_act_cpu_reference.py \
+  --source-archive "$ACT_RESOURCES/act-742c753c0d4a5d87076c8f69e5628c79a8cc5488.zip" \
+  --checkpoint "$ACT_RESOURCES/policy_best.ckpt" --stats "$ACT_RESOURCES/dataset_stats.pkl" \
+  --torch-home "$ACT_RESOURCES/torch-cache" \
+  --reference "$ACT_RESOURCES/reference.npz" --reference-report "$ACT_RESOURCES/reference.json" \
+  --training-report "$ACT_RESOURCES/training-result.json" \
+  --output "$ACT_OUTPUT" --threads 4 --timeout-seconds 180
+```
+
+入口先核对哈希，再在新目录准备仅修改 ACT 设备放置的源码，执行一次 CPU 前向推理。它禁止联网下载，最多运行 180 秒，保留日志、预测数组和 JSON 结果。只想检查输入时加 `--preflight-only`，之后真正推理仍需换新输出目录。
+
+`SINGLE_INPUT_VERIFIED` 表示输出为有限的 `(1,100,14)` 动作块，且归一化及还原后的动作均与已有 GPU 参考满足 `rtol=atol=1e-4`；它不证明方块传递成功。还需单独查看环境是否独立：继承另一环境时，即使数值通过，也不能记为独立安装通过。预检、超时、依赖缺失或数值不符均保留原记录，按[本次验证与阻碍](../assets/ch5-imitation/verification.md#cpu-reference-portable)定位。
+
+### 4.3 提交本次实验结果
 
 提交以下材料，并将“未执行”与真实失败分开记录：
 
