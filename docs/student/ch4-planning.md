@@ -1,6 +1,6 @@
 # 第 4 章：仿真任务规划
 
-对应教材 **4.4.1 在仿真环境上的规划实验**，印刷页 133—140（v2.0 PDF 第 151—158 页）。教材分成三部分：ALFWorld 交互体验、ALFRED 小模型测试、基于大模型的规划演示；第三部分包含 AI2THOR 和 VirtualHome。
+对应教材 **4.4.1 在仿真环境上的规划实验**，印刷页 133—140（v2.0 PDF 第 151—158 页）。
 
 ## 一、实验目标
 
@@ -13,7 +13,7 @@
 | AI2THOR 大模型演示 | 图像/状态 → 大模型动作 → 执行 → 反馈 | 原课程示例需要 DashScope Key；可先独立检查仿真器 |
 | VirtualHome | 先执行“把三文鱼放入冰箱”的人工脚本，再尝试模型规划 | 人工脚本不需要；模型路线另需规划器 |
 
-建议从 ALFWorld 文字交互开始，再按课程安排完成其余路线。
+先完成 ALFWorld 文字任务，再按课程安排选择其余路线。各路线分别验收；人工规则任务通过后，才能继续检查模型生成的计划。
 
 ## 二、实验环境配置
 
@@ -34,11 +34,11 @@
 从**手册仓库根目录**运行，需要 Python 3.9 或更高版本，无需安装仿真器或模型依赖：
 
 ```bash
-python docs/assets/ch4-planning/test_planning_checks.py
+python --version
 python docs/assets/ch4-planning/planning_checks.py action --text "PickupObject-Cup"
 ```
 
-第二条应输出 `FORMAT_ONLY`、`executed: false` 和 `task_success: NOT_EVALUATED`，表示动作格式检查通过，尚未访问仿真场景。
+第二条应输出 `FORMAT_ONLY`、`executed: false` 和 `task_success: NOT_EVALUATED`。这一步只检查动作格式，后续还要在场景中执行。
 
 ### 2.2 ALFWorld 环境
 
@@ -48,7 +48,7 @@ python docs/assets/ch4-planning/planning_checks.py action --text "PickupObject-C
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y python3.10-venv python3.10-dev build-essential libffi-dev curl
+sudo apt-get install -y python3.10-venv python3.10-dev build-essential libffi-dev curl util-linux
 ```
 
 建立并激活环境，后续步骤在同一个终端执行：
@@ -84,7 +84,7 @@ done
 
 ### 2.3 ALFRED 环境与数据
 
-ALFRED 的 Seq2Seq/LSTM 模型使用视觉特征，评测时需要在 THOR 中执行。原始项目列出的 PyTorch/torchvision/AI2THOR 版本较旧，需与本页 AI2THOR 5.0.0 环境分开配置。先向助教取得可运行的历史环境或按官方兼容组合单独建立环境。
+ALFRED 使用视觉特征和历史环境：固定源码列出 PyTorch 1.1.0、torchvision 0.3.0、AI2THOR 2.1.0。**目前缺少经过验证的完整环境锁文件，本路线尚未跑通。** 已有课程环境时先核对这三个版本和 GPU；没有兼容环境时停在此处，记录缺少的环境材料，不在 AI2THOR 5.0.0 环境中降级依赖。
 
 ```bash
 # 从独立实验父目录开始，不在手册目录内部下载模型。
@@ -95,15 +95,13 @@ export ALFRED_ROOT="$PWD"
 git rev-parse HEAD
 ```
 
-在助教确认的专用环境中，从 `$ALFRED_ROOT` 执行 `python -m pip install -r requirements.txt`，再用 `python -m pip check` 检查冲突。官方 quickstart 采用 `json_feat` 数据（其 README 标注约 17 GB）。本页采用包含轨迹和预提取视觉特征的 `json_feat_2.1.0`，与教材 `json_2.1.0` 轨迹 JSON 路线不同。确认资源后下载：
+激活兼容的专用环境，从 `$ALFRED_ROOT` 执行 `python -m pip install -r requirements.txt`，再运行 `python -m pip check`。本页使用官方 quickstart 的 `json_feat_2.1.0`，包含轨迹和预提取视觉特征，下载约 17 GB；仅有教材的 `json_2.1.0` 轨迹 JSON 不足以直接使用以下命令。优先复用同版本数据；需要下载时执行：
 
 ```bash
 cd "$ALFRED_ROOT/data"
 bash download_data.sh json_feat
 cd "$ALFRED_ROOT"
 ```
-
-若课程沿用轨迹 JSON 路线，还需确认视觉输入和预处理方式。
 
 按官方 `models/README.md` 下载其 Seq2Seq+PM checkpoint，解压后定位实际的 `best_seen.pth`，供后续评测使用。
 
@@ -114,22 +112,13 @@ unzip seq2seq_pm_chkpt.zip
 find . -name best_seen.pth
 ```
 
+新终端中重新激活 ALFRED 环境、进入 `alfred` 目录并执行 `export ALFRED_ROOT="$PWD"`。缺少 `json_feat_2.1.0`、`best_seen.pth` 或匹配的 THOR 程序时，先补齐对应资源，再进入 3.2。
+
 ### 2.4 AI2THOR 环境与课程代码
 
-课程源码位于 `EAI_project/chapter_4/4_1_task_planning/for_simulator/for_ai2thor/`。本页使用提交 `e6bb5d5de828b5d87834ea169b53c09b376d8b09`；任务保留教材的 `place a cup with a knife in it on the kitchen counter space`，场景为 `FloorPlan10`。
+使用本仓库 `chapter_4/4_1_task_planning/for_simulator/for_ai2thor/` 中的课程文件，无需另行克隆工程。[配套入口](../assets/ch4-planning/ai2thor_checked_demo.py)会核对这些文件是否匹配课程提交 `e6bb5d5de828b5d87834ea169b53c09b376d8b09`。任务为“把装有餐刀的杯子放在厨房台面”，场景为 `FloorPlan10`。
 
-[配套入口](../assets/ch4-planning/ai2thor_checked_demo.py)通过派生控制器适配动作解析、目标查找和执行反馈，详细差异见页尾检查记录。
-
-从实验父目录获取课程工程；已有副本可直接使用，切换版本前先保留自己的修改。以下 `checkout` 在 `EAI_project` 内执行：
-
-```bash
-git clone https://github.com/SH9959/EAI_project.git
-cd EAI_project
-git checkout e6bb5d5de828b5d87834ea169b53c09b376d8b09
-cd chapter_4/4_1_task_planning/for_simulator/for_ai2thor
-```
-
-本页人工交互使用已在 Ubuntu 22.04、Python 3.10.12 上运行的最小环境，无需 PyTorch 或 CUDA 包。保留 Linux 桌面会话；Unity 仍需可用的 OpenGL 渲染。缺少 `venv` 时先执行 `sudo apt-get install python3.10-venv`。下面的环境目录已存在时，使用原环境或换一个新名称。
+在 Ubuntu 22.04、Python 3.10 中建立独立环境。Unity 需要可用的桌面会话和 OpenGL；缺少 `venv` 时先执行 `sudo apt-get install python3.10-venv`。环境目录已存在时，激活原环境或换一个新名称。
 
 ```bash
 mkdir -p "$HOME/eai-lab"
@@ -142,19 +131,17 @@ python -c "from ai2thor.controller import Controller; import ai2thor._builds; pr
 python -m pip freeze > "$HOME/eai-lab/eai-ai2thor/environment-manual.txt"
 ```
 
-最后的导入检查不启动 Unity，构建编号应为 `f0825767cd50d69f666c7f282e54abfe58f1e917`。新终端先运行上面的 `source` 命令。传递依赖以保存的 `environment-manual.txt` 为准。
+构建编号应为 `f0825767cd50d69f666c7f282e54abfe58f1e917`。新终端先运行上面的 `source` 命令。
 
 VMware 中如需使用 Mesa 软件渲染，在当前 Bash 执行 `export LIBGL_ALWAYS_SOFTWARE=1`；已有正常 GPU 渲染的机器不需要此设置。无桌面显示会话时，先完成图形环境配置。
 
-课程其他组件如需完整环境，可另建 Python 3.9 环境，在课程 `for_ai2thor` 目录执行 `python -m pip install -r requirements.txt`。该文件还包含 CUDA/NCCL/Triton 等依赖；本页人工路线不使用这套完整环境。
-
-回到**手册根目录**后，传入课程 `for_ai2thor` 的实际绝对路径：
+回到**手册根目录**，检查课程文件：
 
 ```bash
-python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/for_ai2thor目录"
+python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir chapter_4/4_1_task_planning/for_simulator/for_ai2thor
 ```
 
-不加 `--run` 只检查两份课程文件的内容哈希和动作表，不启动 Unity、不联网。若内容不符，先核对代码版本和本地改动。哈希检查允许正常的 CRLF/LF 换行转换。
+应输出 `CHECK ONLY`。不加 `--run` 只检查文件与动作表；若提示版本不符，核对 `myController.py`、`action.json` 的本地修改。
 
 ### 2.5 VirtualHome 环境与连接
 
@@ -170,7 +157,7 @@ python -m pip install certifi==2025.8.3 charset-normalizer==3.4.3 idna==3.10 url
 python -m pip check
 ```
 
-已有源码时核对提交和本地修改，不重复克隆。此路线直接导入 `unity_simulator`，无需安装整包；整包另含 `networkx==2.3` 等旧依赖，不能据此认为其他功能也已配置。
+已有源码时跳过克隆并核对提交。此路线直接导入 `unity_simulator`，无需运行 `pip install -e .` 安装整包。
 
 从[官方下载页](https://github.com/xavierpuigf/virtualhome#download-unity-simulator)下载 Unity 2.3.0 Windows 程序，解压到同一实验目录。包约 289 MB，解压后应有 `windows_exec.v2.3.0/VirtualHome.exe`。在该实验目录启动并保留程序：
 
@@ -195,19 +182,19 @@ mkdir task-alarmclock
 cp "$task/initial_state.pddl" "$task/traj_data.json" task-alarmclock/
 domain=$(python -c "from alfworld.info import ALFRED_PDDL_PATH; print(ALFRED_PDDL_PATH)")
 grammar=$(python -c "from alfworld.info import ALFRED_TWL2_PATH; print(ALFRED_TWL2_PATH)")
-alfworld-play-tw task-alarmclock --domain "$domain" --grammar "$grammar" --expert heuristic
+script --quiet --return --flush --command "alfworld-play-tw task-alarmclock --domain \"$domain\" --grammar \"$grammar\" --expert heuristic" "task-alarmclock/session-$(date +%Y%m%d-%H%M%S).txt"
 ```
 
-保存开头 `Playing '…'` 后的任务目录。文字版不打开三维窗口；用终端自动补全选择动作，物体名称和编号以当前场景为准。名称与编号之间保留空格，例如 `go to sidetable 1`；输入 `go to sidetable1` 会得到 `Nothing happens.`。
+命令将交互保存到 `task-alarmclock/session-时间.txt`。文字版在终端运行；按 Tab 查看可用动作，名称与编号之间保留空格，例如 `go to sidetable 1`。目标是把闹钟放到桌上，可按下列顺序操作；编号以终端当前输出为准。
 
-1. 阅读目标，确定物体和目标容器。
-2. 移动到可能的位置；容器关闭时先打开，再查看并拿取目标。
-3. 按目标完成加热、冷却、清洗或放置，逐步读取环境反馈。
-4. 出现 `You won!` 后结束并保存记录。重做同一任务时重复上面的 `alfworld-play-tw` 命令，无需重新复制任务文件。
+| 动作示例 | 检查反馈 |
+|---|---|
+| `go to sidetable 1` | 到达边桌，找到闹钟及其编号 |
+| `take alarmclock 3 from sidetable 1` | 已拿起对应闹钟 |
+| `go to desk 1` | 到达桌子 |
+| `move alarmclock 3 to desk 1` | 出现 `You won!` |
 
-记录一个小任务：原始目标、每一步输入、每一步反馈和结束结果。如果尝试的动作失败，先读取反馈，再决定是位置不对、对象不对还是前置动作缺失。按教材，任务成功时能看到 `you won`；若所用版本输出不同，记录版本及实际完成信号。
-
-完成至少一个交互任务，保留连续的动作、反馈和结束信号。
+若反馈为 `Nothing happens.`，先核对空格、物体编号和所在位置。至少完成一个任务，保留原始目标、连续动作与反馈、完成信号。重复任务时重跑最后一条 `script` 命令，无需重新复制文件。
 
 #### 3.1.2 视觉交互
 
@@ -262,14 +249,24 @@ python models/train/train_seq2seq.py --data data/json_feat_2.1.0 --model seq2seq
 激活 2.4 的环境，从手册根目录运行；此步启动 Unity：
 
 ```bash
-python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/for_ai2thor目录" --mode manual --run --max-steps 10
+python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir chapter_4/4_1_task_planning/for_simulator/for_ai2thor --mode manual --run --max-steps 10
 ```
 
 这会启动仿真，首次可能下载 THOR 可执行程序，但不会调用云端模型。终端显示场景物体 ID，每次输入一条 `Action-Target`；`Done` 结束。遇到多个 Cup 时选择输出中的完整 ID。每次只提交一个动作。
 
-本任务选择 `ButterKnife`（餐刀）、`Cup` 和 `CounterTop` 的实际 ID；[官方容器规则](https://ai2thor.allenai.org/ithor/documentation/objects/object-types/)允许 `ButterKnife` 放入 `Cup`，普通 `Knife` 的容器列表不含 `Cup`。可先将杯子放到选定台面，再拿餐刀放入同一个杯子；每次取放前先用 `GotoObject` 到达目标。
+从终端物体列表各选一个 `ButterKnife`（餐刀）、`Cup` 和 `CounterTop`，记录完整 ID。[容器规则](https://ai2thor.allenai.org/ithor/documentation/objects/object-types/)允许 `ButterKnife` 放入 `Cup`，普通 `Knife` 不支持这一关系。逐条输入下表动作，把尖括号内容替换成刚才的完整 ID，保留 ID 内的负号。
 
-截图与状态保存在 `runs/planning/<本次UTC时间>/frame_000.png`、`metadata_000.json` 等，结束时有 `run.json`。
+| 步骤 | 输入 | 应发生的变化 |
+|---|---|---|
+| 1、2 | `GotoObject-<杯子ID>`，再输入 `PickupObject-<杯子ID>` | 到杯旁并拿起杯子 |
+| 3、4 | `GotoObject-<台面ID>`，再输入 `PutObject-<台面ID>` | 杯子放到选定台面 |
+| 5、6 | `GotoObject-<餐刀ID>`，再输入 `PickupObject-<餐刀ID>` | 到餐刀旁并拿起餐刀 |
+| 7、8 | `GotoObject-<同一杯子ID>`，再输入 `PutObject-<同一杯子ID>` | 餐刀放入该杯 |
+| 9 | `Done` | 保存记录并结束 |
+
+每条动作后检查 `lastActionSuccess`；失败时先读错误，检查当前持物和位置。`PutObject` 的参数是要放入的容器或台面。`Done` 只结束输入，不判断任务成功。
+
+截图与状态保存在 `runs/planning/<本次UTC时间>/frame_000.png`、`metadata_000.json` 等，结束时有 `run.json`。查看最后一份 metadata 的 `objects`：餐刀的 `parentReceptacles` 应包含所选杯子 ID，杯子的 `parentReceptacles` 应包含所选台面 ID；两者的 `isPickedUp` 均为 `false`，杯子的 `isBroken` 为 `false`。将这几项与最后截图一起记入结果。
 
 #### 3.3.2 大模型规划
 
@@ -292,7 +289,7 @@ printf '\n'
 密钥不得硬编码或提交。端点有地域要求时，从百炼控制台对应地域的官方调用示例复制原生 `/api/v1` 地址，设置 `DASHSCOPE_HTTP_BASE_URL`；不用兼容 API 地址。本入口限制为 `dashscope.aliyuncs.com`、`dashscope-intl.aliyuncs.com` 或 `dashscope-us.aliyuncs.com` 的 HTTPS 原生端点；若课程账号使用其他官方端点，先让助教核对后调整白名单，不填第三方转发地址。实际模型名以账号可用列表为准。
 
 ```bash
-python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/for_ai2thor目录" --mode llm --model qwen-vl-plus --run --send --max-steps 10
+python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir chapter_4/4_1_task_planning/for_simulator/for_ai2thor --mode llm --model qwen-vl-plus --run --send --max-steps 10
 ```
 
 `--run` 允许仿真；`--send` 另行允许上传本轮仿真图片与文字并消耗 API 额度。每轮回车确认后才发送，最多尝试指定步数；模型失败时保留错误并停止。
@@ -307,17 +304,13 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 | 已收到动作结果，但缺少可信成功字段 | `lastActionSuccess: null`，以 `ACTION_OUTCOME_UNKNOWN` 停止 |
 | 截图或写盘失败 | 停止并保留已执行动作的记录；复测前核对仿真状态 |
 
-动作解析仅按第一个 `-` 分隔，保留含负坐标的完整物体 ID。动作名映射为技能表中的规范拼写；完整 ID 精确匹配，同类目标重名时须指定 ID，空目标或空接近姿态返回错误。`Done` 在分发前终止循环，不调用控制器方法。
-
-`PutObject` 的参数是**目标容器或台面**，不是正在拿的物体。例如要把刀放入杯子，目标应是杯子。原代码注释中出现的 `TeleportObject` 也不在动作白名单中，输入该动作会被拒绝。
-
 本课程控制器用 `GotoObject` 封装粗粒度瞬移，部分操作沿用了 `forceAction`。分析结果时说明这些设置，不将本演示与标准 ALFRED 导航指标直接比较。
 
 ### 3.4 VirtualHome 家庭任务
 
 #### 3.4.1 人工规则脚本
 
-保持 2.5 启动的 Unity 运行，另开 PowerShell，激活 `eai-virtualhome` 并进入**手册仓库根目录**。使用仓库内的[运行入口](../assets/ch4-planning/virtualhome_checked_demo.py)，不需要创建临时 Python 文件或保留 `>>>` 会话；单独下载时还需同目录的 `planning_checks.py`。
+保持 2.5 启动的 Unity 运行，另开 PowerShell，激活 `eai-virtualhome` 并进入**手册仓库根目录**。
 
 把 `$apiDir` 改为 2.5 克隆的源码中的 `virtualhome/simulation` **绝对路径**，其下应有 `unity_simulator/comm_unity.py`：
 
@@ -347,7 +340,7 @@ python -X utf8 docs/assets/ch4-planning/virtualhome_checked_demo.py --api-dir "$
 
 同时检查 `evidence_complete` 为真且每步有录制帧。任务状态与证据完整性分开报告：目标达成但录像缺失时，保留本次记录并补齐录像；`run.json` 是简版，完整字段以 `result.json` 为准。
 
-这条路线使用 `find_solution=False` 和人工规则生成的计划，不调用模型。一次任务通过不能证明模型自主规划能力。真实失败案例、完整反馈及本机复测见[入口验证记录](../assets/ch4-planning/verification.md#virtualhome-runner-20261002)。
+这是人工规则计划，程序使用 `find_solution=False`，不调用模型。报告中填写“规则任务”；模型计划另按 3.4.2 执行。
 
 #### 3.4.2 大模型规划
 
@@ -379,7 +372,7 @@ conda activate eai-dialogue
 }
 ```
 
-模型回答必须是仅含 `steps` 的 JSON，动作限于 `WALK/GRAB/OPEN/PUTIN/CLOSE`。格式通过只表示候选计划合法，不判断可达性或动作顺序。上面真实模型调用尚未实测，需保留原始回答与请求记录。
+模型回答必须是仅含 `steps` 的 JSON，动作限于 `WALK/GRAB/OPEN/PUTIN/CLOSE`。格式检查不判断可达性或动作顺序。此模型路线尚未实测，保留原始回答与请求记录，并按下一步在 Unity 中检验。
 
 三阶段均成功后，切回 `eai-virtualhome`。保持相同 Unity 版本和场景 0，使用新的执行目录；入口会重新初始化场景并再次对当前真实图检查计划中的 ID：
 
@@ -426,6 +419,6 @@ ALFRED 指标：
 | PutObject 持续失败 | 目标是否容器、当前手持物与位置是否满足前置条件 |
 | VirtualHome 脚本指向错误物体 | 是否照抄了别的场景 ID，当前角色/场景版本是否一致 |
 
-规划输出、动作执行和目标完成分别检查；人工操作记录与模型评测结果分别统计。源码差异、离线测试和未运行项目见[检查记录](../assets/ch4-planning/verification.md)。
+成功、失败和准备阶段的参考记录见[检查记录](../assets/ch4-planning/verification.md)，其中 VirtualHome 六步结果来自人工规则任务。
 
 参考资料：[ALFWorld 官方项目](https://github.com/alfworld/alfworld)、[ALFRED 官方模型说明](https://github.com/askforalfred/alfred/blob/master/models/README.md)、[AI2THOR 初始化说明](https://ai2thor.allenai.org/ithor/documentation/)、[VirtualHome 官方项目](https://github.com/xavierpuigf/virtualhome)。

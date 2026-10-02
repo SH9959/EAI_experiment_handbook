@@ -18,7 +18,7 @@ SOURCE_BLOBS = {
     "myController.py": "aadd9fd3fdbc8274ea2dbb28a70ef0ed9989b55c",
     "action.json": "189c5672cce57400c6858517def3987c4789630a",
 }
-TASK = "place a cup with a knife in it on the kitchen counter space"
+TASK = "place a Cup containing a ButterKnife on the kitchen CounterTop"
 
 
 class ActionOutcomeError(RuntimeError):
@@ -120,7 +120,7 @@ def response_text(response) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--course-dir", required=True, type=Path,
-                        help="EAI_project 内 for_ai2thor 的目录")
+                        help="课程 for_ai2thor 目录（可使用本仓库内的课程文件）")
     parser.add_argument("--mode", choices=["manual", "llm"], default="manual")
     parser.add_argument("--run", action="store_true", help="允许启动 Unity（首次可能下载仿真程序）")
     parser.add_argument("--send", action="store_true", help="仅 LLM 模式：允许发送图片/文字并消耗 API 额度")
@@ -195,7 +195,7 @@ def main(argv: list[str] | None = None) -> int:
                     json.loads((args.course_dir/"action.json").read_text(encoding="utf-8-sig")), skills,
                     history_of_actions=history, current_image=str(image_path),
                     feed_back_message=history[-1][1] if history else "")
-                prompt += "\nPutObject 的目标是容器或台面。完成时只输出 Done。重复类别请使用完整 objectId。\n" + str([o["objectId"] for o in objects])
+                prompt += "\n本任务使用 ButterKnife，不使用 Knife；Cup 可容纳 ButterKnife。PutObject 的目标是容器或台面。完成时只输出 Done。重复类别请使用完整 objectId。\n" + str([o["objectId"] for o in objects])
                 response = dashscope.MultiModalConversation.call(api_key=key, model=args.model,
                     messages=[{"role": "user", "content": [{"image": image_path.as_uri()}, {"text": prompt}]}],
                     stream=False, max_tokens=128)

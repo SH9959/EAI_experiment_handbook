@@ -1,36 +1,35 @@
-# 验证入口与资源清单
+# 实验前检查与示例结果
 
-更新：2026-10-02。先选择要做的路线，再打开相应实验页。表中的“已验证”只对应列出的步骤；六项实验尚未全部实测完成。
+先检查所选实验的资源。缺模型、授权、场景或设备时，停在表中对应步骤，向助教提供缺项和版本要求。
 
-| 实验 | 已验证范围 | 尚未验证 | 开始前需取得或确认 |
-|---|---|---|---|
-| [人机对话与多模态](ch3-dialogue.md) | 配套脚本的离线检查 | 真实文本/图像 API、BLIP、语音识别与合成、完整交互及本地大模型 | 课程模型名、地域、权限与额度；BLIP-base、SenseVoiceSmall/fsmn-vad、CosyVoice2 完整快照及版本 |
-| [AnyGrasp 抓取](ch3-grasp.md) | 几何和文件检查 | AnyGrasp 推理、仿真与实机抓取 | 匹配 SDK、权重和本机授权；`grasp_sim_anygrasp.py`、`anygrasp_model.py`；实机另需 ROS 工程、标定和设备 |
-| [仿真任务规划](ch4-planning.md) | ALFWorld 文字任务、AI2THOR 预设八步、VirtualHome 人工规则放置任务 | ALFWorld 视觉、ALFRED、AI2THOR/VirtualHome 模型自主规划 | 视觉依赖与 THOR；ALFRED `f91f4c0` 对应 `json_feat`、checkpoint 和历史环境；模型路线另需账号配置 |
-| [实机任务规划](ch4-real.md) | 代码、规则与接口核对 | 抓取、搬运及真实设备闭环 | 完整 ROS 工程，CR5/AG95/D435i、设备负责人；相机内参、深度单位、坐标变换、TCP 与 IK 配置 |
-| [iGibson 导航](ch4-navigation.md) | 固定源码和配置核对 | 场景加载、导航回合与策略比较 | iGibson 2.2.3 对应通用资产、`Rs_int` 场景，二者 `VERSION` 在 `[2.0.6, 2.2.4)`；合法密钥与可用渲染环境 |
-| [ACT 模仿学习](ch5-imitation.md) | 原完整基线 50 条/2000 轮/50 回合，**37/50**；另通过 Windows 独立 CPU 环境的一次保存输入对照 | Ubuntu 独立环境安装与渲染、原 Linux CUDA 全流程、cobot-magic 实机 | 单输入需已有 best、stats、缓存、参考输入和报告；Ubuntu 需完整 Linux wheelhouse 与系统库；实机需实验台与设备配置 |
+## 开始前要准备什么
 
-没有相应资源时，记录**停在哪一步、缺少哪项、由谁提供、版本如何匹配**，暂不填写成功率。模型授权、场景和实机配置向课程负责人领取；Key 和密码只在本机配置，不提交实验报告或 Git。
+| 实验 | 必需资源 | 缺少资源时停在哪一步 |
+|---|---|---|
+| [对话与多模态](ch3-dialogue.md) | 云端：课程模型名、服务地域、Key 和调用额度；本地：对应视觉、语音或大模型的完整文件 | 可先检查输入文件；取得相应资源后再调用模型 |
+| [AnyGrasp](ch3-grasp.md) | 匹配系统/Python/CUDA 的 SDK、权重及本机授权；仿真另需 `grasp_sim_anygrasp.py`、`anygrasp_model.py` | SDK 示例成功后再进入仿真；缺授权或权重时无法生成模型抓取候选 |
+| [仿真任务规划](ch4-planning.md) | ALFWorld 文字任务包；ALFRED 数据/checkpoint；AI2THOR 场景；VirtualHome Unity 程序；模型规划另需课程 API 配置 | 先选资源齐全的环境；人工动作完成后，再进入模型规划 |
+| [实机任务规划](ch4-real.md) | ROS 工程、CR5/AG95/D435i、负责人；相机内参、深度单位、坐标变换、TCP 与 IK 配置 | 无设备时只检查计划格式和规则；设备联调通过后才发送运动指令 |
+| [iGibson 导航](ch4-navigation.md) | iGibson 2.2.3 对应通用资产和 `Rs_int`，资产版本在 `[2.0.6,2.2.4)`；合法解密配置与渲染环境 | 场景能加载并产生观测后，再运行导航比较 |
+| [ACT](ch5-imitation.md) | 完整训练：示教数据与 GPU；CPU 单输入：已有 best、stats、缓存、参考输入及报告；实机另需实验台与相机/CAN 配置 | 无 GPU 时可检查已有结果或运行 CPU 单输入；实机条件齐全后再开始实机部分 |
 
-## 直接检查结果
+## 对照已有结果
 
-- **ACT 完整基线**：[学生操作与结果](ch5-imitation.md#41)、[逐回合 JSON](../assets/ch5-imitation/act-evaluation-20261002.json)、[原始证据核验说明](../assets/ch5-imitation/verification.md#evidence-check-20261002)。37 回合曾达到奖励 4，其中 34 回合末步仍为 4；二者不能称为稳定夹持率。早期短训练失败记录继续保留。
-- **ACT 独立 CPU 单输入**：[操作步骤](ch5-imitation.md#42-cpu)、[环境配置](../assets/ch5-imitation/cpu-environment.md)、[实测结果](../assets/ch5-imitation/cpu-reference-validation-20261002.json)。新环境未借用其他 venv，一次输出与保存的 GPU 参考通过数值比较；没有新回合或新成功率，Ubuntu 完整环境仍待验证。
-- **VirtualHome**：按[仿真任务规划](ch4-planning.md#34-virtualhome)运行仓库内入口。检查执行反馈、目标实例关系、冰箱关门与未持握状态；原始动作失败或最终图缺失时不能记作任务通过。
-- **ALFWorld / AI2THOR**：[实验步骤](ch4-planning.md)、[真实运行与失败恢复记录](../assets/ch4-planning/verification.md)。预设动作完成只验证对应任务，不证明模型能够自主规划。
-- **其余实验**：[对话](../assets/ch3-dialogue/verification.md)、[抓取](../assets/ch3-grasp/verification.md)、[实机规划](../assets/ch4-real/verification.md)、[导航](../assets/ch4-navigation/verification.md)的记录分别说明已做检查、实际失败和待补条件。
+- **ACT 完整仿真**：[结果与核验命令](ch5-imitation.md#41)。参考记录为 50 条示教、2000 轮训练、50 回合评估：37 回合曾达到奖励 4，34 回合末步仍为 4，平均回报 490.26。报告填写自己的结果；检查这份记录无需重新训练。
+- **ACT CPU 单输入**：[操作命令](ch5-imitation.md#42-cpu)。预期得到有限的 `(1,100,14)` 动作数组，并与保存的 GPU 参考通过数值比较；此步骤没有仿真回合。
+- **VirtualHome**：[放置任务](ch4-planning.md#34-virtualhome)。检查每步反馈，再检查目标三文鱼在指定冰箱内、门关闭且未被角色持有；示例包含成功和动作失败记录。
+- **ALFWorld / AI2THOR**：[操作步骤](ch4-planning.md)。分别检查任务结束反馈和最终场景；人工或预设动作示例不能替代模型规划的结果。
 
-仓库保留可公开的摘要、脚本与检查记录。ACT 全部 HDF5、checkpoint、原始轨迹及视频体积较大，不包含在 Git 中；向课程维护者领取后，按文件哈希核对。缺原件时只能检查摘要，不能声称已独立复核原始实验。
+已有完整视频、checkpoint 和数据需另行领取，Git 中只保存摘要和小型材料。需要确认某一步是否已有实测时，查看[实测范围与资源缺项](../ta/validation-status.md)。
 
-## 保存自己的记录
+## 每次实验保存什么
 
-每次使用新的输出目录，保留命令、环境版本、完整日志、输入与结果文件。区分以下状态：
+保存命令、环境版本、输入、结果文件和完整日志。报告至少写明：
 
-| 状态 | 可以得出的结论 |
+| 项目 | 填写内容 |
 |---|---|
-| 参数/依赖/摘要检查通过 | 仅该项检查通过，尚未证明实验任务完成 |
-| 仿真动作执行成功 | 继续检查最终目标；正常退出或 `Done` 不是目标判据 |
-| 任务通过 | 对应路线的目标判据有实际状态与日志支持 |
-| 任务失败 | 已运行，有明确失败反馈或目标未满足；保留失败材料 |
-| `UNKNOWN` / 未执行 | 单列数量与原因；预定回合未齐或状态未核清时，不报告完整成功率 |
+| 做了什么 | 任务、场景或输入，以及人工规则/模型名称 |
+| 结果怎样 | 实际输出与该实验的成功判据；多回合时写成功数、失败数和总回合数 |
+| 停在哪里 | 第一条报错、失败动作或缺失资源；未执行的步骤单列 |
+
+只有文件生成或程序正常退出时，继续检查实验页的结果条件。`CHECK ONLY`、`PREFLIGHT_ONLY` 等状态只表示检查完成。

@@ -21,31 +21,16 @@
 
 ### 2.1 代码与工作目录
 
-首次获取手册时执行以下命令；已有副本可直接进入仓库根目录。Git 和 Conda 的准备方法见[开始实验前](setup.md)。
+首次获取手册时执行以下命令；已有副本直接进入仓库根目录。Git 和 Conda 的准备方法见[开始实验前](setup.md)。
 
 ```bash
 git --version
 conda --version
 git clone --branch feature/whr https://github.com/SH9959/EAI_experiment_handbook.git
 cd EAI_experiment_handbook
-python -c "from pathlib import Path; Path('runs/dialogue').mkdir(parents=True, exist_ok=True)"
 ```
 
-已有仓库时保留本地修改，不要重复克隆。创建目录的命令适用于 Bash 和 PowerShell；若尚无 Python，可在激活 2.2 的环境后执行。
-
-```text
-EAI_experiment_handbook/
-├── docs/student/ch3-dialogue.md
-└── docs/assets/ch3-dialogue/
-    ├── dialogue_lab.py           # 配套入口，不自动安装依赖
-    ├── test_dialogue_lab.py      # 离线测试，不调用模型
-    ├── run-record-template.md
-    └── verification.md
-```
-
-配套脚本可[单独下载](../assets/ch3-dialogue/dialogue_lab.py)。除代码获取和安装步骤标出的目录外，下文命令均从手册仓库根目录运行。
-
-各工程放在同一实验父目录下，本页配套脚本示例的输出保存在手册仓库的 `runs/dialogue/`。新终端先进入工作目录，再激活相应环境。
+除另有说明，所有命令均从 **`EAI_experiment_handbook` 根目录**运行，输出保存在 `runs/dialogue/`，手工填写的文本文件保存为 UTF-8。配套入口为 [dialogue_lab.py](../assets/ch3-dialogue/dialogue_lab.py)。新终端先进入仓库，再激活所需环境。
 
 | 路线 | 平台与硬件 | 环境及输入 |
 |---|---|---|
@@ -64,10 +49,9 @@ python -m pip install dashscope pillow
 python -c "import sys; print(sys.executable); print(sys.version)"
 python -c "from pathlib import Path; Path('runs/dialogue').mkdir(parents=True, exist_ok=True)"
 python docs/assets/ch3-dialogue/dialogue_lab.py --help
-python docs/assets/ch3-dialogue/test_dialogue_lab.py
 ```
 
-以上示例配置 Python 3.10 环境；教材本地 Qwen 的 Python 3.9 环境在 3.7 单独配置。记录安装后的依赖版本。最后一条命令运行离线测试，不需要 Key，不执行模型推理。
+帮助中应列出 `api`、`caption`、`asr`、`tts` 和 `capture`；这一步不执行模型。本地 Qwen 使用 3.7 的独立环境。
 
 模型首次加载可能下载权重，安装语音依赖也可能占用较大空间；执行前确认网络、磁盘和下载额度。
 
@@ -127,20 +111,7 @@ python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --questio
 | `--max-tokens` | 默认 256，范围 1—2048；限制输出长度，不限制图片大小或总费用 |
 | `text_answer.txt` / `text_answer.json` | 分别保存回答和模型、耗时、SDK 版本、请求编号等记录 |
 
-每次调用创建新对话，不继承上轮上下文。复测时使用新的输出文件名，核对 JSON 时间和命令，避免误读失败后留下的旧文件或不完整文件。PowerShell 用 `$LASTEXITCODE`、Bash 用 `$?` 查看退出码；非 0 时先处理报错。
-
-文本请求使用以下接口：
-
-```python
-response = dashscope.Generation.call(
-    api_key=os.getenv("DASHSCOPE_API_KEY"),
-    model=model_name,
-    messages=messages,
-    result_format="message",
-)
-```
-
-`messages` 为对话输入，`model` 为模型名，`result_format="message"` 指定消息形式的返回值。
+每次调用创建新对话，不继承上轮上下文。复测时换一个输出文件名。运行后立即用 PowerShell 的 `$LASTEXITCODE` 或 Bash 的 `echo $?` 查看退出码；非 0 时先处理报错，不读取旧输出。
 
 **结果检查**：核对回答是否切题，记录遗漏或事实错误。HTTP 200 表示请求成功，不代表内容正确；回答无需与教材逐字一致。
 
@@ -172,14 +143,19 @@ python -m pip install torch "transformers>=4.45,<5"
 
 ```bash
 python docs/assets/ch3-dialogue/dialogue_lab.py caption --image runs/dialogue/scene.jpg --device cpu --output runs/dialogue/caption.txt
-python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --caption-file runs/dialogue/caption.txt --question "这些物品中，哪些可以用来记笔记？" --output runs/dialogue/caption_answer.txt --send
+```
+
+立即查看退出码：PowerShell 用 `$LASTEXITCODE`，Bash 用 `echo $?`。**非 0 时停止，不执行下面的 API 命令，也不读取旧 `caption.txt`。** 退出码为 0 后，打开本轮生成的 `caption.txt`，确认非空并与 `scene.jpg` 对应，再发送：
+
+```bash
+python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --caption-file runs/dialogue/caption.txt --question "桌面上有哪些物品？看不清的部分请说明。" --output runs/dialogue/caption_answer.txt --send
 ```
 
 BLIP 首次加载会下载模型与处理器。离线机器需按[官方模型卡](https://huggingface.co/Salesforce/blip-image-captioning-base)准备完整快照，并用 `caption --model 本地目录` 指定；仅权重和 `config.json` 不足以加载。
 
-脚本使用无条件描述，`max_new_tokens=50`，保存 `caption.txt` 和同名 JSON。`--device` 可选 `cpu` / `cuda`，默认 `cpu`；使用 CUDA 前确认 `torch.cuda.is_available()`。核对 caption 与原图后再请求文本模型，加载失败或输出为空时停止。
+脚本使用无条件描述，`max_new_tokens=50`，保存 `caption.txt` 和同名 JSON。`--device` 可选 `cpu` / `cuda`，默认 `cpu`；使用 CUDA 前确认 `torch.cuda.is_available()`。
 
-文本模型只接收 `caption.txt`，不接收原图。保留常见的英文描述以检查信息遗漏；与 B 路线对照时固定图片和问题，并记录两个模型的名称。
+**结果检查**：依次打开原图、`caption.txt` 和 `caption_answer.txt`，标出第一次出现遗漏或错误的位置。文本模型只接收 caption，无法查看原图。与 3.2 对比时使用同一张图片和相同问题，并记录两个模型的名称。
 
 ### 3.4 SenseVoice 语音识别（D）
 
@@ -187,32 +163,27 @@ BLIP 首次加载会下载模型与处理器。离线机器需按[官方模型�
 
 先用电脑录音软件录制约 5—10 秒的普通话问题，并实际播放一次。建议保存为单声道 WAV，将录音保存或复制到**手册根目录的 `runs/dialogue/question.wav`**。重命名扩展名不等于音频格式转换。
 
-打开一个终端，先 `cd` 到存放手册的**父目录**，再获取课程工程；如果已按“开始实验前”下载过，可使用那个副本。下列固定提交便于与本页核对，已有副本存在未提交修改时不要直接切换：
+使用手册仓库内的 SenseVoice 源码，从仓库根目录安装：
 
 ```bash
-git clone https://github.com/SH9959/EAI_project.git
-cd EAI_project
-git checkout e6bb5d5de828b5d87834ea169b53c09b376d8b09
-cd chapter_3/3_3_human_perception/3.3.3/SenseVoice
 conda create -n eai-sensevoice python=3.10 -y
 conda activate eai-sensevoice
-python -m pip install -r requirements.txt
+python -m pip install -r chapter_3/3_3_human_perception/3.3.3/SenseVoice/requirements.txt
+python -m pip check
 python -c "import torch, torchaudio, funasr; print(torch.__version__, torchaudio.__version__, torch.cuda.is_available())"
 ```
 
-课程 `demo1.py` 默认使用 `cuda:0`；无 CUDA 时改用下方 CPU 命令。按固定提交的 requirements 安装：`funasr>=1.1.3`、`torch<=2.3`、`numpy<=1.26.4`。安装后执行 `python -m pip check`，确认 torch 与 torchaudio 兼容；音频解码报错时检查 FFmpeg。
-
-记录源码提交及实际模型/VAD 版本。`trust_remote_code=True` 会执行课程目录的 `model.py`，仅用于已核对的代码。
+依赖要求包括 `funasr>=1.1.3`、`torch<=2.3`、`numpy<=1.26.4`；torch 与 torchaudio 必须兼容，导入或 `pip check` 失败时先解决依赖。模型加载会执行课程目录的 `model.py`，不要换成来源不明的文件。
 
 #### 3.4.2 转写与问答
 
-回到手册仓库根目录。下面 `--repo` 请填上一步SenseVoice目录的**绝对路径**，而不是 `EAI_project` 根目录：
+保持 `eai-sensevoice` 环境，在手册仓库根目录执行：
 
 ```bash
-python docs/assets/ch3-dialogue/dialogue_lab.py asr --repo "/你的目录/EAI_project/chapter_3/3_3_human_perception/3.3.3/SenseVoice" --audio runs/dialogue/question.wav --device cpu --output runs/dialogue/question.txt
+python docs/assets/ch3-dialogue/dialogue_lab.py asr --repo chapter_3/3_3_human_perception/3.3.3/SenseVoice --audio runs/dialogue/question.wav --device cpu --output runs/dialogue/question.txt
 ```
 
-有可用 GPU 时可改为 `--device cuda:0`；处理耗时以实际运行结果为准。
+首次运行会下载 `iic/SenseVoiceSmall` 和 `fsmn-vad`；离线时需先准备匹配缓存。有可用 GPU 时可改为 `--device cuda:0`。
 
 先打开 `question.txt`，与录音逐句核对。若使用了新终端，先按 2.3 在这个终端重新设置 Key 和地域；切换 Conda 环境不会从另一个终端取得环境变量。确认内容正确后再执行：
 
@@ -223,20 +194,18 @@ python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --questio
 
 输入传递使用 `question.txt`，不使用包含模型加载日志的控制台输出。
 
-ASR 会加载 `iic/SenseVoiceSmall` 与 `fsmn-vad`，输出 `question.txt` 及同名 JSON。`language="auto"` 自动判断语言，`use_itn=True` 做文本规整，`merge_vad=True` 合并语音段；先保留这些参数，用清晰的短录音检查漏字和误字。课程 SenseVoice WebUI 界面示意：
-
-![课程 SenseVoice WebUI 界面示意，非本次实测](../assets/sensevoice_webui.png)
+**结果检查**：`question.txt` 与录音意思一致；记录误字、漏字及同名 JSON 中的耗时。脚本自动识别语言、规整文字并合并语音段。
 
 ### 3.5 CosyVoice2 语音合成（E）
 
 #### 3.5.1 依赖与模型
 
-**模型：CosyVoice2-0.5B。** 使用上游提交 `074ca6dc9e80a2f424f1f74b48bdd7d3fea531cc`：`AutoModel(model_dir=...)` 加载模型目录，`inference_zero_shot(...)` 接收参考音频路径。教材旧例传入 16 kHz 张量，两版接口不能混用。
+使用 **CosyVoice2-0.5B** 和下方固定源码版本，参考音频参数传文件路径；不要混用教材旧接口的音频张量写法。
 
 本节按 Linux 配置，Windows 依赖尚未验证。安装前确认驱动、磁盘和下载额度；requirements 中的 PyTorch、torchaudio、CUDA/TensorRT 等依赖也会占用空间。
 
 ```bash
-# 从存放两个课程仓库的父目录开始
+# 从存放手册仓库的父目录开始
 git clone --recursive https://github.com/QwenAudio/CosyVoice.git
 cd CosyVoice
 git checkout 074ca6dc9e80a2f424f1f74b48bdd7d3fea531cc
@@ -260,7 +229,7 @@ python -c "from modelscope import snapshot_download; snapshot_download('iic/Cosy
 希望你以后能够做的比我还好呦。
 ```
 
-确认已有 3.4 生成的 `answer.txt`。回到手册仓库根目录，仍保持 `eai-cosyvoice` 环境：
+使用 3.4 生成的 `answer.txt`；若问答尚未通过，可先在该文件写一句待合成文本，单独验证 E。回到手册仓库根目录，保持 `eai-cosyvoice` 环境；将命令中的 `/你的目录/CosyVoice` 替换为实际绝对路径：
 
 ```bash
 python docs/assets/ch3-dialogue/dialogue_lab.py tts --repo "/你的目录/CosyVoice" --text-file runs/dialogue/answer.txt --prompt-text-file runs/dialogue/prompt.txt --prompt-wav "/你的目录/CosyVoice/asset/zero_shot_prompt.wav" --output runs/dialogue/reply.wav
@@ -299,18 +268,23 @@ zero_shot_prompt.wav + prompt.txt → CosyVoice2 → reply.wav → 人工播放
 ```bash
 conda activate eai-dialogue
 python docs/assets/ch3-dialogue/dialogue_lab.py caption --image runs/dialogue/camera_scene.jpg --device cpu --output runs/dialogue/caption.txt
+```
+
+立即用 PowerShell 的 `$LASTEXITCODE` 或 Bash 的 `echo $?` 检查退出码。**非 0 时停止，不调用 API 或沿用旧 caption。** 退出码为 0 后，打开本轮 `caption.txt`，确认非空且对应 `camera_scene.jpg`；同时确认 `question.txt` 来自本轮录音，再执行：
+
+```bash
 python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --question-file runs/dialogue/question.txt --caption-file runs/dialogue/caption.txt --output runs/dialogue/answer.txt --send
 ```
 
-打开 `caption.txt` 和 `answer.txt` 分别核对，随后激活 `eai-cosyvoice`，执行 3.5 的 TTS 命令，将 `answer.txt` 与参考音频、参考文本一起变成 `reply.wav`。如果其中某一步退出非 0，停止链路并查该步骤，不继续消费可能属于上一次运行的同名文件。
+API 退出码为 0 后，打开本轮 `answer.txt` 核对，再激活 `eai-cosyvoice` 执行 3.5 的 TTS 命令。任一步退出非 0 就停止并排错，不继续使用上次运行的同名文件。
 
-**替代路线：摄像头图片直接交给视觉 API**。这对应教材 3.4.1.1 的多模态调用，跳过了 3.4.3 所说的图像描述模块，不算 BLIP 集成复现。用下面命令替换上面的 caption 与文本 API 两步，然后保持相同的 TTS 输入文件：
+**直接图像路线**：也可用下面的视觉 API 命令替换 caption 与文本 API 两步，再执行同一条 TTS 命令；记录为“直接图像输入”，与 BLIP 路线分开比较。
 
 ```bash
 python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-vl-plus --question-file runs/dialogue/question.txt --image runs/dialogue/camera_scene.jpg --output runs/dialogue/answer.txt --send
 ```
 
-该链路逐段执行，不包含实时录音、结束判定、自动播放或打断。实时交互需另行实现和验证。
+本节逐段处理文件并人工播放结果，不包含实时录音或打断功能。
 
 **结果检查**：保留同轮录音、图片、转写、caption、回答和合成音频；对照原始问题与画面，逐项核对内容，确认最终音频回答了本轮问题。
 
@@ -322,9 +296,9 @@ python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-vl-plus --quest
 
 | 项目 | 配置与条件 |
 |---|---|
-| 模型与接口 | 第一代 `qwen/Qwen-7B-Chat`，使用 ModelScope 导入、`transformers==4.32.0` 和 `model.chat(...)`；Qwen2.5 的 `apply_chat_template` 接口不适用于此例 |
+| 模型与接口 | 第一代 `qwen/Qwen-7B-Chat`，使用 ModelScope、`transformers==4.32.0` 和 `model.chat(...)` |
 | 硬件与空间 | 使用教师确认可承载该模型的 Linux GPU 机器。教材标注模型文件约 14.4 GB；运行还需显存中的激活、缓存等空间，14.4 GB 不是最低显存要求 |
-| 环境条件 | 该历史环境尚未实测，需兼容依赖和完整模型快照。下方安装针对普通对话省略了训练依赖 `peft deepspeed`；全量历史环境复现需教师提供锁文件 |
+| 环境条件 | 需教师提供兼容的 torch/驱动版本和完整模型快照；下方依赖组合尚未实测，安装冲突时保留报错并领取环境锁文件 |
 
 从手册仓库根目录创建独立环境，按课程驱动和 [PyTorch 安装说明](https://pytorch.org/get-started/locally/)安装兼容的 torch，再执行下方导入检查。
 
@@ -336,7 +310,7 @@ python -m pip check
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 ```
 
-在本机确认下载额度和磁盘后运行下列命令。它把快照放在 `runs/dialogue/qwen-cache/`，把下载返回的**真实目录**保存到 `qwen-model-path.txt`，避免下载到一个目录却又从模型 ID 重新加载：
+确认下载额度和磁盘后执行以下命令，将模型保存到 `runs/dialogue/qwen-cache/`，并记录实际路径：
 
 ```bash
 python -c "from pathlib import Path; from modelscope import snapshot_download; p=snapshot_download('qwen/Qwen-7B-Chat', cache_dir='runs/dialogue/qwen-cache'); Path('runs/dialogue/qwen-model-path.txt').write_text(str(Path(p).resolve()), encoding='utf-8')"
@@ -400,7 +374,7 @@ python runs/dialogue/local_qwen.py
 | F | 同轮图片、录音、转写、caption、回答和合成音频 |
 | 本地 Qwen / MiniCPM | 三轮对话文本 / 已执行 notebook 和图文回答 |
 
-本页配套脚本示例的输出保留在 `runs/dialogue/`，MiniCPM 输出以云端 notebook 为准。报告仅选取可公开的结果，不提交密钥、私人图片或模型文件。代码来源差异及维护验证记录见[检查记录](../assets/ch3-dialogue/verification.md)。
+输出保留在 `runs/dialogue/`，MiniCPM 输出以云端 notebook 为准。不提交密钥、私人图片或模型文件。已验证范围与资料缺项见[检查记录](../assets/ch3-dialogue/verification.md)。
 
 ## 五、排错建议与注意事项
 

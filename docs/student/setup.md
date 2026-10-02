@@ -1,77 +1,54 @@
 # 开始实验前
 
-这里只做所有实验共同需要的准备。**CUDA、ROS、仿真器、模型依赖请到对应实验页再安装。**
+## 1. 选对终端
 
-## 1. 准备 Git 和 Python 环境管理工具
+| 命令块标注 | 使用的终端 | 多行命令续行符 |
+|---|---|---|
+| `bash` | 对应实验的 Linux Bash | 行末反斜杠 |
+| `powershell` | Windows PowerShell | 行末反引号 |
+| `python` | Python 文件或明确要求的 Python 解释器 | 按代码原样保存 |
 
-确认 Git 已安装：
+Git Bash 可以执行 Git 命令，但不能代替 Linux 仿真环境。需要 GPU、桌面或 ROS 的实验，先使用课程指定机器；具体条件见各实验页。
+
+检查 Git；需要 Conda 的实验另检查 Conda：
 
 ```bash
 git --version
-```
-
-推荐使用 Conda 管理不同实验的 Python 版本：
-
-```bash
 conda --version
 ```
 
-如果课程机器已经预装 Conda，直接使用即可。
+出现版本号即可。若提示找不到命令，先安装课程指定的 Git 或 Conda；机器已预装时直接使用。
 
-## 2. 获取实验代码
+## 2. 下载手册和配套代码
 
-首次使用手册配套脚本时，获取修订分支。后文以 `docs/assets/` 开头的命令都在此仓库根目录执行；已有副本时直接进入原目录。
+在自己的实验文件夹打开终端，执行：
 
 ```bash
 git clone --branch feature/whr https://github.com/SH9959/EAI_experiment_handbook.git
 cd EAI_experiment_handbook
 ```
 
-实验页要求课程工程时，再在另一个实验目录获取以下代码；已有课程副本可直接使用：
-
-```bash
-cd ~
-git clone https://github.com/SH9959/EAI_project.git
-cd EAI_project
-```
-
-以后更新课程代码：
-
-```bash
-cd ~/EAI_project
-git pull --ff-only
-```
-
-## 3. 认识目录
+已有副本时直接进入该目录。后文以 `docs/assets/` 或 `chapter_3/`、`chapter_4/` 开头的路径，都相对于这个目录。
 
 ```text
-EAI_project/
-├── chapter_3/
-│   └── 3_3_human_perception/3.3.3/SenseVoice/
-└── chapter_4/
-    ├── 4_1_task_planning/for_benchmark/
-    │   ├── alfworld/
-    │   └── alfred/
-    └── 4_1_task_planning/for_simulator/
-        ├── for_ai2thor/
-        └── for_virtualhome/
+EAI_experiment_handbook/
+├── docs/student/       # 学生说明
+├── docs/assets/        # 配套脚本和示例结果
+├── chapter_3/3_3_human_perception/3.3.3/SenseVoice/
+└── chapter_4/4_1_task_planning/for_simulator/
+    ├── for_ai2thor/
+    └── for_virtualhome/
 ```
 
-其中 **SenseVoice、AI2THOR 课程示例、VirtualHome 课程示例** 在当前仓库中有实际文件；ALFWorld、ALFRED、VirtualHome 主项目来自各自官方仓库，具体安装方式见第 4 章实验页。
+SenseVoice、AI2THOR 和 VirtualHome 的课程示例已随仓库提供。独立项目和仿真器按各实验页获取，无需再为这些课程文件克隆一份 `EAI_project`。
 
-## 4. API Key 不要写进代码
+模型、SDK 授权、场景和实机工程需另行准备。先按[资源清单](verification.md)确认，再安装该实验的依赖；不同实验使用各自环境。
 
-教材中的大模型实验需要 API Key。建议放在环境变量中，例如：
+## 3. 填写路径并保存结果
 
-```bash
-export DASHSCOPE_API_KEY="你的Key"
-```
+- 命令中的“绝对路径”“你的模型名”等是待填写内容，先替换再运行。
+- 路径有空格时保留引号；不要同时混用 Windows 盘符和 Linux 路径。
+- 新开终端后，重新进入要求的目录并激活环境；使用 `ACT_PY`、`EAI_ROOT` 等变量时，先重新设置变量。
+- 每次实验使用新的结果目录。失败日志也保留，重新运行时换目录。
 
-Python 中通过：
-
-```python
-import os
-api_key = os.getenv("DASHSCOPE_API_KEY")
-```
-
-脚本从环境变量读取 Key，不在源码或提交文件中保存。
+API Key 按[对话实验](ch3-dialogue.md)配置到环境变量。Key、设备密码和私人输入不写入源码或报告。

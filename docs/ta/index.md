@@ -16,19 +16,21 @@
 
 学生报错时先判断属于哪一层，再处理；不要从头重装整个环境。
 
+当前已有结果和未完成项见[实测范围与资源缺项](validation-status.md)。
+
 ## 各实验助教关注点
 
 | 实验 | 课前必须确认 | 学生最容易卡住 |
 |---|---|---|
 | 人机对话 | API Key 流程、SenseVoice demo | Key、模型下载、CUDA/torchaudio |
 | AnyGrasp | SDK、License、checkpoint、GPU | MinkowskiEngine、坐标系、License |
-| ALFWorld | `alfworld-download` 完成 | 资源未下载、渲染环境 |
+| ALFWorld | 按文字/视觉路线准备所需资源 | 资源未下载、渲染环境 |
 | ALFRED | 数据 / checkpoint | 路径配置、环境 reset 卡住 |
 | AI2THOR | 课程 demo + Key | AI2THOR 启动、动作不合法、模型提前 done |
 | VirtualHome | Unity 可执行程序 | 本机路径、Windows 依赖、脚本动作无效 |
 | 方块重排/汉诺塔 | 相机、机械臂、夹爪、视觉和抓取链路 | 坐标系、逆解、碰撞、规划格式 |
 | iGibson | GPU、资产、场景启动 | 驱动/CUDA、资产下载 |
-| ACT 仿真 | 采集、可视化、训练、eval 各跑一次 | MuJoCo/dm_control、数据路径 |
+| ACT 仿真 | 复核已有记录；新环境先做受影响步骤的最小检查 | MuJoCo/dm_control、数据路径 |
 | cobot-magic | CAN、ROS、3 路相机、主从臂 | USB/CAN 映射、ROS 节点、相机话题 |
 
 ## 原则

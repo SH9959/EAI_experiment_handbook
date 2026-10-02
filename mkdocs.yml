@@ -3,8 +3,8 @@ site_name: 具身智能导论 · 实验手册
 site_description: 哈尔滨工业大学《具身智能导论》实验上手与助教手册
 site_author: 哈尔滨工业大学具身智能课程组
 site_url: https://sh9959.github.io/EAI_experiment_handbook/
-repo_url: https://github.com/SH9959/EAI_project
-repo_name: SH9959/EAI_project
+repo_url: https://github.com/SH9959/EAI_experiment_handbook
+repo_name: SH9959/EAI_experiment_handbook
 
 use_directory_urls: true
 
@@ -71,7 +71,7 @@ nav:
   - 学生实验:
       - 从这里开始: student/index.md
       - 开始实验前: student/setup.md
-      - 验证入口与资源清单: student/verification.md
+      - 实验前检查与示例结果: student/verification.md
       - 第3章 · 人机对话与多模态交互: student/ch3-dialogue.md
       - 第3章 · AnyGrasp 抓取: student/ch3-grasp.md
       - 第4章 · 仿真任务规划: student/ch4-planning.md
@@ -80,6 +80,7 @@ nav:
       - 第5章 · ACT 模仿学习: student/ch5-imitation.md
   - 助教手册:
       - 助教总览: ta/index.md
+      - 实测范围与资源缺项: ta/validation-status.md
       - 课前联调: ta/preclass.md
       - 课堂协助与验收: ta/grading.md
       - 常见问题排查: ta/troubleshooting.md

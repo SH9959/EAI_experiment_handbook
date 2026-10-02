@@ -1,71 +1,19 @@
-<div class="hero" markdown>
+# 《具身智能导论》学生实验手册
 
-# 《具身智能导论》实验手册
+教材第 3—5 章的六项实验。先[下载代码并准备终端](student/setup.md)，检查[所需资源](student/verification.md)，再进入课程指定的实验。
 
-**教材实验范围：第 3 章具身感知 · 第 4 章具身推理 · 第 5 章具身执行**
+| 实验 | 从什么开始 | 最后检查什么 |
+|---|---|---|
+| [人机对话与多模态交互](student/ch3-dialogue.md) | 一条文本问题、一张图片和一段录音 | 回答、转写与音频内容是否正确，各模块文件能否衔接 |
+| [AnyGrasp 抓取](student/ch3-grasp.md) | SDK、授权、权重和 RGB-D 样例 | 抓取候选是否合理，方块是否被实际夹起 |
+| [仿真任务规划](student/ch4-planning.md) | ALFWorld 文字任务或已配好的仿真环境 | 每步执行反馈及最终任务目标 |
+| [实机任务规划](student/ch4-real.md) | 设备联调和一份合法搬运计划 | 实际状态是否随动作改变，最终排列是否正确 |
+| [iGibson 导航](student/ch4-navigation.md) | 资产、场景、起点和目标点 | 是否到达目标，以及两种控制方法的比较结果 |
+| [ACT 模仿学习](student/ch5-imitation.md) | 示教数据；或领取已有模型做 CPU 单输入检查 | 模型输出、评估成功数与失败过程 |
 
-<div class="hero-actions" markdown>
-[学生从这里开始](student/index.md){ .md-button .md-button--primary }
-[助教查看课前联调](ta/preclass.md){ .md-button }
-[课程代码仓库](https://github.com/SH9959/EAI_project){ .md-button }
-</div>
-
-</div>
-
-## 使用说明 
-
-按课程安排选择实验，依次完成环境配置、实验过程和结果检查。依赖不同的实验分别配置环境。
-
-部分页面配有辅助脚本；代码来源、版本和运行条件见对应实验页。离线测试及 `CHECK ONLY`、`FORMAT_ONLY`、`PLAN_ONLY` 只检查输入、格式或辅助逻辑，不能代替 API、模型、仿真或设备的真实运行。已执行的检查和待验证项保存在各页链接的检查记录中。
+各实验页依次给出目标、环境配置、操作、结果和排错。命令旁的目录、参数和预期结果一起阅读；缺少资源时先停在对应步骤。
 
 !!! warning "实机实验"
-    助教确认设备状态后再运行机械臂、夹爪和 CAN 控制。首次运行采用低速、分步操作，并保持急停可用；各实验页列出对应设备的检查方法。
+    机械臂、夹爪和 CAN 控制由设备负责人确认后启动。首次动作分步、低速执行，保持急停可用。
 
-## 课程代码
-
-获取代码与基础工具的方法见[开始实验前](student/setup.md)。各实验的模型、数据和仿真器按对应页面单独准备。
-
-课程仓库中目前与教材实验直接对应的代码主要集中在以下位置：
-
-| 教材实验 | 课程代码位置 | 说明 |
-|---|---|---|
-| 3.4.3 语音识别 | [`chapter_3/3_3_human_perception/3.3.3/SenseVoice`](https://github.com/SH9959/EAI_project/tree/main/chapter_3/3_3_human_perception/3.3.3/SenseVoice) | 含 `demo1.py`、`webui.py`、`requirements.txt` |
-| 4.4.1 ALFWorld | [`chapter_4/4_1_task_planning/for_benchmark/alfworld`](https://github.com/SH9959/EAI_project/tree/main/chapter_4/4_1_task_planning/for_benchmark/alfworld) | 课程仓库记录官方子模块；实验页给出独立安装方法 |
-| 4.4.1 ALFRED | [`chapter_4/4_1_task_planning/for_benchmark/alfred`](https://github.com/SH9959/EAI_project/tree/main/chapter_4/4_1_task_planning/for_benchmark/alfred) | 课程仓库记录官方子模块；实验页给出独立安装方法 |
-| 4.4.1 AI2THOR + 大模型规划 | [`for_ai2thor`](https://github.com/SH9959/EAI_project/tree/main/chapter_4/4_1_task_planning/for_simulator/for_ai2thor) | 课程示例：`demo_in_ai2thor.py`、`myController.py`、`action.json`；接口适配见[仿真任务规划](student/ch4-planning.md) |
-| 4.4.1 VirtualHome | [`for_virtualhome`](https://github.com/SH9959/EAI_project/tree/main/chapter_4/4_1_task_planning/for_simulator/for_virtualhome) | 含课程示例 `demo_in_virtualhome.py`，需另装 VirtualHome 仿真器 |
-
-!!! note "课程工程准备"
-    AnyGrasp 仿真和实机集成工程、方块重排与汉诺塔设备接口需向助教领取。iGibson、ACT 和 cobot-magic 的上游代码与版本见各实验页；设备配置按实验台核对。
-
-## 实验路线
-
-<div class="grid cards" markdown>
-
--   :material-eye-outline:{ .lg .middle } **第 3 章 · 具身感知**
-
-    ---
-
-    **实验：** 人机对话、多模态对话、语音交互、AnyGrasp 仿真与实机抓取
-
-    [:octicons-arrow-right-24: 进入第 3 章实验](student/ch3-dialogue.md)
-
--   :material-head-cog-outline:{ .lg .middle } **第 4 章 · 具身推理**
-
-    ---
-
-    **实验：** ALFWorld、ALFRED、AI2THOR、VirtualHome、方块重排、汉诺塔、iGibson
-
-    [:octicons-arrow-right-24: 进入第 4 章实验](student/ch4-planning.md)
-
--   :material-robot-industrial-outline:{ .lg .middle } **第 5 章 · 具身执行**
-
-    ---
-
-    **实验：** ACT 仿真、cobot-magic 数据采集、训练与实机推理
-
-    [:octicons-arrow-right-24: 进入第 5 章实验](student/ch5-imitation.md)
-
-</div>
-
-
+已有模型结果可用于对照，实验报告填写自己的运行记录。助教使用[课前准备](ta/preclass.md)、[验收表](ta/grading.md)和[实测范围与缺项](ta/validation-status.md)。

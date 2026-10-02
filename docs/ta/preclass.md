@@ -1,111 +1,19 @@
-# 助教：课前联调
+# 助教：课前准备
 
-本页按照教材实验顺序给出“课前最小可运行检查”。每项只要求证明实验链路能跑，不需要提前完成学生的实验任务。
+按学生页在教学机器上检查所选实验。已有同版本、同资源的完整记录时先复核记录；更换环境或输入后，再运行受影响的最小步骤。
 
-## 0. 代码仓库
+| 实验 | 课前准备 | 允许学生继续的条件 |
+|---|---|---|
+| [对话与多模态](../student/ch3-dialogue.md) | 课程模型名、地域、额度；一张允许上传的图片、短录音和 TTS 参考音频；完整本地模型 | 文本/图像调用返回实际回答；语音能转写、合成并播放；公布可用环境及模型版本 |
+| [AnyGrasp](../student/ch3-grasp.md) | 系统/Python/CUDA 匹配的 SDK、有效本机授权、checkpoint、MinkowskiEngine；仿真另备两个课程脚本 | 官方样例能输出合理候选；仿真能夹起方块。实机另需相机、机械臂、夹爪和手眼标定分别通过检查 |
+| [ALFWorld](../student/ch4-planning.md) | 先选文字或视觉任务；按该部分准备包和环境 | 文字任务可启动并收到动作反馈；视觉任务另检查渲染与图像，不能用文字成功代替 |
+| [ALFRED](../student/ch4-planning.md) | 固定版本的历史环境、`json_feat` 和 checkpoint | 可加载评测任务并保存指标；依赖冲突或资源不齐时先停在准备阶段 |
+| [AI2THOR](../student/ch4-planning.md) | 课程指定场景、渲染环境；模型部分另需 API 配置 | 仓库内入口能执行人工动作并保存图像/反馈，再检查模型生成动作的过程 |
+| [VirtualHome](../student/ch4-planning.md) | Unity 程序、官方通信模块和新输出目录 | 规则放置任务有逐步反馈与最终图；模型规划另存原始回答和计划来源 |
+| [实机规划](../student/ch4-real.md) | 完整 ROS 工程、设备负责人、内参/深度单位/坐标变换/TCP/IK | 按相机 → 识别 → 位姿 → 单次搬运的顺序联调，再执行多步计划 |
+| [iGibson](../student/ch4-navigation.md) | 匹配通用资产、`Rs_int` 和合法解密配置 | 实际加载场景并取得观测，之后才做导航；`nvidia-smi` 通过不等于渲染通过 |
+| [ACT](../student/ch5-imitation.md) | 新训练准备数据与 GPU；CPU 单输入准备清单中的原件和独立环境 | 检查示教格式与画面、训练输出和评估记录；单输入只验收动作预测。实机另核对 ROS、三相机与 CAN/四臂映射 |
 
-确认课程仓库可以访问：
+运行时使用学生页的配套入口和参数，不直接启动带有作者机器路径或设备配置的原 demo。对机器人先检查急停、速度和运动范围，再由负责人逐步启动。
 
-```bash
-git clone https://github.com/SH9959/EAI_project.git
-```
-
-重点检查：
-
-```text
-chapter_3/.../SenseVoice/demo1.py
-chapter_4/.../for_ai2thor/demo_in_ai2thor.py
-chapter_4/.../for_ai2thor/action.json
-chapter_4/.../for_virtualhome/demo_in_virtualhome.py
-```
-
-## 1. 第 3 章人机对话
-
-课前至少验证：
-
-- DashScope 文本 API 能返回一次回答；
-- 一张本地图片能被多模态模型或 BLIP 处理；
-- `SenseVoice/demo1.py` 能正常转写示例音频；
-- 若本次课要求 TTS，提前用 CosyVoice 生成一个 `.wav`。
-
-## 2. 第 3 章 AnyGrasp
-
-课前必须准备好：
-
-- 与 Python 版本对应的 AnyGrasp SDK 二进制；
-- 有效 License；
-- detection checkpoint；
-- 已编译 MinkowskiEngine；
-- 官方 demo 能显示抓取候选。
-
-若上实机，还要提前完成：
-
-- RealSense RGB / Depth 检查；
-- Dobot CR5 和 DH AG95 单独控制测试；
-- 手眼标定结果可加载；
-- `move.launch`、`anygrasp_ros.py`、`mover.py` 三段链路至少跑通一次。
-
-## 3. 第 4 章仿真规划
-
-### ALFWorld
-
-```bash
-alfworld-play-tw
-```
-
-至少进入一个任务并完成一次动作。
-
-### AI2THOR
-
-```bash
-cd ~/EAI_project/chapter_4/4_1_task_planning/for_simulator/for_ai2thor
-python demo_in_ai2thor.py
-```
-
-至少确认：场景打开、图像保存、模型返回动作、动作被环境执行。
-
-### VirtualHome
-
-提前确认 Unity 可执行程序路径和课程 demo 中的输出路径已针对实验机器修改。
-
-## 4. 第 4 章实机规划
-
-不要直接从“完整任务”开始联调。按以下顺序逐层检查：
-
-1. 相机 RGB / Depth；
-2. Qwen-VL 场景描述；
-3. GroundingDINO 目标框；
-4. 点云；
-5. AnyGrasp 抓取位姿；
-6. 单次机械臂抓取；
-7. 大模型规划；
-8. 完整闭环。
-
-汉诺塔再额外检查规划输出是否始终满足“大盘不能放在小盘上”。
-
-## 5. iGibson
-
-检查：
-
-```bash
-nvidia-smi
-nvcc --version
-```
-
-然后至少启动一次场景，确保资产下载完整。
-
-## 6. ACT
-
-仿真课前建议准备一个很小的数据集用于快速验证：
-
-```bash
-python3 record_sim_episodes.py \
-  --task_name sim_transfer_cube_scripted \
-  --dataset_dir ./smoke_data \
-  --num_episodes 2 \
-  --onscreen_render
-```
-
-确认 `visualize_episodes.py` 可以打开数据，再准备正式 50 条数据实验。
-
-实机课前确认 CAN/USB 映射、主从臂、三个相机话题和 `collect_data.py` 均可用。
+将本班已验证机器、环境名、资源领取位置和不可执行的部分告知学生。尚缺资源见[实测范围与资源缺项](validation-status.md)。

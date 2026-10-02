@@ -1,6 +1,6 @@
 # 第 3 章：AnyGrasp 抓取
 
-对应教材 **3.4.4 抓取实验**，包括 AnyGrasp detection、PyBullet Panda 仿真抓取和 Dobot CR5 实机抓取。教材印刷页 79—96，对应 v2.0 PDF 第 97—114 页。
+对应教材 **3.4.4 抓取实验**：AnyGrasp 候选抓取检测、PyBullet Panda 仿真抓取和 Dobot CR5 实机抓取（印刷页 79—96）。
 
 ## 一、实验目标
 
@@ -12,7 +12,7 @@
 
 ### 2.1 平台与前置材料
 
-AnyGrasp SDK 使用本机 License 授权。[官方授权说明](https://github.com/graspnet/anygrasp_sdk/blob/b8eaafc9eca7babd5208e7a5ade3c561060be4c5/license_registration/README.md)要求按工作机器申请。不要把机器特征码和授权文件提交到公开仓库。
+先按下表准备材料；缺少 License、权重或课程工程时，在对应阶段停止并记录缺项。AnyGrasp License 需按[官方说明](https://github.com/graspnet/anygrasp_sdk/blob/b8eaafc9eca7babd5208e7a5ade3c561060be4c5/license_registration/README.md)为运行机器申请，机器特征码与授权文件不公开。
 
 | 条件 | 配置要求 | 缺项处理 |
 |---|---|---|
@@ -25,9 +25,7 @@ AnyGrasp SDK 使用本机 License 授权。[官方授权说明](https://github.c
 
 ### 2.2 SDK 版本与接口
 
-教材使用旧版 SDK 和 `license_checker -f` 授权命令。上游自 2026-07-04 起改用 SDK 内的 `get_feature_id` / `check_license`，检测入口改为 `create_detector`，旧工具不再用于新申请。已部署的旧机器可以保留原 SDK；更新时须同时核对二进制、Python 包装代码和授权流程。
-
-下列命令适配新版 SDK，固定提交为 `b8eaafc9eca7babd5208e7a5ade3c561060be4c5`，不代表教材旧环境的原样复现。[该版本安装说明](https://github.com/graspnet/anygrasp_sdk/blob/b8eaafc9eca7babd5208e7a5ade3c561060be4c5/README.md#installation)使用修改版 MinkowskiEngine，并区分 CUDA 分支，与教材使用 NVIDIA 原仓库的步骤不同。先确认课程依赖组合；未经确认，不执行修改系统头文件的命令。
+本页固定 SDK 提交 `b8eaafc9eca7babd5208e7a5ade3c561060be4c5`，使用 `get_feature_id` / `check_license` 授权和 `create_detector` 检测接口。按[该版本安装说明](https://github.com/graspnet/anygrasp_sdk/blob/b8eaafc9eca7babd5208e7a5ade3c561060be4c5/README.md#installation)选择 MinkowskiEngine 的 CUDA 分支，不混用教材旧版的授权工具或模型包装代码；接口差异见[检查记录](../assets/ch3-grasp/verification.md)。未经课程负责人确认，不修改系统头文件。
 
 ### 2.3 代码获取与依赖安装（Linux Bash）
 
@@ -51,7 +49,7 @@ python -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda
 python -c "import MinkowskiEngine; print(MinkowskiEngine.__version__)"
 ```
 
-`nvidia-smi` 的 CUDA 显示值、`nvcc -V` 的工具链版本、`torch.version.cuda` 的编译版本不是同一项，记录时分别填写。没有 `nvcc` 不能靠安装普通推理 wheel 自动补齐编译工具。缺少经过验证的环境配置时，先向助教补齐，再继续安装。
+分别记录 `nvidia-smi`、`nvcc -V` 和 `torch.version.cuda`，它们表示驱动支持、编译工具链和 PyTorch 编译时使用的 CUDA 版本。找不到 `nvcc` 或导入失败时，向助教领取匹配环境配置，再继续安装。
 
 确认上述两条能导入后，在 `anygrasp_sdk` 根目录继续：
 
@@ -71,11 +69,10 @@ graspnetAPI 按 SDK README 安装，最后执行 `python -m pip check`。这一�
 以下命令从**手册仓库根目录**运行，只使用 Python 标准库，不需要模型、GPU 或授权；可以使用已经创建的 `eai-dialogue` 环境，不需要再装一个环境。
 
 ```bash
-python docs/assets/ch3-grasp/test_grasp_checks.py
 python docs/assets/ch3-grasp/grasp_checks.py geometry
 ```
 
-第一条检查解析公式、坐标约定和文件检查行为；第二条输出标有 `ANALYTIC_EXAMPLE_NOT_GRASP` 的解析例子。它们不是 AnyGrasp 抓取结果。
+预期显示 `ANALYTIC_EXAMPLE_NOT_GRASP`，并给出中心点 `[0, 0, 1]`。对照 3.2.2 的公式检查坐标换算；此命令不生成抓取候选。
 
 检查已取得的 SDK 或仿真工程时，将路径替换为实际目录；Windows 可用 `C:/...`，Linux 可用 `/home/...`。二进制检查应在实际 SDK 环境中执行，否则报告只反映当前检查环境的平台与 Python ABI：
 
@@ -83,7 +80,7 @@ python docs/assets/ch3-grasp/grasp_checks.py geometry
 python docs/assets/ch3-grasp/grasp_checks.py files --sdk "实际的/anygrasp_sdk目录" --sim-dir "实际的/仿真工作目录"
 ```
 
-只检查一个目录时，仅传对应参数。工具按当前解释器的完整扩展后缀查找二进制，输出含义如下：
+只检查一个目录时，仅传对应参数。按以下结果补齐材料：
 
 | 状态 | 含义与处理 |
 |---|---|
@@ -136,17 +133,17 @@ anygrasp_sdk/grasp_detection/
     └── seg_mask.png
 ```
 
-该提交的 Git 文件树含三张样例图，但不含 `log/checkpoint_detection.tar`。checkpoint 应向助教或 SDK 提供方领取与该接口匹配的文件及版本说明；本页没有经过核实的公开权重下载地址。不要将模型/授权复制进手册 Git 仓库。使用官方样例先验收环境；自采相机数据还需更换内参和深度尺度。
+三张样例图随 SDK 提供，`log/checkpoint_detection.tar` 需向助教或 SDK 提供方领取匹配版本；未取得权重前停止。模型和授权不要提交到手册仓库。先使用官方样例；自采数据必须更换相机内参和深度尺度。
 
 #### 3.1.3 官方 detection 样例
 
-工作目录仍为 `grasp_detection/`，不是 SDK 根目录。该目录的相对路径是样例读取输入的依据。
+保持在 `grasp_detection/` 目录，运行：
 
 ```bash
 python demo.py --checkpoint_path log/checkpoint_detection.tar --vis
 ```
 
-该版本使用 `--vis`，不沿用旧版 `--debug`。运行后检查：
+运行后检查：
 
 | 输出 | 检查方法 |
 |---|---|
@@ -156,15 +153,11 @@ python demo.py --checkpoint_path log/checkpoint_detection.tar --vis
 
 官方演示的 steering 配置包含关闭碰撞过滤的情况，只用于感知演示，不能直接作为实机动作。
 
-教材复制 `example_data` 的命令缺少目录递归选项。以上步骤直接使用 SDK 自带目录；确需复制目录时使用 `cp -r`，并检查目标路径，避免嵌套同名目录。
-
 ### 3.2 PyBullet 仿真抓取
 
 #### 3.2.1 工程准备
 
-`SH9959/EAI_project` 提交 `e6bb5d5de828b5d87834ea169b53c09b376d8b09` 未提供两份仿真脚本及完整 `anygrasp_open` 工程；教材另列的 `SH9959/EAI.git` 地址也尚无经过核实的完整交付。取得工程前，此阶段无法运行。
-
-向助教领取：两份仿真脚本及提交号、其匹配的 SDK/权重版本、物体资产、末端/抓取坐标系定义和依赖清单。固定位置抓取代码和配套 `grasp_checks.py` 均不包含完整的 AnyGrasp pipeline，不能替代这两份脚本。
+**当前仓库缺少 `grasp_sim_anygrasp.py` 和 `anygrasp_model.py`，此阶段暂时无法运行。** 向助教领取这两份脚本、提交号、匹配的 SDK/权重、物体资产、末端/抓取坐标系定义及依赖清单。文件检查工具 `grasp_checks.py` 不能替代仿真工程；已核对的来源见[检查记录](../assets/ch3-grasp/verification.md)。
 
 #### 3.2.2 相机几何与坐标变换
 
@@ -178,7 +171,7 @@ X = (u - cx) * Z / fx
 Y = (v - cy) * Z / fy
 ```
 
-公式中的 `vertical_fov` 要先转为弧度；命令行的 `--cam-fov` 单位仍是度。教材印刷页 82 的“左乘”措辞与该页写出的乘法顺序不一致，view 的转置还依赖数组恢复方式。以下采用列向量约定：`A_T_B` 把 B 系坐标转换到 A 系。若用 NumPy 从 PyBullet 的 16 项列表恢复 view：
+公式中的 `vertical_fov` 使用弧度，命令行 `--cam-fov` 使用度。以下采用列向量约定：`A_T_B` 把 B 系坐标转换到 A 系。用 NumPy 从 PyBullet 的 16 项列表恢复 view 时：
 
 ```python
 V = np.asarray(view).reshape(4, 4, order="F")
@@ -187,7 +180,7 @@ world_T_cam_cv = world_T_cam_gl @ np.diag([1, -1, -1, 1])
 world_T_grasp = world_T_cam_cv @ cam_T_grasp
 ```
 
-这里 `np` 指 NumPy。使用 `order="F"` 后不要再额外转置一次。不同代码若使用默认行主序 reshape，需要重新核对推导，不能只根据公式外观判断相等。
+这里 `np` 指 NumPy。`order="F"` 按列主序恢复矩阵，此后不要再转置；使用其他存储顺序时需重新核对变换。
 
 [官方 demo 的显示函数](https://github.com/graspnet/anygrasp_sdk/blob/b8eaafc9eca7babd5208e7a5ade3c561060be4c5/grasp_detection/demo.py)为展示结果，会对点云和夹爪共同施加 `diag(1, 1, -1, 1)`。这个矩阵的旋转块行列式为 -1，是镜像；不要把它当作上面的相机刚体变换传给 IK。
 
@@ -208,28 +201,35 @@ python grasp_sim_anygrasp.py --gui --checkpoint_path log/checkpoint_detection.ta
 
 #### 3.3.1 工程与设备准备
 
-教材配置为 Ubuntu 20.04、ROS1 Noetic、Dobot CR5、DH AG95、D435i 和 eye-to-hand 标定。没有设备时可以登记资料缺项，不能用仿真成功替代实机。
-
-教材工程说明存在以下不一致：印刷页 90 的 ROS1/catkin 流程却引用 `DOBOT_6Axis_ROS2_V4`；夹爪克隆命令在已有 `src` 下又加了一层 `src/`；tuw_marker_detection 命令缺 `git clone`；标定与抓取 launch 使用的机械臂包名不一致。应由助教提供与实际固件匹配的整套 ROS1 驱动及 launch，不只替换一个仓库名。
+需要 Ubuntu 20.04、ROS1 Noetic、Dobot CR5、DH AG95、D435i，以及与设备固件匹配的 `anygrasp_open`、ROS1 驱动和 launch 文件。**当前未提供完整实机工程与设备条件。** 向助教领取后再继续，不混装 ROS2 驱动；教材命令修正见[检查记录](../assets/ch3-grasp/verification.md)。
 
 #### 3.3.2 Eye-to-Hand 手眼标定
 
-手眼标定时，**相机相对机器人基座固定，标定板相对末端固定；相机与标定板之间的相对位姿必须随末端运动发生变化**。这与教材印刷页 92 的正文一致；“相机和标定板相对固定”的说法不适用于此配置。
+手眼标定时，**相机相对机器人基座固定，标定板相对末端固定**。移动末端，让标定板以不同位置和角度出现在画面中；过程中不要移动相机或重新安装标定板。
 
-棋盘规格需确认表示的是格子数还是内角点数：教材图中是 8×11 格，标定参数写 7×10 内角点；图示方格尺寸为 20 mm，仍应量取手中打印板，检查是否缩放。核对使用的 CameraInfo/图像话题、光学坐标系与 TF。采集约 15 个姿态是教材示例，不是自动合格阈值；需要多方向姿态和独立位姿的标定验证。[easy_handeye 的 eye-on-base 说明](https://github.com/IFL-CAMP/easy_handeye#use-cases)也采用相机对基座固定、标记对末端固定的关系。
+教材棋盘为 8×11 格、7×10 个内角点，标称边长 20 mm；量取实际打印板后填写参数。核对 CameraInfo、图像话题、光学坐标系与 TF。采集约 15 个多方向姿态后，用未参与计算的姿态检查标定；误差通过现场要求后保存矩阵。配置参考 [easy_handeye 的 eye-on-base 说明](https://github.com/IFL-CAMP/easy_handeye#use-cases)。
 
 #### 3.3.3 分步抓取
 
-设备负责人确认驱动、限速、碰撞环境、急停与工作区后，才能运行教材的三个终端。每个终端需要 source 正确工作空间：
+设备负责人确认驱动、限速、碰撞环境、急停与工作区后，打开三个 Bash 终端。每个终端先执行以下两行，将 `/实际工作空间` 换成助教交付并编译通过的 catkin 工作空间：
 
 ```bash
-# 以下分别在三个终端运行，仅适用于已补齐并检查过的 ROS1 工程。
+source /opt/ros/noetic/setup.bash
+source /实际工作空间/devel/setup.bash
+```
+
+随后分别在三个终端运行：
+
+```bash
+# 终端 1：启动设备与坐标变换
 roslaunch anygrasp_open move.launch
+# 终端 2：启动抓取预测
 rosrun anygrasp_open anygrasp_ros.py
+# 终端 3：打开分步控制界面
 rosrun anygrasp_open mover.py
 ```
 
-依次验收物体上方、下探、夹取、抬升、放置区上方、放置、松爪后退离/抬起。
+在控制界面逐步执行：到物体上方 → 下探 → 夹取 → 抬升 → 到放置区上方 → 放置 → 松爪并退离。每步核对实际位置后再进行下一步；位置或方向异常时停机。
 
 ## 四、实验结果
 
@@ -259,6 +259,6 @@ rosrun anygrasp_open mover.py
 | 模型有位姿但 IK 不对 | 目标点/工具系偏移、位置单位、旋转约定与关节限位 |
 | `roslaunch` 找不到包 | 是否补齐 ROS1 工程并 source；有没有混入 ROS2 驱动 |
 
-首次联调不独自运行，也不让代理自动连续控制真实机械臂。位姿异常先停机排查，不能把手伸入正在运动的工作区。
+首次联调必须由现场负责人陪同，采用分步控制；位姿异常先停机，不把手伸入正在运动的工作区。
 
-源码核对、已执行的离线检查及尚未运行的阶段见[检查记录](../assets/ch3-grasp/verification.md)。
+已验证范围与资料缺项见[检查记录](../assets/ch3-grasp/verification.md)。
