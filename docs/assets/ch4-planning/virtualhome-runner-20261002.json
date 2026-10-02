@@ -1,0 +1,480 @@
+{
+  "date": "2026-10-02",
+  "executor": "Codex",
+  "model_called": false,
+  "scope": "real Unity execution of handbook rules and intentional invalid order; not model planning",
+  "unity_version": "2.3.0",
+  "api_commit": "58970fd80951c2eaa1af713e0917d1a105353ad8",
+  "python": "3.12.14",
+  "numpy": "1.26.4",
+  "opencv": "4.8.1",
+  "runner_sha256": "6735aaea7134c7df9a00e649c1d7562afafc86cb423854fb6baa4764b06a63e4",
+  "cases": {
+    "success-final": {
+      "result": {
+        "started_at": "2026-10-02T12:48:37.460215+00:00",
+        "mode": "UNITY_EXECUTION",
+        "endpoint": "http://127.0.0.1:18082",
+        "execution_state": "COMPLETED",
+        "scene": 0,
+        "model_called": false,
+        "task_success": true,
+        "plan_source": "handbook_rules",
+        "plan_origin_declared": "handbook_rules",
+        "plan_origin_verified": false,
+        "actions": [
+          {
+            "step": 1,
+            "action": "<char0> [WALK] <salmon> (327)",
+            "render_success": true,
+            "graph_success": true,
+            "response": [
+              true,
+              {
+                "0": {
+                  "message": "Success"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "Success"
+              }
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": false,
+              "fridge_states": [
+                "CLOSED"
+              ],
+              "fridge_closed": true,
+              "salmon_held": false
+            },
+            "recording_frames": 81
+          },
+          {
+            "step": 2,
+            "action": "<char0> [GRAB] <salmon> (327)",
+            "render_success": true,
+            "graph_success": true,
+            "response": [
+              true,
+              {
+                "0": {
+                  "message": "Success"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "Success"
+              }
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": false,
+              "fridge_states": [
+                "CLOSED"
+              ],
+              "fridge_closed": true,
+              "salmon_held": true
+            },
+            "recording_frames": 15
+          },
+          {
+            "step": 3,
+            "action": "<char0> [WALK] <fridge> (305)",
+            "render_success": true,
+            "graph_success": true,
+            "response": [
+              true,
+              {
+                "0": {
+                  "message": "Success"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "Success"
+              }
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": false,
+              "fridge_states": [
+                "CLOSED"
+              ],
+              "fridge_closed": true,
+              "salmon_held": true
+            },
+            "recording_frames": 19
+          },
+          {
+            "step": 4,
+            "action": "<char0> [OPEN] <fridge> (305)",
+            "render_success": true,
+            "graph_success": true,
+            "response": [
+              true,
+              {
+                "0": {
+                  "message": "Success"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "Success"
+              }
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": false,
+              "fridge_states": [
+                "OPEN"
+              ],
+              "fridge_closed": false,
+              "salmon_held": true
+            },
+            "recording_frames": 17
+          },
+          {
+            "step": 5,
+            "action": "<char0> [PUTIN] <salmon> (327) <fridge> (305)",
+            "render_success": true,
+            "graph_success": true,
+            "response": [
+              true,
+              {
+                "0": {
+                  "message": "Success"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "Success"
+              }
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": true,
+              "fridge_states": [
+                "OPEN"
+              ],
+              "fridge_closed": false,
+              "salmon_held": false
+            },
+            "recording_frames": 14
+          },
+          {
+            "step": 6,
+            "action": "<char0> [CLOSE] <fridge> (305)",
+            "render_success": true,
+            "graph_success": true,
+            "response": [
+              true,
+              {
+                "0": {
+                  "message": "Success"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "Success"
+              }
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": true,
+              "fridge_states": [
+                "CLOSED"
+              ],
+              "fridge_closed": true,
+              "salmon_held": false
+            },
+            "recording_frames": 42
+          }
+        ],
+        "errors": [],
+        "planned_steps": 6,
+        "all_steps_succeeded": true,
+        "api_sha256": "df18e045f6c973925b6338389aed3580340866a862c789b9571c0bc90eb93a6a",
+        "reset_response": true,
+        "add_character_response": true,
+        "character_id": 1,
+        "food_id": 327,
+        "fridge_id": 305,
+        "initial_state": {
+          "character_id": 1,
+          "salmon_inside_fridge": false,
+          "fridge_states": [
+            "CLOSED"
+          ],
+          "fridge_closed": true,
+          "salmon_held": false
+        },
+        "final_state": {
+          "character_id": 1,
+          "salmon_inside_fridge": true,
+          "fridge_states": [
+            "CLOSED"
+          ],
+          "fridge_closed": true,
+          "salmon_held": false
+        },
+        "recording_frames": 188,
+        "recording_state": "ALL_EXECUTED_STEPS_HAVE_FRAMES",
+        "evidence_complete": true,
+        "finished_at": "2026-10-02T12:48:43.971998+00:00"
+      },
+      "runner_exit_code": 0,
+      "owned_unity_stopped_after_run": true,
+      "recording_frames_at_report": 188,
+      "recording_frames_after_unity_stop": 188,
+      "derived_video_decoded_frames": 188,
+      "video_note": "local MP4 assembled from original first-person frames at 10 fps"
+    },
+    "failure-final": {
+      "result": {
+        "started_at": "2026-10-02T12:49:09.281538+00:00",
+        "mode": "UNITY_EXECUTION",
+        "endpoint": "http://127.0.0.1:18082",
+        "execution_state": "FAILED",
+        "scene": 0,
+        "model_called": false,
+        "task_success": false,
+        "plan_source": "provided_file",
+        "plan_origin_declared": "external",
+        "plan_origin_verified": false,
+        "actions": [
+          {
+            "step": 1,
+            "action": "<char0> [WALK] <fridge> (305)",
+            "render_success": true,
+            "graph_success": true,
+            "response": [
+              true,
+              {
+                "0": {
+                  "message": "Success"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "Success"
+              }
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": false,
+              "fridge_states": [
+                "CLOSED"
+              ],
+              "fridge_closed": true,
+              "salmon_held": false
+            },
+            "recording_frames": 51
+          },
+          {
+            "step": 2,
+            "action": "<char0> [OPEN] <fridge> (305)",
+            "render_success": true,
+            "graph_success": true,
+            "response": [
+              true,
+              {
+                "0": {
+                  "message": "Success"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "Success"
+              }
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": false,
+              "fridge_states": [
+                "OPEN"
+              ],
+              "fridge_closed": false,
+              "salmon_held": false
+            },
+            "recording_frames": 17
+          },
+          {
+            "step": 3,
+            "action": "<char0> [PUTIN] <salmon> (327) <fridge> (305)",
+            "render_success": false,
+            "graph_success": true,
+            "response": [
+              false,
+              {
+                "0": {
+                  "message": "ScriptExcutor 0: PROCESS PUT: Not found source object: salmon\nEXECUTION_GENERAL: Script is impossible to execute\n\n"
+                }
+              }
+            ],
+            "message": {
+              "0": {
+                "message": "ScriptExcutor 0: PROCESS PUT: Not found source object: salmon\nEXECUTION_GENERAL: Script is impossible to execute\n\n"
+              }
+            },
+            "error": {
+              "type": "RuntimeError",
+              "message": "render_script 未返回字面值 True：(False, {'0': {'message': 'ScriptExcutor 0: PROCESS PUT: Not found source object: salmon\\nEXECUTION_GENERAL: Script is impossible to execute\\n\\n'}})"
+            },
+            "state": {
+              "character_id": 1,
+              "salmon_inside_fridge": false,
+              "fridge_states": [
+                "OPEN"
+              ],
+              "fridge_closed": false,
+              "salmon_held": false
+            },
+            "recording_frames": 4
+          }
+        ],
+        "errors": [
+          {
+            "stage": "execution",
+            "type": "RuntimeError",
+            "message": "render_script 未返回字面值 True：(False, {'0': {'message': 'ScriptExcutor 0: PROCESS PUT: Not found source object: salmon\\nEXECUTION_GENERAL: Script is impossible to execute\\n\\n'}})"
+          }
+        ],
+        "planned_steps": 3,
+        "all_steps_succeeded": false,
+        "api_sha256": "df18e045f6c973925b6338389aed3580340866a862c789b9571c0bc90eb93a6a",
+        "reset_response": true,
+        "add_character_response": true,
+        "character_id": 1,
+        "food_id": 327,
+        "fridge_id": 305,
+        "initial_state": {
+          "character_id": 1,
+          "salmon_inside_fridge": false,
+          "fridge_states": [
+            "CLOSED"
+          ],
+          "fridge_closed": true,
+          "salmon_held": false
+        },
+        "plan_file_sha256": "42239da3261f8cc92b7ac122caf69f35721a39a2bbbdeb50192ca1b78aae111b",
+        "final_state": {
+          "character_id": 1,
+          "salmon_inside_fridge": false,
+          "fridge_states": [
+            "OPEN"
+          ],
+          "fridge_closed": false,
+          "salmon_held": false
+        },
+        "recording_frames": 72,
+        "recording_state": "ALL_EXECUTED_STEPS_HAVE_FRAMES",
+        "evidence_complete": true,
+        "finished_at": "2026-10-02T12:49:12.032139+00:00"
+      },
+      "runner_exit_code": 1,
+      "owned_unity_stopped_after_run": true,
+      "recording_frames_at_report": 72,
+      "recording_frames_after_unity_stop": 74,
+      "derived_video_decoded_frames": 74,
+      "video_note": "local MP4 assembled from original first-person frames at 10 fps"
+    },
+    "prepare-final": {
+      "result": {
+        "started_at": "2026-10-02T12:49:48.864074+00:00",
+        "mode": "UNITY_EXECUTION",
+        "endpoint": "http://127.0.0.1:18082",
+        "execution_state": "PREPARED",
+        "scene": 0,
+        "model_called": false,
+        "task_success": "NOT_EVALUATED",
+        "plan_source": "handbook_rules",
+        "plan_origin_declared": "handbook_rules",
+        "plan_origin_verified": false,
+        "actions": [],
+        "errors": [],
+        "planned_steps": null,
+        "all_steps_succeeded": false,
+        "api_sha256": "df18e045f6c973925b6338389aed3580340866a862c789b9571c0bc90eb93a6a",
+        "reset_response": true,
+        "add_character_response": true,
+        "character_id": 1,
+        "food_id": 327,
+        "fridge_id": 305,
+        "initial_state": {
+          "character_id": 1,
+          "salmon_inside_fridge": false,
+          "fridge_states": [
+            "CLOSED"
+          ],
+          "fridge_closed": true,
+          "salmon_held": false
+        },
+        "recording_frames": 0,
+        "recording_state": "NOT_REQUESTED",
+        "evidence_complete": false,
+        "finished_at": "2026-10-02T12:49:50.308798+00:00"
+      },
+      "runner_exit_code": 0,
+      "owned_unity_stopped_after_run": true
+    }
+  },
+  "evidence_files_sha256": {
+    "success-final/graph_01.json": "b29f623409b88e4365ee42cb210446206f7caba38678358c099e4a26155a9187",
+    "success-final/graph_01_response.json": "3c928d84f0d5d1f879738a96a69806ffd9ceafa077e761e51fcb5630916bcb1a",
+    "success-final/graph_02.json": "d18a1c5f5009475b0f5de22dd033fe1c9fd12dab79b7b240df9a610ddf4a426f",
+    "success-final/graph_02_response.json": "42f968cd9eb502393a12496704fbca17f22eb50355379422ae1c087ee8663484",
+    "success-final/graph_03.json": "5ff7d464609d755cbf65e7726c0ed6c61f16e9186c5902d275ee979e7b8c3cbb",
+    "success-final/graph_03_response.json": "d137f5f2756f0058b3c553cb4fae7ccfbea64330f524213f7a792c9f93f8266d",
+    "success-final/graph_04.json": "c5109cd06c8672b62f585887d8751af0f3b1d4da14281a1095566b6983b4f066",
+    "success-final/graph_04_response.json": "e2bd502e1296d3168e3f49a0ca5cbd62d918c09652ea356d366b360a3a95db6e",
+    "success-final/graph_05.json": "2d887342205412e554bb9e9c14d340f61bfbed99e6a4d0f712ac9f165f458eaa",
+    "success-final/graph_05_response.json": "ea1081ecd98bb275a7fd9009dc1d9a22bb987d7b4762cce4842f7a143164c7db",
+    "success-final/graph_06.json": "eb640c30c250865fd9636ffe9df840a9c408429bb10ed578a3354c4979bd45c0",
+    "success-final/graph_06_response.json": "1055e851449f00f0e2a0dd4779a93540b409040c3a9027949ee37dca28b8a442",
+    "success-final/graph_after.json": "eb640c30c250865fd9636ffe9df840a9c408429bb10ed578a3354c4979bd45c0",
+    "success-final/graph_after_response.json": "1055e851449f00f0e2a0dd4779a93540b409040c3a9027949ee37dca28b8a442",
+    "success-final/graph_before.json": "d5020f5e64475fd4ace74a62d4b4e83ffc47785c288916a6fd1f8fb54aa9f483",
+    "success-final/graph_before_response.json": "c2601d3828e59855677e8f4418f747192f9040fd75f175ac637bceaa9dd2b503",
+    "success-final/plan.json": "91950cbd9367f53db954f99cc42f90adcefeaf1cb9fe2e5bf2a8667637b0a476",
+    "success-final/result.json": "17563c5622f4b3277fc7837143a1ef9a0f414a916f4f70b2c73e5921013ca461",
+    "success-final/run.json": "7d1c016d21149820f44012503ee543f4eb83688a499e7a313ebfbe41b53431cf",
+    "success-final/step_01.json": "e3a85c9037a811a204bbfdf0ab69d81c4a37e6ca89818611148171eb8401e91e",
+    "success-final/step_02.json": "cf472ad97923aefc66460041730a619ecf1089c514a9789f9e15fa0bb7ff9db2",
+    "success-final/step_03.json": "525f5938e95e4ec81f2ecfc51bfff9bc9405058337842745d2d2f7986fc9ef7d",
+    "success-final/step_04.json": "553a5d636fe38c99ce8d01aad70d09fd506a8f81e79794398164ad8221bd8da8",
+    "success-final/step_05.json": "5d3257f7b8cd4753398a5a404ae6ee33e8b4b2f51a73dd4f128da65d66a65654",
+    "success-final/step_06.json": "7d96db155c442123f9c58c4e76dc774143902bd18cea2cf810359ae5d5b04f82",
+    "failure-final/graph_01.json": "8973cf6c3365cf77426a62b893c73d33c45577ab118564c174e9764d689d4f50",
+    "failure-final/graph_01_response.json": "b03e5c19c58a2888ff414bcba5684e3e9d2224ec62956b113d10174dfdcc4f8f",
+    "failure-final/graph_02.json": "ec9dfbead1f56e93699084c81e120958106f7754a2659e745251aa1f25df1b9a",
+    "failure-final/graph_02_response.json": "62f16c04911b2e7b15f01c5e8e3d7cfeaade9b4c8b52258dd30cb03ac0e008fc",
+    "failure-final/graph_03.json": "df557605add209c571de566a95f81bde2ffedfc95bf4fa0efe315c890b4fb74d",
+    "failure-final/graph_03_response.json": "100e4701ddd087cdfa89df9b81290e36c35560a7468e5e4dd301cec5c7a24a22",
+    "failure-final/graph_after.json": "df557605add209c571de566a95f81bde2ffedfc95bf4fa0efe315c890b4fb74d",
+    "failure-final/graph_after_response.json": "100e4701ddd087cdfa89df9b81290e36c35560a7468e5e4dd301cec5c7a24a22",
+    "failure-final/graph_before.json": "305f55325805f3ea5016c2fcbc605dd118c9c2415645663996f0a8fe3bb18184",
+    "failure-final/graph_before_response.json": "2ab65701e30fca4d9c6881801d45e28ad200579d5537811066188ae20171b9d9",
+    "failure-final/plan.json": "b8b6ad0d6aee35ae587365c20d3ed1179e51302de101da2141cd611f1878c06b",
+    "failure-final/plan_input.json": "42239da3261f8cc92b7ac122caf69f35721a39a2bbbdeb50192ca1b78aae111b",
+    "failure-final/result.json": "860d149320407efaceca617d956badc6a148a29164886c264b43b06510b90448",
+    "failure-final/run.json": "b8672c3677f10a6eb0e8128e5811207ead42209fdac049c74ae5b6187caf3d13",
+    "failure-final/step_01.json": "3ca8cc870b34419d342225548c6cc439158120686ae836a36b4fed1e08917332",
+    "failure-final/step_02.json": "9c7b3255adc937cd2865ca058f9d63fad93658af8a86ccda423f85c6aef7762a",
+    "failure-final/step_03.json": "b1a419951bfeec4c99813511940d273d57b82f5950f27ec91033389f2c05d2d0",
+    "prepare-final/graph_before.json": "2d8632515fd1cd4840383b005d7a5dc3f7f8ab1b0eb54fa2256404de89a98a08",
+    "prepare-final/graph_before_response.json": "97c6c8d640f4cb948bcd7bd8f04be36efcb423b1e3dd1f5c0454e41f45a3c0bc",
+    "prepare-final/result.json": "523d7990b100410f787fa362a8754c6630390af7d2d5d8430a7f9e97d4ae5aa2",
+    "prepare-final/run.json": "9b08583ac23c80d6e0c62e10060260660a53dc9af3cfb70d56e48d0f016faaaa"
+  },
+  "archive_sha256": "6b6953d7dd8a1ade67c3b5d0b4a0be4a7a737c4f53cbdbc662b449fb84afc35b"
+}

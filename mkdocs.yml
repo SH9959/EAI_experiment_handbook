@@ -71,6 +71,7 @@ nav:
   - 学生实验:
       - 从这里开始: student/index.md
       - 开始实验前: student/setup.md
+      - 验证入口与资源清单: student/verification.md
       - 第3章 · 人机对话与多模态交互: student/ch3-dialogue.md
       - 第3章 · AnyGrasp 抓取: student/ch3-grasp.md
       - 第4章 · 仿真任务规划: student/ch4-planning.md

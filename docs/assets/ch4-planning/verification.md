@@ -2,6 +2,31 @@
 
 更新日期：2026-10-02。**学生已三次完成同一 ALFWorld 文字任务，两次完成 VirtualHome 六步人工规则任务，两次启动 AI2THOR 自动复测入口通过；Codex 另完成 ALFWorld 清洗任务、VirtualHome 人工规则任务和 AI2THOR 默认 640×480 命令行复测。** ALFWorld 视觉交互、ALFRED 和模型规划仍未运行。以下保留各阶段记录，注明执行者和验证范围。
 
+<a id="virtualhome-runner-20261002"></a>
+## 仓库内 VirtualHome 入口与真实失败（2026-10-02 晚）
+
+新增 [virtualhome_checked_demo.py](virtualhome_checked_demo.py)，用一条命令替代依赖两个临时文件和 `python -i` 会话的操作。配套 `planning_checks.py` 继续负责动作/实例格式；运行器保存初始图、每步原始返回值与图、最终图和 `result.json`，在第一步失败时停止后续动作。模型计划只接受严格的 `steps` JSON，不执行回答中的代码。
+
+执行者为 Codex，复用现有 Windows Unity **2.3.0**、官方通信模块提交 `58970fd80951c2eaa1af713e0917d1a105353ad8`、Python **3.12.14**、NumPy **1.26.4**、OpenCV **4.8.1.78**。没有安装依赖、下载模型、请求模型 API 或操作机器人。与学生环境唯一的连接参数差异为本机端口 `18082`；场景仍为 0，角色 `Chars/Female2`，逐步录制 640×480 第一人称图像，10 fps。
+
+| 最终脚本实测 | 真实结果 | 结论 |
+|---|---|---|
+| 六步规则任务，20:48 | 六次动作均返回真；salmon 327 位于 fridge 305 内，冰箱关闭且 salmon 未被持有；角色 ID 始终为 1；188 帧 | `task_success=true`、`evidence_complete=true`、退出码 0；仅规则任务通过 |
+| 故意不拿取就放入，20:49 | 走向冰箱、开门成功；第三步 `PUTIN` 被真实 Unity 拒绝；salmon 不在冰箱内，冰箱仍开着 | `task_success=false`、退出码 1；原失败消息与前后图保留 |
+| `--run --prepare`，20:49 | 完成重置和角色添加，保存初始图；动作数 0 | `PREPARED` / `NOT_EVALUATED`、退出码 0；不是任务完成 |
+
+原始失败消息含 `PROCESS PUT: Not found source object: salmon` 和 `EXECUTION_GENERAL: Script is impossible to execute`，完整返回值见[实测摘要](virtualhome-runner-20261002.json)。故意失败计划保留在本机；[公开证据包](virtualhome-evidence-20261002.zip)包含三次最终运行的原始 JSON、各步反馈和场景图，可逐项对照摘要中的哈希。截图分别为正常任务和失败任务的末帧：
+
+![正常六步任务的末帧，目标关系另由场景图核对](virtualhome-success-final-20261002.png)
+
+![未持有三文鱼就放入时的失败末帧](virtualhome-failure-final-20261002.png)
+
+失败记录写出时统计 72 帧，Unity 停止后实际保留 74 帧；两份数字按时间分别记录，未回写原 `result.json`。本机另从原帧生成方便观看的 MP4，并完整解码核对正常/失败两段分别为 188/74 帧；公开 ZIP 不包含所有帧或这些派生视频。Unity 由本轮监督器在客户端结束后停止，监督器记录的 Unity 退出码不用于任务验收。
+
+新入口通过 **20 项假控制器测试**，覆盖拒绝旧目录、目标原已达成、持握冲突、丢失/变化的角色、矛盾开闭状态、动作失败后停止、未知反馈和录像缺失；这些测试只验证记录与判断逻辑。已有规划逻辑 **56 项测试**也通过。独立审查发现的“缺角色仍判未持有”已修复，并使用最终脚本完成上表真实复测。更早的本轮首测及历史中止记录仍保存在本机，没有用最终成功覆盖。
+
+`task_success` 和 `evidence_complete` 分开报告；失败也可以有完整证据。录制帧数是检查时已落盘的 PNG 数量，不表示完整播放核验。真实模型请求尚未执行，`--plan-source model` 只是用户自报来源，不认证其为模型输出。
+
 ## 学生本机复测（2026-10-02）
 
 以下时间均为 UTC+8；已独立读取原日志、逐步状态和图像核对，三项均未调用模型。

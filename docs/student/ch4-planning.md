@@ -317,105 +317,81 @@ python docs/assets/ch4-planning/ai2thor_checked_demo.py --course-dir "实际的/
 
 #### 3.4.1 人工规则脚本
 
-Unity 启动后，将下列代码保存为实验目录中的 `vh_init.py`，用于加载场景并保存初始图：
+保持 2.5 启动的 Unity 运行，另开 PowerShell，激活 `eai-virtualhome` 并进入**手册仓库根目录**。使用仓库内的[运行入口](../assets/ch4-planning/virtualhome_checked_demo.py)，不需要创建临时 Python 文件或保留 `>>>` 会话；单独下载时还需同目录的 `planning_checks.py`。
 
-```python
-import json
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path("virtualhome/virtualhome/simulation").resolve()))
-from unity_simulator import comm_unity
-
-run_dir = (Path("virtualhome-runs") / sys.argv[1]).resolve()
-run_dir.mkdir(parents=True, exist_ok=False)
-comm = comm_unity.UnityCommunication(port="8080")
-if comm.reset(0) is not True:
-    raise RuntimeError("场景加载失败。")
-if comm.add_character("Chars/Female2") is not True:
-    raise RuntimeError("角色添加失败。")
-ok, graph_before = comm.environment_graph()
-if not ok:
-    raise RuntimeError("环境图读取失败，停止规划。")
-(run_dir / "graph_before.json").write_text(
-    json.dumps(graph_before, ensure_ascii=False, indent=2), encoding="utf-8"
-)
-print("本次输出目录：", run_dir)
-```
-
-在该目录已激活 `eai-virtualhome` 的 PowerShell 中运行：
+把 `$apiDir` 改为 2.5 克隆的源码中的 `virtualhome/simulation` **绝对路径**，其下应有 `unity_simulator/comm_unity.py`：
 
 ```powershell
-python -i vh_init.py run-01
+$apiDir = "D:/自己的实验目录/virtualhome/virtualhome/simulation"
+python -X utf8 docs/assets/ch4-planning/virtualhome_checked_demo.py --api-dir "$apiDir" --output-dir runs/virtualhome/rule-01
 ```
 
-成功后会打印输出目录，并停留在 `>>>` 提示符；保持这个 Python 会话开启。确认本轮图中确有 salmon 和 fridge，使用当前图中的节点 ID。复测时将 `run-01` 改为新的名称，保留各次结果。
-
-另开已激活该环境的 PowerShell，进入手册根目录，将 `$runDir` 替换为上面打印的输出目录，再生成候选脚本：
+预期 `CHECK_ONLY`、`NOT_EVALUATED`：只检查文件路径，不连接 Unity，不创建结果目录。确认路径和端口后执行：
 
 ```powershell
-$runDir = "上面打印的输出目录"
-[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
-python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-plan --graph "$runDir/graph_before.json" | Set-Content -Encoding utf8 "$runDir/plan.json"
+python -X utf8 docs/assets/ch4-planning/virtualhome_checked_demo.py --api-dir "$apiDir" --output-dir runs/virtualhome/rule-01 --run
 ```
 
-确认 `$LASTEXITCODE` 为 `0`，再打开 `plan.json`。同类节点多个时，显式添加 `--food-id` 和 `--fridge-id`，ID 必须来自本轮真实图。输出模式为 `PLAN_ONLY`，下一步再执行候选动作。命令失败时可能留下空文件，修复后重新生成计划。
+`--run` 会将本机 Unity 重置到场景 0，添加角色，再根据本轮真实图生成并逐步执行“走向三文鱼、拿取、走向冰箱、必要时开门、放入、关门”。不要同时让其他程序控制此 Unity 实例。每次复测换一个新输出目录，脚本拒绝覆盖已有目录。
 
-候选顺序是走到三文鱼、拿取、走到冰箱、必要时打开、放入、关闭。将下列代码保存为**实验目录**中的 `vh_execute.py`，读取计划、执行并保存反馈和执行后图：
+| 参数或文件 | 用途 |
+|---|---|
+| `--port` / `--scene` | 默认 8080 / 0；端口须与 Unity 启动参数一致，仅连接本机 |
+| `--food-id` / `--fridge-id` | 多个同类物体时，从保存的 `graph_before.json` 选择实例；不能照抄其他场景的 ID |
+| `graph_before.json` / `graph_after.json` | 初始与最终真实环境图；缺图时不能验收 |
+| `plan.json`、`step_*.json`、`graph_*.json` | 本次候选计划、各步原始返回值及执行后状态；失败时立即停止后续动作 |
+| `result.json` | 完整记录：`task_success`、`evidence_complete`、失败原因、最终判据和录制帧数 |
+| `recording/` | 按步骤分开命名的第一人称录像帧，10 fps；没有录像时须补齐证据 |
 
-```python
-plan = json.loads((run_dir / "plan.json").read_text(encoding="utf-8-sig"))
-if plan.get("mode") != "PLAN_ONLY" or not plan.get("steps"):
-    raise RuntimeError("没有可用的候选步骤，停止执行。")
-ok, message = comm.render_script(
-    plan["steps"], recording=True, camera_mode=["FIRST_PERSON"],
-    output_folder=str(run_dir / "recording"), find_solution=False, frame_rate=10
-)
-(run_dir / "execution.json").write_text(
-    json.dumps({"render_success": ok, "message": message}, ensure_ascii=False, indent=2),
-    encoding="utf-8"
-)
-graph_ok, graph_after = comm.environment_graph()
-if not graph_ok:
-    raise RuntimeError("执行后的环境图读取失败，目标状态未知。")
-(run_dir / "graph_after.json").write_text(
-    json.dumps(graph_after, ensure_ascii=False, indent=2), encoding="utf-8"
-)
-print("render_script 返回：", ok, message)
-```
+**成功必须同时满足**：全部动作返回真，选定 salmon 到选定 fridge 存在 `INSIDE`，冰箱为 `CLOSED` 且非 `OPEN`，salmon 不被角色持有。程序显示 `task_success=True` 后，仍需查看 `result.json` 与录像。原始图缺失、角色或状态不完整时记为 `UNKNOWN`；退出码 0 的文件预检或场景准备不是任务成功。
 
-回到原先停留在 `>>>` 的 Python 会话，输入这一行运行文件：
+同时检查 `evidence_complete` 为真且每步有录制帧。任务状态与证据完整性分开报告：目标达成但录像缺失时，保留本次记录并补齐录像；`run.json` 是简版，完整字段以 `result.json` 为准。
 
-```python
-exec(Path("vh_execute.py").read_text(encoding="utf-8"))
-```
-
-`recording=True` 保存录像帧，`frame_rate=10` 指定帧率。这里将课程样例的 `find_solution=True` 改为 `False`，按当前图中的 ID 执行，避免求解器另选同类物体。`ok` 不为真时保留失败消息和执行后图，先排查目标是否可达、双手是否为空、冰箱是否打开。
-
-执行后检查 `graph_after.json`：三文鱼到目标冰箱存在 `INSIDE` 关系，且该冰箱的 `states` 含 `CLOSED`、不含 `OPEN`，再对照录像确认。配套函数 `inside_relation(graph, food_id, fridge_id)` 只检查包含关系，不检查关门状态；判断任务完成须同时核对两项。
-
-输出可能是逐帧图片而不是已经封装的视频，按所用版本的录像流程确认，没有匹配 Unity 程序或缺少 salmon 时，明确记录缺项，不能用麦片任务替代教材目标。
+这条路线使用 `find_solution=False` 和人工规则生成的计划，不调用模型。一次任务通过不能证明模型自主规划能力。真实失败案例、完整反馈及本机复测见[入口验证记录](../assets/ch4-planning/verification.md#virtualhome-runner-20261002)。
 
 #### 3.4.2 大模型规划
 
-退出原 Python 会话，在 VirtualHome 实验目录重新加载场景并使用新输出目录：
+先在同一 PowerShell、`eai-virtualhome` 环境和手册根目录准备一个新场景，只保存初始图：
 
 ```powershell
-python -i vh_init.py run-llm-01
+python -X utf8 docs/assets/ch4-planning/virtualhome_checked_demo.py --api-dir "$apiDir" --output-dir runs/virtualhome/prepare-01 --run --prepare
 ```
 
-保持这个 Python 会话开启，确认角色双手为空、目标三文鱼尚未放入冰箱。另开已配置[第3章文本 API 环境](ch3-dialogue.md)的 PowerShell，进入手册根目录，依次运行：
+检查 `$LASTEXITCODE` 为 0、`run.json` 为 `PREPARED` / `NOT_EVALUATED`。此命令确实重置场景，但没有执行任务动作。若失败先处理报错，不继续调用模型。
+
+激活已按[第3章](ch3-dialogue.md)配置的 `eai-dialogue` 环境，保留当前目录。确认 Key、地域、模型权限及费用后，运行下面**整个脚本块**，每个阶段失败都会停止后续调用：
 
 ```powershell
-$runDir = "本次模型实验的输出目录"
-[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
-python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-prompt --graph "$runDir/graph_before.json" | Set-Content -Encoding utf8 "$runDir/question.txt"
-python docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --question-file "$runDir/question.txt" --output "$runDir/answer.txt" --max-tokens 1024 --send
-python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-check --graph "$runDir/graph_before.json" --response "$runDir/answer.txt" | Set-Content -Encoding utf8 "$runDir/plan.json"
+conda activate eai-dialogue
+& {
+    $ErrorActionPreference = "Stop"
+    [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+    $prepareDir = (Resolve-Path "runs/virtualhome/prepare-01").Path
+    $selection = Get-Content "$prepareDir/run.json" -Raw | ConvertFrom-Json
+    if ($selection.execution_state -ne "PREPARED") { throw "场景尚未准备好" }
+    if (Test-Path "$prepareDir/answer.txt") { throw "已有模型回答，请创建新的准备目录" }
+    python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-prompt --graph "$prepareDir/graph_before.json" --food-id $selection.food_id --fridge-id $selection.fridge_id | Set-Content -Encoding utf8 "$prepareDir/question.txt"
+    if ($LASTEXITCODE -ne 0) { throw "生成问题失败，未调用模型" }
+    python -X utf8 docs/assets/ch3-dialogue/dialogue_lab.py api --model qwen-turbo --question-file "$prepareDir/question.txt" --output "$prepareDir/answer.txt" --max-tokens 1024 --send
+    if ($LASTEXITCODE -ne 0) { throw "模型请求失败，停止执行" }
+    python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-check --graph "$prepareDir/graph_before.json" --response "$prepareDir/answer.txt" --food-id $selection.food_id --fridge-id $selection.fridge_id
+    if ($LASTEXITCODE -ne 0) { throw "模型动作格式或目标 ID 不合法" }
+}
 ```
 
-三条命令均使用 PowerShell。每条执行后确认 `$LASTEXITCODE` 为 `0`，再运行下一条；第二条会发送当前环境图并调用模型。`vh-prompt` 和 `vh-check` 遇到多个同类物体时使用相同的 `--food-id`、`--fridge-id`。模型回答需为仅含 `steps` 的 JSON，动作限于 `WALK/GRAB/OPEN/PUTIN/CLOSE`；检查器拒绝代码、未知动作、错误 ID 和参数，但不判断可达性或动作顺序。
+模型回答必须是仅含 `steps` 的 JSON，动作限于 `WALK/GRAB/OPEN/PUTIN/CLOSE`。格式通过只表示候选计划合法，不判断可达性或动作顺序。上面真实模型调用尚未实测，需保留原始回答与请求记录。
 
-检查通过后，在原 VirtualHome 会话中运行 `exec(Path("vh_execute.py").read_text(encoding="utf-8"))`。以最终环境图与录像判断目标是否完成。失败时保存原始回答和反馈；重新初始化同一场景并使用新的运行目录，将失败动作和原因补入新问题后重试。人工规则和模型生成的结果分别记录。
+三阶段均成功后，切回 `eai-virtualhome`。保持相同 Unity 版本和场景 0，使用新的执行目录；入口会重新初始化场景并再次对当前真实图检查计划中的 ID：
+
+```powershell
+conda activate eai-virtualhome
+$selection = Get-Content runs/virtualhome/prepare-01/run.json -Raw | ConvertFrom-Json
+python -X utf8 docs/assets/ch4-planning/virtualhome_checked_demo.py --api-dir "$apiDir" --scene $selection.scene --food-id $selection.food_id --fridge-id $selection.fridge_id --plan runs/virtualhome/prepare-01/answer.txt --plan-source model --output-dir runs/virtualhome/model-01 --run
+```
+
+传入的是原始 `answer.txt`，不是 `vh-check` 打印的带状态摘要。`--plan-source model` 只记录你声明的来源，程序本身不调用模型，也不能认证计划来源。按 3.4.1 的完整目标判据验收；失败时保留旧目录，将失败动作与原因补入新的问题后再准备下一次实验，不把规则计划结果混入模型成绩。
+
+上述示例使用端口 8080；若在 2.5 更换端口，准备与执行两条命令都需添加相同的 `--port`。选择其他场景或物体时也须前后一致，不以另一轮的图替代当前准备记录。
 
 ## 四、实验结果
 
@@ -424,7 +400,7 @@ python -X utf8 docs/assets/ch4-planning/planning_checks.py vh-check --graph "$ru
 | ALFWorld | 连续的目标、动作、反馈记录 | 至少完成一个任务，保留环境完成信号；失败时保留终止位置 |
 | ALFRED | `task_results_<timestamp>.json`、失败轨迹 | 数据划分、任务数与 SR/GC 等指标一致 |
 | AI2THOR | 截图、metadata、`run.json` | 杯子实例一致，刀在杯内，杯在厨房台面；人工和模型模式分别记录 |
-| VirtualHome | 执行前后环境图、计划、执行反馈、录像 | 执行成功，三文鱼位于指定冰箱内且冰箱已关闭；人工与模型计划分别记录 |
+| VirtualHome | 执行前后环境图、计划、执行反馈、录像 | 全部动作成功，三文鱼位于指定冰箱内、冰箱已关闭且三文鱼未被持有；人工与模型计划分别记录 |
 
 ALFRED 指标：
 

@@ -2,6 +2,29 @@
 
 更新日期：2026-10-02。**已完成 50 条示教、2000 epoch 训练及完整 50 回合 CPU 策略评估：原判据成功 37/50（74%），平均回报 490.26。** 末步奖励仍为 4 的有 34/50 回合。训练使用 Windows CUDA 适配环境，评估使用 Ubuntu CPU 适配；教材 Linux CUDA 入口与实机实验仍待验证。
 
+<a id="evidence-check-20261002"></a>
+## 既有证据的仓库内核验入口（2026-10-02）
+
+从手册根目录运行，要求 Python 3.9 或更高版本：
+
+```bash
+python docs/assets/ch5-imitation/verify_act_evidence.py
+```
+
+预期 `status: VERIFIED_SUMMARY`：只检查公开 JSON 的 50 个连续编号、指标关系、原奖励判据和哈希格式，不加载任何模型或依赖。此结果不独立证明原始文件存在，也不代表重新执行策略。
+
+取得完整原始证据后，使用已安装 NumPy 的环境执行，将目录替换为实际位置；证据目录应直接包含 `rollout0.npz` 至 `rollout49.npz` 和 `video0.mp4` 至 `video49.mp4`：
+
+```bash
+python docs/assets/ch5-imitation/verify_act_evidence.py --evidence-dir "实际的/evaluation目录" --output runs/act-evidence-check.json
+```
+
+预期 `status: VERIFIED_TRACES`、`verified_traces: 50`、`verified_video_hashes: 50`，且 `errors` 为空。程序重新计算每回合累计/最高/末步奖励和奖励 4 的时步数，同时校验轨迹及视频 SHA-256。视频仅核对字节哈希，不在此命令中解码或判断画面；此前完整解码记录仍见下文。输出必须是新文件且在原件目录之外，缺文件、数据损坏或指标不符时返回非 0，并在报告中逐项记录。
+
+本轮用已有完整证据实际执行两种模式，均返回 0：**50 份轨迹与 50 份视频哈希通过，重算仍为 37/50、490.26、末步 34/50**。没有重新训练、加载模型、执行策略或修改任何旧日志/失败回合。脚本不加载 pickle，NPZ 使用 `allow_pickle=False`。
+
+本轮同时公开[实际适配补丁与环境说明](adaptation-notes.md)。CPU 评估环境借用了采集 venv，尚缺独立环境锁与参数化运行器；不将这次证据复核称为新的可移植训练/评估路线验收。
+
 ## 完整数据集与训练（2026-10-02）
 
 执行者为 Codex，使用 ACT 固定提交 `742c753c0d4a5d87076c8f69e5628c79a8cc5488`。本节为新数据集的完整训练记录；后文保留此前两条示教、学生复测、短训练及失败闭环的历史结果。

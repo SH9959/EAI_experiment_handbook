@@ -1,0 +1,2 @@
+# Unified patches use a space prefix for empty context lines; preserve their format.
+docs/assets/ch5-imitation/*.patch text eol=lf -whitespace
