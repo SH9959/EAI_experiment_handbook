@@ -1,0 +1,1122 @@
+{
+  "date": "2026-10-02",
+  "state": "complete",
+  "source_commit": "742c753c0d4a5d87076c8f69e5628c79a8cc5488",
+  "training": {
+    "demonstrations": 50,
+    "epochs": 2000,
+    "best_epoch": 1955,
+    "checkpoint_sha256": "620d3909885eae69c238c990eb4e89ba51ee81dfd7fcb50712ba6cef4191ac7e",
+    "platform": "Windows CUDA, single-process DataLoader adaptation"
+  },
+  "evaluation": {
+    "platform": "Ubuntu 22.04, CPU adaptation, MuJoCo 2.3.7",
+    "versions": {
+      "torch": "2.0.1+cpu",
+      "torchvision": "0.15.2+cpu",
+      "numpy": "1.26.4",
+      "mujoco": "2.3.7",
+      "dm-control": "1.0.14"
+    },
+    "seed": 1000,
+    "rollouts": 50,
+    "steps_per_rollout": 400,
+    "query_timesteps": [
+      0,
+      100,
+      200,
+      300
+    ],
+    "temporal_aggregation": false,
+    "success_definition": "Maximum recorded reward equals 4",
+    "reward4_definition": "Box contacts left finger and does not contact the table",
+    "success_count": 37,
+    "success_rate": 0.74,
+    "average_return": 490.26,
+    "final_reward4_count": 34,
+    "ever_reward4_but_final_not4_count": 3,
+    "elapsed_seconds": 3475.556,
+    "original_cuda_cli_verified": false,
+    "note": "Final reward 4 is a supplemental observation, not proof of stable holding."
+  },
+  "source_integrity": {
+    "source_commit": "742c753c0d4a5d87076c8f69e5628c79a8cc5488",
+    "checked_files": 48,
+    "unchanged_files": 46,
+    "manifest_sha256": "449de63eec4cdc1e70e7c14cf2677a4cecd4c6e4476414d2e314dc1ac2b51c88",
+    "adapted_files": [
+      "detr/main.py",
+      "imitate_episodes.py"
+    ]
+  },
+  "cpu_gpu_comparison": {
+    "state": "passed",
+    "normalized_action_max_abs_difference": 1.9073486328125e-06,
+    "physical_action_max_abs_difference": 9.5367431640625e-07,
+    "rtol": 0.0001,
+    "atol": 0.0001,
+    "shape": [
+      1,
+      100,
+      14
+    ],
+    "reference_sha256": "39097869381e190592f2d2e7648f81df610672e16220e1b5106709d289223c50",
+    "strict_state_dict_loaded": true
+  },
+  "evidence_sha256": {
+    "worker_result": "3bd77e2af7e5e613410b13ade221c38b34d38029485dc95c0b3699c6c5bc316d",
+    "supplemental_audit": "a0cfae7381acbb49313a48c081af581db7ed018d806dbfd65933057845dfa820"
+  },
+  "rollouts": [
+    {
+      "index_zero_based": 0,
+      "episode_return": 0.0,
+      "max_reward": 0.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.1307179170929219,
+        0.4230013886248812,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "d767e4f76da21d0334eaa0ef4c62928e971f25aad56365fe82bcc36353ae93b5",
+      "video_sha256": "d57a67dc3fdd6c575c2786303c007e1a998a07185ff19e49daf6ec6bbdc0d982"
+    },
+    {
+      "index_zero_based": 1,
+      "episode_return": 232.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 0,
+      "reward4_steps": 28,
+      "longest_reward4_run_steps": 12,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.09643828028559964,
+        0.574494907036407,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "21cbb680d246f46dd7015e830e6e517fb5093934a1948e36533afee8a7741c0f",
+      "video_sha256": "27e70788b8bda2f3797b30007572ffd7d4019386f064f17d66c963be213b37b7"
+    },
+    {
+      "index_zero_based": 2,
+      "episode_return": 686.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 135,
+      "longest_reward4_run_steps": 68,
+      "trailing_reward4_steps": 68,
+      "initial_box_pose": [
+        0.008141924953817825,
+        0.47943889226914116,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "ffd7993a80f1832682793c1ffa4ddbcfd8c9122ba4dc9d3b207adc8d29df6700",
+      "video_sha256": "7213d292cf34e0e7177b90c10322be9aa119c7df23de218aa30d181b53781a36"
+    },
+    {
+      "index_zero_based": 3,
+      "episode_return": 673.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 127,
+      "longest_reward4_run_steps": 59,
+      "trailing_reward4_steps": 5,
+      "initial_box_pose": [
+        0.16834814485061234,
+        0.44141646887734937,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "19213cdf5ff52724380f9560bfc077839cbee43b589204444a5151598dc20578",
+      "video_sha256": "03f17d63bf075fd0e33fab621d8bb460b4a480672b96f57d230b3d20f9fff683"
+    },
+    {
+      "index_zero_based": 4,
+      "episode_return": 693.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 134,
+      "longest_reward4_run_steps": 52,
+      "trailing_reward4_steps": 41,
+      "initial_box_pose": [
+        0.07843082556176827,
+        0.4364513039904769,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "52b30c9ca3d58f9a0c7077d4d55eb7fbb03dec14386d1d6dd8e7578c6ac25f85",
+      "video_sha256": "f21b9f3fae4166e323b8b8b08e982f01b4c1bae1f5d7085494cd1f503ac52465"
+    },
+    {
+      "index_zero_based": 5,
+      "episode_return": 0.0,
+      "max_reward": 0.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.013916416193990911,
+        0.5770674408761501,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "aafb2e61ae8965438e47ad7aa25738d7b1c75dc441e00030ed70d7ee8f85c2df",
+      "video_sha256": "80c493635a727459df57bac5f42f9c5e3e25347ef8bb9fb160bd7f726dde70d3"
+    },
+    {
+      "index_zero_based": 6,
+      "episode_return": 687.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 133,
+      "longest_reward4_run_steps": 64,
+      "trailing_reward4_steps": 64,
+      "initial_box_pose": [
+        0.18622868693550218,
+        0.48308619060898156,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "6331664b73ae29b97a5b6a56c1aa42933e34a7aae76e8f3ac4d7aa31353f4508",
+      "video_sha256": "99dab57eafecf5c746de3aa828bd7222866059dc986c8d2dcffb7642b2c45aca"
+    },
+    {
+      "index_zero_based": 7,
+      "episode_return": 670.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 127,
+      "longest_reward4_run_steps": 77,
+      "trailing_reward4_steps": 77,
+      "initial_box_pose": [
+        0.19640549691963954,
+        0.4679275367270577,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "3de9e584da3a1546e50d4c78c951a35a1736730014db93f1ec1cce3eea16ba10",
+      "video_sha256": "8766d51689d4d68d51b99c3209f0aa213c131cc7918a9905d08de4cb77fd516f"
+    },
+    {
+      "index_zero_based": 8,
+      "episode_return": 676.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 132,
+      "longest_reward4_run_steps": 47,
+      "trailing_reward4_steps": 5,
+      "initial_box_pose": [
+        0.07237541352151236,
+        0.4070211795902723,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "668728641f3fe389bc87e1a39af166e23a4720cc39205016d4bc410a2652a4f4",
+      "video_sha256": "d29918a1b8d4c1ce7e0bd39eb02bd9f6b7d40a17a9a332d032a21b069a6d0e15"
+    },
+    {
+      "index_zero_based": 9,
+      "episode_return": 7.0,
+      "max_reward": 2.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.1314507016280985,
+        0.5531365988290478,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "34a2b4f52796907fefb1763b97a02f6b54cb8017a379f587b31aee22793be71b",
+      "video_sha256": "698f4631f39fda2f4ff0a710db5720b55da19a443d7fb865d8d876cbc4872b68"
+    },
+    {
+      "index_zero_based": 10,
+      "episode_return": 649.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 119,
+      "longest_reward4_run_steps": 73,
+      "trailing_reward4_steps": 73,
+      "initial_box_pose": [
+        0.17701858732211995,
+        0.5808395230794725,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "8e23829315700aed4a50e99686e3571ca4ceda4301ab4d8a6443278f059a329e",
+      "video_sha256": "de61bba8e2b8c48d1afda0402f743ed6bb3893a021424a8b0ce905d02ab9c82a"
+    },
+    {
+      "index_zero_based": 11,
+      "episode_return": 678.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 133,
+      "longest_reward4_run_steps": 50,
+      "trailing_reward4_steps": 5,
+      "initial_box_pose": [
+        0.014911347228485595,
+        0.44892584195195706,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "a963b650eaaad8051a3b4c7b51890c5e5050b3869373b1c5fb4823e18937dbde",
+      "video_sha256": "50b64f4baf8eb35f9120186f02af8afb0bb9d93cde30063b24f42f77a8fec848"
+    },
+    {
+      "index_zero_based": 12,
+      "episode_return": 691.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 131,
+      "longest_reward4_run_steps": 69,
+      "trailing_reward4_steps": 69,
+      "initial_box_pose": [
+        0.13958502008194384,
+        0.479640976705187,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "b0586dc02981dae632317f7f29855dc311a266dfc42aa300cfabc6cb03b51a04",
+      "video_sha256": "ee69f9e87554aa11d291cec522a7e3c7895db1ea449e9d126e22ac0c82c59c4c"
+    },
+    {
+      "index_zero_based": 13,
+      "episode_return": 686.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 134,
+      "longest_reward4_run_steps": 58,
+      "trailing_reward4_steps": 49,
+      "initial_box_pose": [
+        0.0362015020547406,
+        0.4864998343584027,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "310cf8dc270c318b10cc8cb239886122fbeb67ff15e65cab4a9b31947e753d92",
+      "video_sha256": "473810b5e7db7720606dc4d1c11113e4641d26a85cc7adf053563cad19b868c1"
+    },
+    {
+      "index_zero_based": 14,
+      "episode_return": 684.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 132,
+      "longest_reward4_run_steps": 63,
+      "trailing_reward4_steps": 63,
+      "initial_box_pose": [
+        0.1382875723377685,
+        0.4939381304071674,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "1db102a17f22f5da45da8914b14b5f158d0eaf08ff30172140079f125094fb22",
+      "video_sha256": "f8f6abae2797e7a17bbd4e8e9d8a72799d805958c0916bcea65beb9fb86d44da"
+    },
+    {
+      "index_zero_based": 15,
+      "episode_return": 93.0,
+      "max_reward": 2.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.17826741025789183,
+        0.583640724894223,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "cd6d23c7f00c836044f942e2763a77f1aeaf555980362cc336b841af87a555be",
+      "video_sha256": "0fe8b67f87609a056908a0a3f4179ce1a3523cc74ea7f905bcac4ff21c207308"
+    },
+    {
+      "index_zero_based": 16,
+      "episode_return": 680.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 137,
+      "longest_reward4_run_steps": 64,
+      "trailing_reward4_steps": 64,
+      "initial_box_pose": [
+        0.009089588646009039,
+        0.4877145791483306,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "fb07a26c3dc738ac267911e1d06809a1433538d6ced28304bb117ee91a7ca9d3",
+      "video_sha256": "f53353f1055cfc88c8533c857c9f24dfe8a3d48897cc6c5dbd04688f7c15adcc"
+    },
+    {
+      "index_zero_based": 17,
+      "episode_return": 664.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 131,
+      "longest_reward4_run_steps": 39,
+      "trailing_reward4_steps": 5,
+      "initial_box_pose": [
+        0.06204540679312003,
+        0.5363816483970298,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "02ae7f0554f774761f47c5749d99dfbf4924d7d731f4ea1687b6d5563dfd2600",
+      "video_sha256": "463626f14e8aca40f0934624b9772a5ca32f718adf7bb7d1a7ce61abe3df0c9f"
+    },
+    {
+      "index_zero_based": 18,
+      "episode_return": 10.0,
+      "max_reward": 2.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.10392085944470696,
+        0.5131977661138141,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "79fb3c6cb9e52be9aa1b06e1d93d413ea0918d834b19866edc0c922b7151c172",
+      "video_sha256": "113a515716ca41ae9b0a3be4b8cf0a3544fa8184464ef8fe69790c13a937789a"
+    },
+    {
+      "index_zero_based": 19,
+      "episode_return": 1.0,
+      "max_reward": 1.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.027511231441853457,
+        0.44270863822749257,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "eb5330880cb5e7196c6098001adb71588deb632a74c1dc715f2929ff1d19ee8f",
+      "video_sha256": "9a39c113dcd6d38cc49a3dd9ca91d86834e5f4f7dcdd7ea102f8457d297ff54e"
+    },
+    {
+      "index_zero_based": 20,
+      "episode_return": 708.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 138,
+      "longest_reward4_run_steps": 123,
+      "trailing_reward4_steps": 123,
+      "initial_box_pose": [
+        0.06445934029966216,
+        0.44677742303492585,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "33b4b996f14490c191e6b41dd7104c79f9d7201658a28e11529fe81525894e0f",
+      "video_sha256": "e3f1cfb5327300372fb44dfae567f4dfe8075195df984e8acf828fbcf1224326"
+    },
+    {
+      "index_zero_based": 21,
+      "episode_return": 685.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 129,
+      "longest_reward4_run_steps": 44,
+      "trailing_reward4_steps": 44,
+      "initial_box_pose": [
+        0.11319423239531073,
+        0.48764505695721194,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "6638c5808ac9e432270d5e81323a972679b578a2854f3fd552e588365dfefab4",
+      "video_sha256": "b5090c03b2b9f398e9e95bbadd2d1550caa9c6d45089b690606f299ca5a627ed"
+    },
+    {
+      "index_zero_based": 22,
+      "episode_return": 10.0,
+      "max_reward": 2.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.1119281621384532,
+        0.5730691162369013,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "bdc320b972c497dc35dcb20dd2fe58e0d43939b9f9f46e392318a7a5b969c0b6",
+      "video_sha256": "eccf87a7f9c32ce2e938c499238f2cd1c4bff43d22e3515d3cc86435a26d2824"
+    },
+    {
+      "index_zero_based": 23,
+      "episode_return": 681.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 134,
+      "longest_reward4_run_steps": 49,
+      "trailing_reward4_steps": 49,
+      "initial_box_pose": [
+        0.021563433197022277,
+        0.4632638967948576,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "a57f78192f745730ce45e4514965166c9d3064e55cc1a6cc11b85b0ecd4dc051",
+      "video_sha256": "32bcc90dc87cefa53b28df61bdb186748cc9b4c383e05f2c9b867067b2dac1b6"
+    },
+    {
+      "index_zero_based": 24,
+      "episode_return": 680.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 130,
+      "longest_reward4_run_steps": 66,
+      "trailing_reward4_steps": 44,
+      "initial_box_pose": [
+        0.1374178027844899,
+        0.5404470574946553,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "a03139bd97820b95284a050fbae6b3ec149d9c29a79e3cb0fd59d2822e63158a",
+      "video_sha256": "df82ccea2e77debe424e95d74f185aecb31e30271b5a20706cc1d94f30284fc4"
+    },
+    {
+      "index_zero_based": 25,
+      "episode_return": 602.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 0,
+      "reward4_steps": 117,
+      "longest_reward4_run_steps": 31,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.08406441561984267,
+        0.5605261182139876,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "2639bf3eaf27b437a767caf9e230241843a800563f1d1b19bcc66578a65aaa8d",
+      "video_sha256": "ac2c0417b11e0355667aa46b55c67a79d09f28e59c7b6fb1de6690ea16fba1ce"
+    },
+    {
+      "index_zero_based": 26,
+      "episode_return": 639.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 113,
+      "longest_reward4_run_steps": 52,
+      "trailing_reward4_steps": 52,
+      "initial_box_pose": [
+        0.18470009788280917,
+        0.4123815074449383,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "5ef126f07b160d4bcf9eaba4cdf1e29558bb816b44ccf54dde78f634fe5fa4c2",
+      "video_sha256": "f4d4b16e237f1b68e65be46670faabae1fe940c27b1a7d4963aa019055ca2d22"
+    },
+    {
+      "index_zero_based": 27,
+      "episode_return": 625.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 110,
+      "longest_reward4_run_steps": 53,
+      "trailing_reward4_steps": 5,
+      "initial_box_pose": [
+        0.19407975449008352,
+        0.5398207896721788,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "afc7425f462873be427a41d2a1f04c1245a18423304d5c0964824d7373f473ef",
+      "video_sha256": "6773d0711c0430188d658fdb3a35d0083ad2ba584bdb35e719ff47b631db1382"
+    },
+    {
+      "index_zero_based": 28,
+      "episode_return": 677.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 136,
+      "longest_reward4_run_steps": 45,
+      "trailing_reward4_steps": 45,
+      "initial_box_pose": [
+        0.05071054367898991,
+        0.5451054211642217,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "1063f0857794ed9a366b7a7e5dac28aeb5934d47328944407a89fa4c50503f21",
+      "video_sha256": "b0cdf29ef936e877d483bbbae0c3b66fd792c30393f2324d13fd6af673b1b590"
+    },
+    {
+      "index_zero_based": 29,
+      "episode_return": 683.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 128,
+      "longest_reward4_run_steps": 64,
+      "trailing_reward4_steps": 64,
+      "initial_box_pose": [
+        0.10750236474731133,
+        0.4473886007453935,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "da4251957b988465dc625e885b79c14ac2836655f74851acefb177513724e0a6",
+      "video_sha256": "070c3e288447f2dc8099ca82cc54fbafce215232f59f5d8609b46d6796e409f3"
+    },
+    {
+      "index_zero_based": 30,
+      "episode_return": 691.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 131,
+      "longest_reward4_run_steps": 62,
+      "trailing_reward4_steps": 49,
+      "initial_box_pose": [
+        0.15960490270438502,
+        0.46168183296805504,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "27361895a2a83f3bffaab632a8fa7d2d11047a790e1ae95c1d140909a222acd2",
+      "video_sha256": "2e48b49f744a76ea9af97f8b678b4e88b5cfedf3cea17cb4a40c8917c08564e7"
+    },
+    {
+      "index_zero_based": 31,
+      "episode_return": 4.0,
+      "max_reward": 2.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.08792962352907192,
+        0.5826647410884173,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "656c1b1f9d9db072408d8619abe566d9db181b8f1346eed36cbf3030f4da83c5",
+      "video_sha256": "7fb9f08e2e2dd5fa5b9eb0dfc80eadf057d4b4048730fe1c42840be848941ce9"
+    },
+    {
+      "index_zero_based": 32,
+      "episode_return": 674.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 0,
+      "reward4_steps": 130,
+      "longest_reward4_run_steps": 44,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.13072628962304444,
+        0.4716915566759397,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "6334dc2752b0994d0e24b227375f7a70d4ebfe62c729ef1e643123c69f4f683f",
+      "video_sha256": "fa8f0892a5f26b49994e0fda47ece413a2803373a60753a98e8bd4ed23de13f6"
+    },
+    {
+      "index_zero_based": 33,
+      "episode_return": 1.0,
+      "max_reward": 1.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.009017462464891502,
+        0.41886193238073793,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "639975b4d914433eca64ace34ec628b3e22a41d309eddd5c97605490512af4d0",
+      "video_sha256": "2bc89cf988179336459ac9f2a16b50d6920ff0f4c5edb1c4c20ea7464252c2bb"
+    },
+    {
+      "index_zero_based": 34,
+      "episode_return": 0.0,
+      "max_reward": 0.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.01460890027970252,
+        0.5858834709082117,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "2a4706b652846270c7dde426df5c8e344f832b8aec6291ebdf4f3941e64acb73",
+      "video_sha256": "f27afcc574b763dffaf6092a761278a64021b512d4210aefb1414886e709f0fa"
+    },
+    {
+      "index_zero_based": 35,
+      "episode_return": 4.0,
+      "max_reward": 2.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.12446210914786904,
+        0.5509979428231399,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "5659863136ba6574be9206823588ef3b9ac8c7cf1124f7fb9d06d54fbb285204",
+      "video_sha256": "e18179872166cd01d43882352c3412b7803a74389c1846a843c47f3c55984702"
+    },
+    {
+      "index_zero_based": 36,
+      "episode_return": 630.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 115,
+      "longest_reward4_run_steps": 114,
+      "trailing_reward4_steps": 114,
+      "initial_box_pose": [
+        0.15876443953948996,
+        0.5450806299776754,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "a65559c88208d1d0e756f989245e42f00689cb5012a4b8b7ae77911209cac876",
+      "video_sha256": "99cafde9f895c2540124ed562973543b84169d3a469ff9af2b9046dc3c31818f"
+    },
+    {
+      "index_zero_based": 37,
+      "episode_return": 687.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 132,
+      "longest_reward4_run_steps": 41,
+      "trailing_reward4_steps": 41,
+      "initial_box_pose": [
+        0.09651689863268574,
+        0.49529552207449723,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "3ead260678f7042eb92b58a0d57fe109833b338cd73cc5ee8e66c5602e5108f2",
+      "video_sha256": "ea088bd05edbdabfba062e6423a1a2b20f2d3a755bdf3b58b25613c250bcdd80"
+    },
+    {
+      "index_zero_based": 38,
+      "episode_return": 689.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 132,
+      "longest_reward4_run_steps": 55,
+      "trailing_reward4_steps": 55,
+      "initial_box_pose": [
+        0.16321401248142853,
+        0.4548702986707388,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "2e9864462b33691997abdf1f04789235e6c5fb7ec1ee23ca26065e44c5399284",
+      "video_sha256": "69856ac64de7cd4d89edfadca9db0a730c52b0efaab81d81515423f5be4bf429"
+    },
+    {
+      "index_zero_based": 39,
+      "episode_return": 664.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 123,
+      "longest_reward4_run_steps": 36,
+      "trailing_reward4_steps": 9,
+      "initial_box_pose": [
+        0.19205926833271367,
+        0.491623625983147,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "4886b552158b202216ec16d27565d9f2fd0b2e5c3e93285588f563fcc1f7c0ef",
+      "video_sha256": "6e5ca225f659842b031e0c196fafa2f6405e067a2c77f8df0d05224366792f7f"
+    },
+    {
+      "index_zero_based": 40,
+      "episode_return": 680.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 134,
+      "longest_reward4_run_steps": 48,
+      "trailing_reward4_steps": 48,
+      "initial_box_pose": [
+        0.13623172056055485,
+        0.5083555851546933,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "51b013d21603065a834839116f04f4c57730d6ce3355e85dafbc01c0a780cafb",
+      "video_sha256": "bc63eb60b09ed7dbdf174923d886279a1d89e4fcd8a7ac144b0197cc8327518b"
+    },
+    {
+      "index_zero_based": 41,
+      "episode_return": 690.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 133,
+      "longest_reward4_run_steps": 49,
+      "trailing_reward4_steps": 49,
+      "initial_box_pose": [
+        0.050641126965103304,
+        0.4887711186144981,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "4323faafb3d80e3bd8564c5583a2647bcbd7d88f3b3430eaca9d3615a8a9a338",
+      "video_sha256": "5be3581bd52d48f21fbf1add03eefa331db9a16948bca8dfdb7f056bcf09a606"
+    },
+    {
+      "index_zero_based": 42,
+      "episode_return": 633.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 111,
+      "longest_reward4_run_steps": 93,
+      "trailing_reward4_steps": 93,
+      "initial_box_pose": [
+        0.162772870928374,
+        0.46356566725297976,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "9c94b7252ae7d310470fcf6f21bb5cfb0bc2923db838704df1852d8f5284ab0f",
+      "video_sha256": "bff2f72c32ca16f5c600fbc3488c0bb8c28a87975473ce4795a96702cebb0ba1"
+    },
+    {
+      "index_zero_based": 43,
+      "episode_return": 637.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 116,
+      "longest_reward4_run_steps": 82,
+      "trailing_reward4_steps": 82,
+      "initial_box_pose": [
+        0.17803364965868074,
+        0.5650832415601827,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "8f291eda1ee310d132a41c4d27722759ecd3e1e482691f4c812b1a25100b18cd",
+      "video_sha256": "361561078698b92026278c48812b27a2f8e0cfbaf2876e3ad9b750c04d9ec49d"
+    },
+    {
+      "index_zero_based": 44,
+      "episode_return": 690.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 138,
+      "longest_reward4_run_steps": 77,
+      "trailing_reward4_steps": 45,
+      "initial_box_pose": [
+        0.03195517511364199,
+        0.5302438617276937,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "1fc6099eca6ca8d65d0de2f76f77cd4cc45d8357f15f91b3b46ded97139f625b",
+      "video_sha256": "3a68aea9e2dd92d5871bf44cf557b80029d8f24ab8fc22aa3cd3d88667e18f1d"
+    },
+    {
+      "index_zero_based": 45,
+      "episode_return": 631.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 114,
+      "longest_reward4_run_steps": 64,
+      "trailing_reward4_steps": 64,
+      "initial_box_pose": [
+        0.19681673464502164,
+        0.5498318025318422,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "fc1c0e4589339b9bcdf0533eb47569dcac7968d18a8116f431efd67d656856bd",
+      "video_sha256": "275dc369fdafd960d519a58e481b51a7001fff351d66a6d6d2e06da13b07067b"
+    },
+    {
+      "index_zero_based": 46,
+      "episode_return": 681.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 132,
+      "longest_reward4_run_steps": 52,
+      "trailing_reward4_steps": 52,
+      "initial_box_pose": [
+        0.04566197600151241,
+        0.5037426891906276,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "e3cf2f6d6301a275377ddd48271b8cc97f21b5ebf2b9194ad3f3b29680ff0a60",
+      "video_sha256": "c58da40d9fb6323b67e0d6a7321f4effc1b51697a19fa4d28dbe230d8afce731"
+    },
+    {
+      "index_zero_based": 47,
+      "episode_return": 0.0,
+      "max_reward": 0.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.0004370722890335799,
+        0.5026429531331952,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "f06a2debae7b70381e1c182595434b2b4806a9673535300e855cfc8cdd121b34",
+      "video_sha256": "99626bf473afd7ccb9ca5f4a2d2679b9128654c59f2be3e4d11596cef40fff18"
+    },
+    {
+      "index_zero_based": 48,
+      "episode_return": 677.0,
+      "max_reward": 4.0,
+      "original_task_success": true,
+      "final_reward": 4,
+      "reward4_steps": 128,
+      "longest_reward4_run_steps": 35,
+      "trailing_reward4_steps": 17,
+      "initial_box_pose": [
+        0.06987127007850957,
+        0.45473625187579086,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "2af91b7bbd70327ee31ce671d386cd25c91e50944cf48a92a92485b93d18f4b9",
+      "video_sha256": "384008be9c93939980d853e0080a1388b02184189dbd44a7b73d3e1bc77a3bd0"
+    },
+    {
+      "index_zero_based": 49,
+      "episode_return": 0.0,
+      "max_reward": 0.0,
+      "original_task_success": false,
+      "final_reward": 0,
+      "reward4_steps": 0,
+      "longest_reward4_run_steps": 0,
+      "trailing_reward4_steps": 0,
+      "initial_box_pose": [
+        0.006194891999855678,
+        0.46483381796379497,
+        0.05,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trace_sha256": "0c98c7009ebf50de731ed97259312559522bf3ee6f9ef9e57e5c8a97567557b6",
+      "video_sha256": "7f5cea0419319ebfe0f8fc90b515d9e9314c8f5aed5da0b5dba80ebe29defda3"
+    }
+  ]
+}

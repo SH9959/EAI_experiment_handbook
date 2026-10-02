@@ -1,0 +1,118 @@
+{
+  "state": "SINGLE_INPUT_VERIFIED",
+  "scope": "One saved input; no environment or task-success claim",
+  "source_commit": "742c753c0d4a5d87076c8f69e5628c79a8cc5488",
+  "training_run": false,
+  "rollouts_run": 0,
+  "rendering_run": false,
+  "forward_passes": 1,
+  "network_downloads_allowed": false,
+  "manifest_sha256": "1262a44b43993c7ff46d7c9c577009011ebe9795b68a8abe0646ebcfc4c2b0cd",
+  "inputs": {
+    "checkpoint": {
+      "bytes": 336112647,
+      "sha256": "620d3909885eae69c238c990eb4e89ba51ee81dfd7fcb50712ba6cef4191ac7e"
+    },
+    "stats": {
+      "bytes": 22966,
+      "sha256": "173b1ace400c454f2faf664e6bac8077c01a542ea4bf70da2522ad261822c6b4"
+    },
+    "training_report": {
+      "bytes": 10854,
+      "sha256": "17e9e8177ed069e96bf682632e6eb002c566cd2ac5c80773fa5afc915bc2e756"
+    },
+    "reference": {
+      "bytes": 33949,
+      "sha256": "39097869381e190592f2d2e7648f81df610672e16220e1b5106709d289223c50"
+    },
+    "reference_report": {
+      "bytes": 1726,
+      "sha256": "ec7c89722f7d85e106adb45b96fb7c2775186b05094c9047f879a60550e0568b"
+    },
+    "backbone": {
+      "bytes": 46830571,
+      "sha256": "f37072fd47e89c5e827621c5baffa7500819f7896bbacec160b1a16c560e07ec"
+    }
+  },
+  "versions": {
+    "torch": "2.7.1+cpu",
+    "torchvision": "0.22.1+cpu",
+    "numpy": "1.26.4",
+    "ipython": "8.26.0"
+  },
+  "strict_state_dict_loaded": true,
+  "reference_comparison": {
+    "state": "PASSED",
+    "shape": [
+      1,
+      100,
+      14
+    ],
+    "all_finite": true,
+    "normalized_action_max_abs_difference": 1.6689300537109375e-06,
+    "physical_action_max_abs_difference": 8.344650268554688e-07,
+    "rtol": 0.0001,
+    "atol": 0.0001
+  },
+  "resources_unchanged_after": true,
+  "source_unchanged_after": true,
+  "elapsed_seconds": 7.765,
+  "errors": [],
+  "date": "2026-10-02",
+  "platform": "Windows x86_64",
+  "python": "3.12.12",
+  "environment": {
+    "is_virtualenv": true,
+    "include_system_site_packages": false,
+    "external_package_paths": [],
+    "user_site_enabled": false,
+    "independent_environment": true
+  },
+  "clean_install": {
+    "state": "CLEAN_WINDOWS_CPU_INSTALLED",
+    "network_install": false,
+    "dependency_resolution_enabled": true,
+    "all_wheels_hash_checked": true,
+    "runtime_packages_pinned": 28,
+    "requirements_sha256": "f249d1051a7a74b8174a0ac6f81ca3b2e7440bc24e7f012b4e15b47d63c0d6ab",
+    "pip_version": "25.0.1",
+    "pip_check_passed": true,
+    "all_distributions_and_core_modules_inside_venv": true,
+    "pth_note": "Only setuptools distutils-precedence.pth; no borrowed site-packages"
+  },
+  "source_preparation": {
+    "profile": "minimal_cpu",
+    "checked_files": 48,
+    "modified_files": [
+      "detr/main.py"
+    ],
+    "change": "ACT factory model.cuda() -> model.cpu()"
+  },
+  "supervisor": {
+    "exit_code": 0,
+    "timed_out": false,
+    "timeout_seconds": 180,
+    "elapsed_seconds": 8.625,
+    "worker_exited": true
+  },
+  "warnings": [
+    "Original torchvision pretrained/weights arguments emitted two deprecation warnings; preserved in raw stderr."
+  ],
+  "evidence_hashes": {
+    "cpu-reference-01/result.json": "64679e1806a52a11918730f4cdc95645e8deb387543474f454a6683835d80399",
+    "cpu-reference-01/comparison.json": "5a63b8d1246bed0a2c65f727eefe1e94727a01942503cee87b729f9b09a6ea28",
+    "cpu-reference-01/stdout.log": "98290a3f3e329ed0c7c86fe504e3a4a5a4b45a24a60ff6abe4d8f272a29cc120",
+    "cpu-reference-01/stderr.log": "820f22898dd990e14bac8b79f04f66572b9d3b4318fd5c95d65a37baef26c816",
+    "cpu-reference-01/supervisor.json": "2edd0995ecf2c6520f7c38ef49466fc663b721fb88c29aa13d85b439251acb14",
+    "cpu-reference-01/cpu-reference-output.npz": "1e53de2dc6e2ed11899246e8ffc73c262d38f8d392925802e2ed502b848fe06c",
+    "cpu-install-01/result.json": "8726d5495ac9b83f7bde3007d9fe9b33fb030364cd6b1dfef3ecf9efb379f915",
+    "cpu-install-01/install.log": "b4932caa762ba36f94948d0fd4b223776118bea7d71ba807c588b9eaa58ecc5e",
+    "cpu-install-01/pip-check.log": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf",
+    "cpu-install-01/independence.log": "8e6e758354b54b6ab78ba9eece02bf781ce2ff9fc6331ba8fb5ac2a7b31c3b2e",
+    "cpu-install-01/freeze.log": "5f186b376b367542b63a1b74843f9b67c08028548010b62bb0acf49d06eb81a3"
+  },
+  "limitations": [
+    "No Ubuntu clean-install validation or OSMesa rendering was performed.",
+    "No new task-success rate: original complete baseline remains 37/50, mean 490.26, final reward 4 in 34/50."
+  ]
+}

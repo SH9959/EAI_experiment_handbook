@@ -1,0 +1,120 @@
+--- original/detr/main.py
++++ cpu50/detr/main.py
+@@ -75,7 +75,7 @@
+         setattr(args, k, v)
+ 
+     model = build_ACT_model(args)
+-    model.cuda()
++    model.cpu()
+ 
+     param_dicts = [
+         {"params": [p for n, p in model.named_parameters() if "backbone" not in n and p.requires_grad]},
+--- original/imitate_episodes.py
++++ cpu50/imitate_episodes.py
+@@ -1,3 +1,4 @@
++import json
+ import torch
+ import numpy as np
+ import os
+@@ -144,7 +145,7 @@
+         curr_image = rearrange(ts.observation['images'][cam_name], 'h w c -> c h w')
+         curr_images.append(curr_image)
+     curr_image = np.stack(curr_images, axis=0)
+-    curr_image = torch.from_numpy(curr_image / 255.0).float().cuda().unsqueeze(0)
++    curr_image = torch.from_numpy(curr_image / 255.0).float().cpu().unsqueeze(0)
+     return curr_image
+ 
+ 
+@@ -165,9 +166,9 @@
+     # load policy and stats
+     ckpt_path = os.path.join(ckpt_dir, ckpt_name)
+     policy = make_policy(policy_class, policy_config)
+-    loading_status = policy.load_state_dict(torch.load(ckpt_path))
++    loading_status = policy.load_state_dict(torch.load(ckpt_path, map_location='cpu', weights_only=True), strict=True)
+     print(loading_status)
+-    policy.cuda()
++    policy.cpu()
+     policy.eval()
+     print(f'Loaded: {ckpt_path}')
+     stats_path = os.path.join(ckpt_dir, f'dataset_stats.pkl')
+@@ -200,6 +201,8 @@
+     highest_rewards = []
+     for rollout_id in range(num_rollouts):
+         rollout_id += 0
++        if os.path.exists(os.path.join(ckpt_dir, 'STOP')):
++            raise InterruptedError('STOP requested at a rollout boundary')
+         ### set task
+         if 'sim_transfer_cube' in task_name:
+             BOX_POSE[0] = sample_box_pose() # used in sim reset
+@@ -216,13 +219,14 @@
+ 
+         ### evaluation loop
+         if temporal_agg:
+-            all_time_actions = torch.zeros([max_timesteps, max_timesteps+num_queries, state_dim]).cuda()
+-
+-        qpos_history = torch.zeros((1, max_timesteps, state_dim)).cuda()
++            all_time_actions = torch.zeros([max_timesteps, max_timesteps+num_queries, state_dim]).cpu()
++
++        qpos_history = torch.zeros((1, max_timesteps, state_dim)).cpu()
+         image_list = [] # for visualization
+         qpos_list = []
+         target_qpos_list = []
+         rewards = []
++        query_timesteps = []
+         with torch.inference_mode():
+             for t in range(max_timesteps):
+                 ### update onscreen render and wait for DT
+@@ -239,7 +243,7 @@
+                     image_list.append({'main': obs['image']})
+                 qpos_numpy = np.array(obs['qpos'])
+                 qpos = pre_process(qpos_numpy)
+-                qpos = torch.from_numpy(qpos).float().cuda().unsqueeze(0)
++                qpos = torch.from_numpy(qpos).float().cpu().unsqueeze(0)
+                 qpos_history[:, t] = qpos
+                 curr_image = get_image(ts, camera_names)
+ 
+@@ -247,6 +251,7 @@
+                 if config['policy_class'] == "ACT":
+                     if t % query_frequency == 0:
+                         all_actions = policy(qpos, curr_image)
++                        query_timesteps.append(t)
+                     if temporal_agg:
+                         all_time_actions[[t], t:t+num_queries] = all_actions
+                         actions_for_curr_step = all_time_actions[:, t]
+@@ -255,7 +260,7 @@
+                         k = 0.01
+                         exp_weights = np.exp(-k * np.arange(len(actions_for_curr_step)))
+                         exp_weights = exp_weights / exp_weights.sum()
+-                        exp_weights = torch.from_numpy(exp_weights).cuda().unsqueeze(dim=1)
++                        exp_weights = torch.from_numpy(exp_weights).cpu().unsqueeze(dim=1)
+                         raw_action = (actions_for_curr_step * exp_weights).sum(dim=0, keepdim=True)
+                     else:
+                         raw_action = all_actions[:, t % query_frequency]
+@@ -287,10 +292,27 @@
+         episode_returns.append(episode_return)
+         episode_highest_reward = np.max(rewards)
+         highest_rewards.append(episode_highest_reward)
++        # Recorded outputs only; original environment, model and action logic unchanged.
++        np.savez_compressed(
++            os.path.join(ckpt_dir, f'rollout{rollout_id}.npz'),
++            qpos=np.asarray(qpos_list), actions=np.asarray(target_qpos_list),
++            rewards=rewards, query_timesteps=np.asarray(query_timesteps),
++            initial_box_pose=np.asarray(BOX_POSE[0]), final_qpos=ts.observation['qpos'],
++            first_top=image_list[0]['top'], last_top=image_list[-1]['top'],
++            episode_return=episode_return, max_reward=episode_highest_reward,
++            task_max_reward=env_max_reward)
+         print(f'Rollout {rollout_id}\n{episode_return=}, {episode_highest_reward=}, {env_max_reward=}, Success: {episode_highest_reward==env_max_reward}')
+ 
+         if save_episode:
+             save_videos(image_list, DT, video_path=os.path.join(ckpt_dir, f'video{rollout_id}.mp4'))
++        progress = {'state': 'running', 'completed_rollouts': rollout_id + 1,
++                    'success_count': int(np.sum(np.asarray(highest_rewards) == env_max_reward)),
++                    'average_return': float(np.mean(episode_returns))}
++        with open(os.path.join(ckpt_dir, 'progress.tmp'), 'w') as progress_file:
++            json.dump(progress, progress_file)
++        os.replace(os.path.join(ckpt_dir, 'progress.tmp'), os.path.join(ckpt_dir, 'progress.json'))
++        if callable(globals().get('_rollout_auditor')):
++            _rollout_auditor(ckpt_dir, rollout_id)
+ 
+     success_rate = np.mean(np.array(highest_rewards) == env_max_reward)
+     avg_return = np.mean(episode_returns)
